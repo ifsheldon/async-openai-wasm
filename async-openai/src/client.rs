@@ -132,7 +132,6 @@ impl Client {
         Audio::new(self)
     }
 
-    pub fn config(&self) -> &Rc<dyn Config> {
     /// To call [Assistants] group related APIs using this client.
     pub fn assistants(&self) -> Assistants {
         Assistants::new(self)
@@ -143,14 +142,14 @@ impl Client {
         Threads::new(self)
     }
 
-    pub fn config(&self) -> &C {
+    pub fn config(&self) -> &Rc<dyn Config> {
         &self.config
     }
 
     /// Make a GET request to {path} and deserialize the response body
     pub(crate) async fn get<O>(&self, path: &str) -> Result<O, OpenAIError>
-    where
-        O: DeserializeOwned,
+        where
+            O: DeserializeOwned,
     {
         let request_maker = || async {
             Ok(self
@@ -185,8 +184,8 @@ impl Client {
 
     /// Make a DELETE request to {path} and deserialize the response body
     pub(crate) async fn delete<O>(&self, path: &str) -> Result<O, OpenAIError>
-    where
-        O: DeserializeOwned,
+        where
+            O: DeserializeOwned,
     {
         let request_maker = || async {
             Ok(self
@@ -220,9 +219,9 @@ impl Client {
 
     /// Make a POST request to {path} and deserialize the response body
     pub(crate) async fn post<I, O>(&self, path: &str, request: I) -> Result<O, OpenAIError>
-    where
-        I: Serialize,
-        O: DeserializeOwned,
+        where
+            I: Serialize,
+            O: DeserializeOwned,
     {
         let request_maker = || async {
             Ok(self
@@ -239,10 +238,10 @@ impl Client {
 
     /// POST a form at {path} and deserialize the response body
     pub(crate) async fn post_form<O, F>(&self, path: &str, form: F) -> Result<O, OpenAIError>
-    where
-        O: DeserializeOwned,
-        reqwest::multipart::Form: async_convert::TryFrom<F, Error = OpenAIError>,
-        F: Clone,
+        where
+            O: DeserializeOwned,
+            reqwest::multipart::Form: async_convert::TryFrom<F, Error=OpenAIError>,
+            F: Clone,
     {
         let request_maker = || async {
             Ok(self
@@ -264,9 +263,9 @@ impl Client {
     /// to retry API call after getting rate limited. request_maker is async because
     /// reqwest::multipart::Form is created by async calls to read files for uploads.
     async fn execute_raw<M, Fut>(&self, request_maker: M) -> Result<Bytes, OpenAIError>
-    where
-        M: Fn() -> Fut,
-        Fut: core::future::Future<Output = Result<reqwest::Request, OpenAIError>>,
+        where
+            M: Fn() -> Fut,
+            Fut: core::future::Future<Output=Result<reqwest::Request, OpenAIError>>,
     {
         let client = self.http_client.clone();
 
