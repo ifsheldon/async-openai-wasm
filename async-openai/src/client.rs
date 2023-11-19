@@ -5,17 +5,13 @@ use std::task::{Context, Poll};
 use pin_project_lite::pin_project;
 use std::rc::Rc;
 
+use bytes::Bytes;
 use futures::{stream::StreamExt, Stream};
 use futures::stream::Filter;
 use reqwest_eventsource::{Event, EventSource, RequestBuilderExt};
 use serde::{de::DeserializeOwned, Serialize};
 
-use crate::{
-    config::{Config, OpenAIConfig},
-    error::{map_deserialization_error, OpenAIError, WrappedError},
-    moderation::Moderations,
-    Chat, Completions, Embeddings, Models, FineTunes
-};
+use crate::{config::{Config, OpenAIConfig}, error::{map_deserialization_error, OpenAIError, WrappedError}, moderation::Moderations, Chat, Completions, Embeddings, Models, FineTunes, FineTuning, Assistants, Threads};
 
 #[cfg(feature = "tokio")]
 use crate::{
@@ -92,6 +88,7 @@ impl Client {
 
     #[cfg(feature = "tokio")]
     /// To call [Edits] group related APIs using this client.
+    #[deprecated(since = "0.15.0", note = "By OpenAI")]
     pub fn edits(&self) -> Edits {
         Edits::new(self)
     }
@@ -114,8 +111,14 @@ impl Client {
     }
 
     /// To call [FineTunes] group related APIs using this client.
+    #[deprecated(since = "0.15.0", note = "By OpenAI")]
     pub fn fine_tunes(&self) -> FineTunes {
         FineTunes::new(self)
+    }
+
+    /// To call [FineTuning] group related APIs using this client.
+    pub fn fine_tuning(&self) -> FineTuning {
+        FineTuning::new(self)
     }
 
     /// To call [Embeddings] group related APIs using this client.
@@ -130,6 +133,17 @@ impl Client {
     }
 
     pub fn config(&self) -> &Rc<dyn Config> {
+    /// To call [Assistants] group related APIs using this client.
+    pub fn assistants(&self) -> Assistants {
+        Assistants::new(self)
+    }
+
+    /// To call [Threads] group related APIs using this client.
+    pub fn threads(&self) -> Threads {
+        Threads::new(self)
+    }
+
+    pub fn config(&self) -> &C {
         &self.config
     }
 
@@ -143,6 +157,25 @@ impl Client {
                 .http_client
                 .get(self.config.url(path))
                 .query(&self.config.query())
+                .headers(self.config.headers())
+                .build()?)
+        };
+
+        self.execute(request_maker).await
+    }
+
+    /// Make a GET request to {path} with given Query and deserialize the response body
+    pub(crate) async fn get_with_query<Q, O>(&self, path: &str, query: &Q) -> Result<O, OpenAIError>
+    where
+        O: DeserializeOwned,
+        Q: Serialize + ?Sized,
+    {
+        let request_maker = || async {
+            Ok(self
+                .http_client
+                .get(self.config.url(path))
+                .query(&self.config.query())
+                .query(query)
                 .headers(self.config.headers())
                 .build()?)
         };
@@ -165,6 +198,24 @@ impl Client {
         };
 
         self.execute(request_maker).await
+    }
+
+    /// Make a POST request to {path} and return the response body
+    pub(crate) async fn post_raw<I>(&self, path: &str, request: I) -> Result<Bytes, OpenAIError>
+    where
+        I: Serialize,
+    {
+        let request_maker = || async {
+            Ok(self
+                .http_client
+                .post(self.config.url(path))
+                .query(&self.config.query())
+                .headers(self.config.headers())
+                .json(&request)
+                .build()?)
+        };
+
+        self.execute_raw(request_maker).await
     }
 
     /// Make a POST request to {path} and deserialize the response body
@@ -212,9 +263,8 @@ impl Client {
     /// request_maker serves one purpose: to be able to create request again
     /// to retry API call after getting rate limited. request_maker is async because
     /// reqwest::multipart::Form is created by async calls to read files for uploads.
-    async fn execute<O, M, Fut>(&self, request_maker: M) -> Result<O, OpenAIError>
+    async fn execute_raw<M, Fut>(&self, request_maker: M) -> Result<Bytes, OpenAIError>
     where
-        O: DeserializeOwned,
         M: Fn() -> Fut,
         Fut: core::future::Future<Output = Result<reqwest::Request, OpenAIError>>,
     {
@@ -259,10 +309,7 @@ impl Client {
                 }
             }
 
-            let response: O = serde_json::from_slice(bytes.as_ref())
-                .map_err(|e| map_deserialization_error(e, bytes.as_ref()))
-                .map_err(backoff::Error::Permanent)?;
-            Ok(response)
+            Ok(bytes)
         })
         .await
     }
@@ -273,9 +320,8 @@ impl Client {
     /// request_maker serves one purpose: to be able to create request again
     /// to retry API call after getting rate limited. request_maker is async because
     /// reqwest::multipart::Form is created by async calls to read files for uploads.
-    async fn execute<O, M, Fut>(&self, request_maker: M) -> Result<O, OpenAIError>
+    async fn execute_raw<M, Fut>(&self, request_maker: M) -> Result<Bytes, OpenAIError>
         where
-            O: DeserializeOwned,
             M: Fn() -> Fut,
             Fut: core::future::Future<Output = Result<reqwest::Request, OpenAIError>>,
     {
@@ -307,14 +353,29 @@ impl Client {
                 tracing::warn!("Rate limited: {}", wrapped_error.error.message);
                 return Err(OpenAIError::ApiError(wrapped_error.error));
             } else {
-                return Err(OpenAIError::ApiError(
-                    wrapped_error.error,
-                ));
+                return Err(OpenAIError::ApiError(wrapped_error.error));
             }
         }
 
+        Ok(bytes)
+    }
+
+    /// Execute a HTTP request and retry on rate limit
+    ///
+    /// request_maker serves one purpose: to be able to create request again
+    /// to retry API call after getting rate limited. request_maker is async because
+    /// reqwest::multipart::Form is created by async calls to read files for uploads.
+    async fn execute<O, M, Fut>(&self, request_maker: M) -> Result<O, OpenAIError>
+    where
+        O: DeserializeOwned,
+        M: Fn() -> Fut,
+        Fut: core::future::Future<Output = Result<reqwest::Request, OpenAIError>>,
+    {
+        let bytes = self.execute_raw(request_maker).await?;
+
         let response: O = serde_json::from_slice(bytes.as_ref())
             .map_err(|e| map_deserialization_error(e, bytes.as_ref()))?;
+
         Ok(response)
     }
 
