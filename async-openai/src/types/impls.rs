@@ -113,7 +113,7 @@ impl_default!(Prompt);
 impl_default!(ModerationInput);
 impl_default!(EmbeddingInput);
 
-
+#[cfg(feature = "tokio")]
 impl Default for InputSource {
     fn default() -> Self {
         InputSource::Path {

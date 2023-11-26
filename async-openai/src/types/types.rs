@@ -397,6 +397,7 @@ pub struct ImagesResponse {
     pub data: Vec<std::sync::Arc<Image>>,
 }
 
+#[cfg(feature = "tokio")]
 #[derive(Debug, Clone, PartialEq)]
 pub enum InputSource {
     Path { path: PathBuf },
@@ -410,6 +411,7 @@ pub struct ImageInput {
     pub source: InputSource,
 }
 
+#[cfg(feature = "tokio")]
 #[derive(Debug, Clone, Default, Builder, PartialEq)]
 #[builder(name = "CreateImageEditRequestArgs")]
 #[builder(pattern = "mutable")]
