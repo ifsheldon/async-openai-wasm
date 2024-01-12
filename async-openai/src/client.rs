@@ -11,15 +11,7 @@ use futures::stream::Filter;
 use reqwest_eventsource::{Event, EventSource, RequestBuilderExt};
 use serde::{de::DeserializeOwned, Serialize};
 
-use crate::{config::{Config, OpenAIConfig}, error::{map_deserialization_error, OpenAIError, WrappedError}, moderation::Moderations, Chat, Completions, Embeddings, Models, FineTunes, FineTuning, Assistants, Threads};
-
-#[cfg(feature = "tokio")]
-use crate::{
-    edit::Edits,
-    file::Files,
-    image::Images,
-    Audio,
-};
+use crate::{config::{Config, OpenAIConfig}, error::{map_deserialization_error, OpenAIError, WrappedError}, moderation::Moderations, Chat, Completions, Embeddings, Models, FineTunes, FineTuning, Assistants, Threads, Audio, file::Files, edit::Edits, image::Images};
 
 #[derive(Debug, Clone)]
 /// Client is a container for config, backoff and http_client
