@@ -86,14 +86,12 @@ impl Client {
         Chat::new(self)
     }
 
-    #[cfg(feature = "tokio")]
     /// To call [Edits] group related APIs using this client.
     #[deprecated(since = "0.15.0", note = "By OpenAI")]
     pub fn edits(&self) -> Edits {
         Edits::new(self)
     }
 
-    #[cfg(feature = "tokio")]
     /// To call [Images] group related APIs using this client.
     pub fn images(&self) -> Images {
         Images::new(self)
@@ -104,7 +102,6 @@ impl Client {
         Moderations::new(self)
     }
 
-    #[cfg(feature = "tokio")]
     /// To call [Files] group related APIs using this client.
     pub fn files(&self) -> Files {
         Files::new(self)
@@ -126,7 +123,6 @@ impl Client {
         Embeddings::new(self)
     }
 
-    #[cfg(feature = "tokio")]
     /// To call [Audio] group related APIs using this client.
     pub fn audio(&self) -> Audio {
         Audio::new(self)
@@ -148,8 +144,8 @@ impl Client {
 
     /// Make a GET request to {path} and deserialize the response body
     pub(crate) async fn get<O>(&self, path: &str) -> Result<O, OpenAIError>
-        where
-            O: DeserializeOwned,
+    where
+        O: DeserializeOwned,
     {
         let request_maker = || async {
             Ok(self
@@ -184,8 +180,8 @@ impl Client {
 
     /// Make a DELETE request to {path} and deserialize the response body
     pub(crate) async fn delete<O>(&self, path: &str) -> Result<O, OpenAIError>
-        where
-            O: DeserializeOwned,
+    where
+        O: DeserializeOwned,
     {
         let request_maker = || async {
             Ok(self
@@ -219,9 +215,9 @@ impl Client {
 
     /// Make a POST request to {path} and deserialize the response body
     pub(crate) async fn post<I, O>(&self, path: &str, request: I) -> Result<O, OpenAIError>
-        where
-            I: Serialize,
-            O: DeserializeOwned,
+    where
+        I: Serialize,
+        O: DeserializeOwned,
     {
         let request_maker = || async {
             Ok(self
@@ -238,10 +234,10 @@ impl Client {
 
     /// POST a form at {path} and deserialize the response body
     pub(crate) async fn post_form<O, F>(&self, path: &str, form: F) -> Result<O, OpenAIError>
-        where
-            O: DeserializeOwned,
-            reqwest::multipart::Form: async_convert::TryFrom<F, Error=OpenAIError>,
-            F: Clone,
+    where
+        O: DeserializeOwned,
+        reqwest::multipart::Form: async_convert::TryFrom<F, Error = OpenAIError>,
+        F: Clone,
     {
         let request_maker = || async {
             Ok(self
@@ -249,7 +245,7 @@ impl Client {
                 .post(self.config.url(path))
                 .query(&self.config.query())
                 .headers(self.config.headers())
-                .multipart(async_convert::TryInto::try_into(form.clone()).await?)
+                .multipart(async_convert::TryFrom::try_from(form.clone()).await?)
                 .build()?)
         };
 
@@ -263,9 +259,9 @@ impl Client {
     /// to retry API call after getting rate limited. request_maker is async because
     /// reqwest::multipart::Form is created by async calls to read files for uploads.
     async fn execute_raw<M, Fut>(&self, request_maker: M) -> Result<Bytes, OpenAIError>
-        where
-            M: Fn() -> Fut,
-            Fut: core::future::Future<Output=Result<reqwest::Request, OpenAIError>>,
+    where
+        M: Fn() -> Fut,
+        Fut: core::future::Future<Output = Result<reqwest::Request, OpenAIError>>,
     {
         let client = self.http_client.clone();
 

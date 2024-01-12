@@ -1,6 +1,10 @@
 use std::fmt::Display;
+use bytes::Bytes;
 
 use crate::error::OpenAIError;
+use crate::types::InputSource;
+use crate::util::create_file_part;
+
 use super::{
     ChatCompletionFunctionCall,
     EmbeddingInput, ModerationInput,
@@ -12,59 +16,62 @@ use super::{
     ChatCompletionRequestMessageContentPartText, ChatCompletionRequestSystemMessage,
     ChatCompletionRequestToolMessage, ChatCompletionRequestUserMessage,
     ChatCompletionRequestUserMessageContent, ChatCompletionToolChoiceOption,
-    FunctionName, DallE2ImageSize, ImageModel, ImageUrl, ResponseFormat,
-};
-
-#[cfg(feature = "tokio")]
-use std::path::{Path, PathBuf};
-
-#[cfg(feature = "tokio")]
-use super::ImagesResponse;
-
-#[cfg(feature = "tokio")]
-use crate::download::{download_url, save_b64};
-
-#[cfg(feature = "tokio")]
-use crate::util::{create_file_part, create_all_dir};
-
-#[cfg(feature = "tokio")]
-use super::{
+    FunctionName, DallE2ImageSize, ImageModel, ImageUrl, ResponseFormat, ImagesResponse,
     AudioInput, AudioResponseFormat,
     CreateFileRequest,
     CreateImageEditRequest, CreateImageVariationRequest, CreateSpeechResponse,
     CreateTranscriptionRequest, CreateTranslationRequest,
-    Image,
+    Image, FileInput, ImageInput, ImageSize
 };
 
-#[cfg(feature = "tokio")]
-use super::{FileInput, ImageInput, ImageSize};
+#[cfg(not(feature = "wasm"))]
+use std::path::{Path, PathBuf};
 
+#[cfg(all(not(feature = "wasm"), feature = "tokio"))]
+use crate::download::{download_url, save_b64};
+
+#[cfg(not(feature = "wasm"))]
+use crate::util::create_all_dir;
+
+/// for `impl_from!(T, Enum)`, implements
+/// - `From<T>`
+/// - `From<Vec<T>>`
+/// - `From<&Vec<T>>`
+/// - `From<[T; N]>`
+/// - `From<&[T; N]>`
+///
+/// for `T: Into<String>` and `Enum` having variants `String(String)` and `StringArray(Vec<String>)`
 macro_rules! impl_from {
     ($from_typ:ty, $to_typ:ty) => {
+        // From<T> -> String variant
         impl From<$from_typ> for $to_typ {
             fn from(value: $from_typ) -> Self {
                 <$to_typ>::String(value.into())
             }
         }
 
+        // From<Vec<T>> -> StringArray variant
         impl From<Vec<$from_typ>> for $to_typ {
             fn from(value: Vec<$from_typ>) -> Self {
                 <$to_typ>::StringArray(value.iter().map(|v| v.to_string()).collect())
             }
         }
 
+        // From<&Vec<T>> -> StringArray variant
         impl From<&Vec<$from_typ>> for $to_typ {
             fn from(value: &Vec<$from_typ>) -> Self {
                 <$to_typ>::StringArray(value.iter().map(|v| v.to_string()).collect())
             }
         }
 
+        // From<[T; N]> -> StringArray variant
         impl<const N: usize> From<[$from_typ; N]> for $to_typ {
             fn from(value: [$from_typ; N]) -> Self {
                 <$to_typ>::StringArray(value.into_iter().map(|v| v.to_string()).collect())
             }
         }
 
+        // From<&[T; N]> -> StringArray variatn
         impl<const N: usize> From<&[$from_typ; N]> for $to_typ {
             fn from(value: &[$from_typ; N]) -> Self {
                 <$to_typ>::StringArray(value.into_iter().map(|v| v.to_string()).collect())
@@ -93,6 +100,7 @@ impl_from!(&str, EmbeddingInput);
 impl_from!(String, EmbeddingInput);
 impl_from!(&String, EmbeddingInput);
 
+/// for `impl_default!(Enum)`, implements `Default` for `Enum` as `Enum::String("")` where `Enum` has `String` variant
 macro_rules! impl_default {
     ($for_typ:ty) => {
         impl Default for $for_typ {
@@ -107,34 +115,55 @@ impl_default!(Prompt);
 impl_default!(ModerationInput);
 impl_default!(EmbeddingInput);
 
-macro_rules! file_path_input {
+#[cfg(not(feature = "wasm"))]
+impl Default for InputSource {
+    fn default() -> Self {
+        InputSource::Path {
+            path: PathBuf::new(),
+        }
+    }
+}
+
+/// for `impl_input!(Struct)` where
+/// ```
+/// Struct {
+///     source: InputSource
+/// }
+/// ```
+/// implements methods `from_bytes` and `from_vec_u8`,
+/// and `From<P>` for `P: AsRef<Path>`
+macro_rules! impl_input {
     ($for_typ:ty) => {
         impl $for_typ {
-            pub fn new<P: AsRef<Path>>(path: P) -> Self {
+            pub fn from_bytes(filename: String, bytes: Bytes) -> Self {
                 Self {
-                    path: PathBuf::from(path.as_ref()),
+                    source: InputSource::Bytes { filename, bytes },
+                }
+            }
+
+            pub fn from_vec_u8(filename: String, vec: Vec<u8>) -> Self {
+                Self {
+                    source: InputSource::VecU8 { filename, vec },
                 }
             }
         }
 
+        #[cfg(not(feature = "wasm"))]
         impl<P: AsRef<Path>> From<P> for $for_typ {
             fn from(path: P) -> Self {
+                let path_buf = path.as_ref().to_path_buf();
                 Self {
-                    path: PathBuf::from(path.as_ref()),
+                    source: InputSource::Path { path: path_buf },
                 }
             }
         }
     };
 }
 
-#[cfg(feature = "tokio")]
-file_path_input!(ImageInput);
-#[cfg(feature = "tokio")]
-file_path_input!(FileInput);
-#[cfg(feature = "tokio")]
-file_path_input!(AudioInput);
+impl_input!(AudioInput);
+impl_input!(FileInput);
+impl_input!(ImageInput);
 
-#[cfg(feature = "tokio")]
 impl Display for ImageSize {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
@@ -165,7 +194,6 @@ impl Display for DallE2ImageSize {
     }
 }
 
-#[cfg(feature = "tokio")]
 impl Display for ImageModel {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
@@ -180,7 +208,6 @@ impl Display for ImageModel {
     }
 }
 
-#[cfg(feature = "tokio")]
 impl Display for ResponseFormat {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
@@ -194,7 +221,6 @@ impl Display for ResponseFormat {
     }
 }
 
-#[cfg(feature = "tokio")]
 impl Display for AudioResponseFormat {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
@@ -211,7 +237,6 @@ impl Display for AudioResponseFormat {
     }
 }
 
-#[cfg(feature = "tokio")]
 impl Display for Role {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
@@ -228,7 +253,7 @@ impl Display for Role {
     }
 }
 
-#[cfg(feature = "tokio")]
+#[cfg(all(not(feature = "wasm"), feature = "tokio"))]
 impl ImagesResponse {
     /// Save each image in a dedicated Tokio task and return paths to saved files.
     /// For [ResponseFormat::Url] each file is downloaded in dedicated Tokio task.
@@ -269,7 +294,7 @@ impl ImagesResponse {
     }
 }
 
-#[cfg(feature = "tokio")]
+#[cfg(all(not(feature = "wasm"), feature = "tokio"))]
 impl CreateSpeechResponse {
     pub async fn save<P: AsRef<Path>>(&self, file_path: P) -> Result<(), OpenAIError> {
         let dir = file_path.as_ref().parent();
@@ -286,7 +311,7 @@ impl CreateSpeechResponse {
     }
 }
 
-#[cfg(feature = "tokio")]
+#[cfg(all(not(feature = "wasm"), feature = "tokio"))]
 impl Image {
     async fn save<P: AsRef<Path>>(&self, dir: P) -> Result<PathBuf, OpenAIError> {
         match self {
@@ -532,12 +557,12 @@ impl From<&str> for ChatCompletionRequestUserMessageContent {
 
 impl From<String> for ChatCompletionRequestUserMessageContent {
     fn from(value: String) -> Self {
-        ChatCompletionRequestUserMessageContent::Text(value.into())
+        ChatCompletionRequestUserMessageContent::Text(value)
     }
 }
 
 impl From<Vec<ChatCompletionRequestMessageContentPart>>
-for ChatCompletionRequestUserMessageContent
+    for ChatCompletionRequestUserMessageContent
 {
     fn from(value: Vec<ChatCompletionRequestMessageContentPart>) -> Self {
         ChatCompletionRequestUserMessageContent::Array(value)
@@ -551,7 +576,7 @@ impl From<ChatCompletionRequestMessageContentPartText> for ChatCompletionRequest
 }
 
 impl From<ChatCompletionRequestMessageContentPartImage>
-for ChatCompletionRequestMessageContentPart
+    for ChatCompletionRequestMessageContentPart
 {
     fn from(value: ChatCompletionRequestMessageContentPartImage) -> Self {
         ChatCompletionRequestMessageContentPart::Image(value)
@@ -576,7 +601,6 @@ impl From<String> for ChatCompletionRequestMessageContentPartText {
     }
 }
 
-#[cfg(feature = "tokio")]
 impl From<&str> for ImageUrl {
     fn from(value: &str) -> Self {
         Self {
@@ -586,25 +610,29 @@ impl From<&str> for ImageUrl {
     }
 }
 
-#[cfg(feature = "tokio")]
 impl From<String> for ImageUrl {
     fn from(value: String) -> Self {
         Self {
-            url: value.into(),
+            url: value,
             detail: Default::default(),
         }
     }
 }
 
+impl Default for ChatCompletionRequestUserMessageContent {
+    fn default() -> Self {
+        ChatCompletionRequestUserMessageContent::Text("".into())
+    }
+}
+
 // start: types to multipart from
 
-#[cfg(feature = "tokio")]
 #[async_convert::async_trait]
 impl async_convert::TryFrom<CreateTranscriptionRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;
 
     async fn try_from(request: CreateTranscriptionRequest) -> Result<Self, Self::Error> {
-        let audio_part = create_file_part(&request.file.path).await?;
+        let audio_part = create_file_part(request.file.source).await?;
 
         let mut form = reqwest::multipart::Form::new()
             .part("file", audio_part)
@@ -625,13 +653,12 @@ impl async_convert::TryFrom<CreateTranscriptionRequest> for reqwest::multipart::
     }
 }
 
-#[cfg(feature = "tokio")]
 #[async_convert::async_trait]
 impl async_convert::TryFrom<CreateTranslationRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;
 
     async fn try_from(request: CreateTranslationRequest) -> Result<Self, Self::Error> {
-        let audio_part = create_file_part(&request.file.path).await?;
+        let audio_part = create_file_part(request.file.source).await?;
 
         let mut form = reqwest::multipart::Form::new()
             .part("file", audio_part)
@@ -652,20 +679,19 @@ impl async_convert::TryFrom<CreateTranslationRequest> for reqwest::multipart::Fo
     }
 }
 
-#[cfg(feature = "tokio")]
 #[async_convert::async_trait]
 impl async_convert::TryFrom<CreateImageEditRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;
 
     async fn try_from(request: CreateImageEditRequest) -> Result<Self, Self::Error> {
-        let image_part = create_file_part(&request.image.path).await?;
+        let image_part = create_file_part(request.image.source).await?;
 
         let mut form = reqwest::multipart::Form::new()
             .part("image", image_part)
             .text("prompt", request.prompt);
 
         if let Some(mask) = request.mask {
-            let mask_part = create_file_part(&mask.path).await?;
+            let mask_part = create_file_part(mask.source).await?;
             form = form.part("mask", mask_part);
         }
 
@@ -695,13 +721,12 @@ impl async_convert::TryFrom<CreateImageEditRequest> for reqwest::multipart::Form
     }
 }
 
-#[cfg(feature = "tokio")]
 #[async_convert::async_trait]
 impl async_convert::TryFrom<CreateImageVariationRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;
 
     async fn try_from(request: CreateImageVariationRequest) -> Result<Self, Self::Error> {
-        let image_part = create_file_part(&request.image.path).await?;
+        let image_part = create_file_part(request.image.source).await?;
 
         let mut form = reqwest::multipart::Form::new().part("image", image_part);
 
@@ -731,13 +756,12 @@ impl async_convert::TryFrom<CreateImageVariationRequest> for reqwest::multipart:
     }
 }
 
-#[cfg(feature = "tokio")]
 #[async_convert::async_trait]
 impl async_convert::TryFrom<CreateFileRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;
 
     async fn try_from(request: CreateFileRequest) -> Result<Self, Self::Error> {
-        let file_part = create_file_part(&request.file.path).await?;
+        let file_part = create_file_part(request.file.source).await?;
         let form = reqwest::multipart::Form::new()
             .part("file", file_part)
             .text("purpose", request.purpose);
