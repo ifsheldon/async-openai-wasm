@@ -15,11 +15,7 @@ worker = "0.1.0"
 serde = { version = "1.0", features = ["derive"] }
 
 [dependencies.async-openai]
-git = "https://github.com/64bit/async-openai.git"
-branch = "experiments"
-version = "0.18.0"
-default-features = false
-features = ["wasm"]
+async-openai-wasm = {path = "../../async-openai-wasm" }
 
 [profile.release]
 lto = true

@@ -1,1 +1,1 @@
-async-openai/README.md
+async-openai-wasm/README.md
