@@ -3,7 +3,7 @@
 //! ## Creating client
 //!
 //! ```
-//! use async_openai::{Client, config::OpenAIConfig};
+//! use async_openai_wasm::{Client, config::OpenAIConfig};
 //!
 //! // Create a OpenAI client with api key from env var OPENAI_API_KEY and default base url.
 //! let client = Client::new();
@@ -28,7 +28,7 @@
 //! ## Microsoft Azure Endpoints
 //!
 //! ```
-//! use async_openai::{Client, config::AzureConfig};
+//! use async_openai_wasm::{Client, config::AzureConfig};
 //!
 //! let config = AzureConfig::new()
 //!     .with_api_base("https://my-resource-name.openai.azure.com")
@@ -43,20 +43,12 @@
 //!
 //! ```
 //!
-//! ## Wasm Support
-//!
-//! Currently, `wasm32-unknown-unknown` target is support through feature flag `wasm`. To use this feature flag, you need to disable default features by add `default-features = false` under `async-openai-wasm` dependency to your `Cargo.toml` file.
-//!
-//! Enabling `wasm` will disable:
-//! * retries
-//! * file saving: You need to manage file operations yourself via web APIs.
-//!
 //! ## Making requests
 //!
 //!```
 //!# tokio_test::block_on(async {
 //!
-//! use async_openai::{Client, types::{CreateCompletionRequestArgs}};
+//! use async_openai_wasm::{Client, types::{CreateCompletionRequestArgs}};
 //!
 //! // Create client
 //! let client = Client::new();
@@ -82,20 +74,10 @@
 //!```
 //!
 //! ## Examples
-//! For full working examples for all supported features see [examples](https://github.com/64bit/async-openai/tree/main/examples) directory in the repository.
+//! For full working examples of the original `async-openai` for all supported features see [examples](https://github.com/64bit/async-openai/tree/main/examples) directory in the repository.
+//! Also see [wasm examples](https://github.com/ifsheldon/async-openai-wasm/tree/main/examples)
 //!
 //!
-//! ## Feature Flags
-//!
-//! - `wasm`: Enables support for `wasm32-unknown-unknown` target
-//!   - Disabling tokio support and backoff retries.
-//!   - _Help wanted_ to re-enable backoff retries.
-//! - `backoff`: Enables backoff retries for all requests.
-//!   - Enabled by default.
-//!   - Disabling this feature will disable all retries.
-//! - `tokio`: Enables support for `tokio` runtime.
-//!   - Enabled by default.
-//!   - _Now_ disabling this feature will disable all media related functionalities.
 
 mod assistant_files;
 mod assistants;
