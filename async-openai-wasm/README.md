@@ -46,6 +46,8 @@ maintain parity with spec of AOS. Just like `async-openai`.
 
 **++** WASM examples
 
+**++** Compile error when compile targets are not wasm
+
 **--** Tokio
 
 **--** Non-wasm examples: please refer to the original project [async-openai](https://github.com/64bit/async-openai/).
