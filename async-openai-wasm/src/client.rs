@@ -338,7 +338,7 @@ impl<C: Config> Client<C> {
     async fn execute_raw<M, Fut>(&self, request_maker: M) -> Result<Bytes, OpenAIError>
         where
             M: Fn() -> Fut,
-            Fut: core::future::Future<Output = Result<reqwest::Request, OpenAIError>>,
+            Fut: future::Future<Output = Result<reqwest::Request, OpenAIError>>,
     {
         let client = self.http_client.clone();
 
@@ -402,7 +402,7 @@ impl<C: Config> Client<C> {
     ) -> OpenAIEventStream<O>
     where
         I: Serialize,
-        O: DeserializeOwned + std::marker::Send + 'static,
+        O: DeserializeOwned + Send + 'static,
     {
         let event_source = self
             .http_client
@@ -424,7 +424,7 @@ impl<C: Config> Client<C> {
     ) -> OpenAIEventStream<O>
     where
         Q: Serialize + ?Sized,
-        O: DeserializeOwned + std::marker::Send + 'static,
+        O: DeserializeOwned + Send + 'static,
     {
         let event_source = self
             .http_client
@@ -461,7 +461,7 @@ impl<O> OpenAIEventStream<O> {
     }
 }
 
-impl<O: DeserializeOwned + std::marker::Send + 'static> Stream for OpenAIEventStream<O> {
+impl<O: DeserializeOwned + Send + 'static> Stream for OpenAIEventStream<O> {
     type Item = Result<O, OpenAIError>;
 
     fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
