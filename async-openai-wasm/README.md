@@ -1,12 +1,11 @@
 <h1 align="center"> async-openai-wasm </h1>
 <p align="center"> Async Rust library for OpenAI on WASM</p>
 <div align="center">
-    <!**--** TODO: Change the links of badges when async-openai-wasm-wasm is published on crates.io **--**>
-    <a href="https://crates.io/crates/async-openai">
-    <img src="https://img.shields.io/crates/v/async-openai.svg" />
+    <a href="https://crates.io/crates/async-openai-wasm">
+    <img src="https://img.shields.io/crates/v/async-openai-wasm.svg" />
     </a>
-    <a href="https://docs.rs/async-openai">
-    <img src="https://docs.rs/async-openai/badge.svg" />
+    <a href="https://docs.rs/async-openai-wasm">
+    <img src="https://docs.rs/async-openai-wasm/badge.svg" />
     </a>
 </div>
 
@@ -69,9 +68,8 @@ export OPENAI_API_KEY='sk-...'
 $Env:OPENAI_API_KEY='sk-...'
 ```
 
-<!**--** TODO: Change the links when async-openai-wasm-wasm is published on crates.io **--**>
-
-- Visit [examples](https://github.com/64bit/async-openai/tree/main/examples) directory on how to use `async-openai`.
+- Visit [examples](https://github.com/64bit/async-openai/tree/main/examples) directory on how to use `async-openai`,
+  and [WASM examples](https://github.com/ifsheldon/async-openai-wasm/tree/main/examples) in `async-openai-wasm`.
 - Visit [docs.rs/async-openai](https://docs.rs/async-openai) for docs.
 
 ## Image Generation Example
@@ -111,7 +109,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
 }
 ```
 
-<!**--** TODO: Change the links when async-openai-wasm-wasm is published on crates.io **--**>
 <div align="center">
   <img width="315" src="https://raw.githubusercontent.com/64bit/async-openai/assets/create-image/img-1.png" />
   <img width="315" src="https://raw.githubusercontent.com/64bit/async-openai/assets/create-image/img-2.png" />
@@ -143,6 +140,5 @@ from what I expected.
 
 ## License
 
-<!**--** TODO: Change the links when async-openai-wasm-wasm is published on crates.io **--**>
 The additional modifications are licensed under [MIT license](https://github.com/64bit/async-openai/blob/main/LICENSE).
 The original project is also licensed under [MIT license](https://github.com/64bit/async-openai/blob/main/LICENSE).
