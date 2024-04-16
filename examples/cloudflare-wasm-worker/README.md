@@ -1,4 +1,4 @@
-# Example: Cloudflare Worker Using `async-openai`
+# Example: Cloudflare Worker Using `async-openai-wasm`
 
 A template for kick starting a Cloudflare worker project using [`workers-rs`](https://github.com/cloudflare/workers-rs).
 
@@ -7,14 +7,11 @@ Cloudflare's [edge infrastructure](https://www.cloudflare.com/network/).
 
 ## Setup
 
-1. Move this directory out of `async-openai/examples` and out of `async-openai`
-    * Since the `wasm-bindgen` dependency conflicts with `examples/openai-web-app`, we need to move this directory out
-      of `async-openai/examples` and out of `async-openai` to avoid conflicts.
-2. Run `npm install` to install `wrangler`.
-3. Make sure you have `wasm32-unknown-unknown` target installed. You can install it by
+1. Run `npm install` to install `wrangler`.
+2. Make sure you have `wasm32-unknown-unknown` target installed. You can install it by
    running `rustup target add wasm32-unknown-unknown`.
-4. IMPORTANT: replace the values of `AUTH`, `OPENAI_API_KEY` with your own values in [code](./src/lib.rs).
-5. Run `npx wrangler dev` to start a local server for testing!
+3. IMPORTANT: replace the values of `AUTH`, `OPENAI_API_KEY` with your own values in [code](./src/lib.rs).
+4. Run `npx wrangler dev` to start a local server for testing!
 
 Please do NOT simply deploy this demo to production without adding a secure secret store and appropriate authentication.
 
