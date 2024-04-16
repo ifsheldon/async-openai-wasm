@@ -1,12 +1,12 @@
 use serde::{Deserialize, Serialize};
 use worker::*;
-use async_openai::{
+use async_openai_wasm::{
     types::{
         ChatCompletionRequestUserMessageArgs, CreateChatCompletionRequestArgs,
     },
     Client,
 };
-use async_openai::config::OpenAIConfig;
+use async_openai_wasm::config::OpenAIConfig;
 
 const AUTH: &str = "dsasakjhj-odfhbodfhuery21432p";
 
@@ -19,8 +19,6 @@ const README: &str = include_str!("../README.md");
 struct Message {
     content: String,
 }
-
-use worker::*;
 
 #[event(fetch)]
 pub async fn main(req: Request, env: Env, _ctx: Context) -> Result<Response> {

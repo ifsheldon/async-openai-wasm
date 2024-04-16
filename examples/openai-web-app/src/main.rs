@@ -2,7 +2,7 @@ use dioxus::prelude::*;
 use futures::stream::StreamExt;
 use log::Level;
 
-use async_openai::types::{ChatCompletionRequestMessage, ChatCompletionRequestUserMessageArgs, CreateChatCompletionRequestArgs, Role};
+use async_openai_wasm::types::{ChatCompletionRequestMessage, ChatCompletionRequestUserMessageArgs, CreateChatCompletionRequestArgs};
 
 const USE_AZURE: bool = false;
 
@@ -26,26 +26,26 @@ pub fn app(cx: Scope) -> Element {
         ])
         .build().unwrap();
     let response_string: &UseRef<String> = use_ref(cx, String::new);
-    let fetch_completion_chunks: &Coroutine<()> = use_coroutine(cx, |rx| {
+    let _fetch_completion_chunks: &Coroutine<()> = use_coroutine(cx, |_rx| {
         let response_string = response_string.to_owned();
         async move {
             let mut stream = if USE_AZURE {
-                let config = async_openai::config::AzureConfig::new()
+                let config = async_openai_wasm::config::AzureConfig::new()
                     .with_api_base(API_BASE)
                     .with_api_key(API_KEY)
                     .with_api_version(API_VERSION)
                     .with_deployment_id(DEPLOYMENT_ID);
-                let client = async_openai::Client::with_config(config);
+                let client = async_openai_wasm::Client::with_config(config);
                 client.chat().create_stream(request).await.unwrap()
             } else {
-                let config = async_openai::config::OpenAIConfig::new()
+                let config = async_openai_wasm::config::OpenAIConfig::new()
                     .with_api_key(API_KEY);
                 let config = if API_BASE != "..." {
                     config.with_api_base(API_BASE)
                 } else {
                     config
                 };
-                let client = async_openai::Client::with_config(config);
+                let client = async_openai_wasm::Client::with_config(config);
                 client.chat().create_stream(request).await.unwrap()
             };
             while let Some(chunk) = stream.next().await {
