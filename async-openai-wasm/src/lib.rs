@@ -1,4 +1,4 @@
-//! Rust library for OpenAI
+//! Rust library for OpenAI on WASM
 //!
 //! ## Creating client
 //!
