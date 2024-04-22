@@ -35,7 +35,7 @@ impl Client {
     pub fn new() -> Self {
         Self {
             http_client: reqwest::Client::new(),
-            config: OpenAIConfig::default(),
+            config: Rc::new(OpenAIConfig::default()),
             // #[cfg(feature = "backoff")]
             // backoff: Default::default(),
         }
@@ -44,7 +44,7 @@ impl Client {
 
 impl Client {
     /// Create client with a custom HTTP client, OpenAI config, and backoff.
-    pub fn build(
+    pub fn build<C: Config>(
         http_client: reqwest::Client,
         config: C,
         // #[cfg(feature = "backoff")]
@@ -100,12 +100,6 @@ impl Client {
         Chat::new(self)
     }
 
-    /// To call [Edits] group related APIs using this client.
-    #[deprecated(since = "0.15.0", note = "By OpenAI")]
-    pub fn edits(&self) -> Edits {
-        Edits::new(self)
-    }
-
     /// To call [Images] group related APIs using this client.
     pub fn images(&self) -> Images {
         Images::new(self)
@@ -119,12 +113,6 @@ impl Client {
     /// To call [Files] group related APIs using this client.
     pub fn files(&self) -> Files {
         Files::new(self)
-    }
-
-    /// To call [FineTunes] group related APIs using this client.
-    #[deprecated(since = "0.15.0", note = "By OpenAI")]
-    pub fn fine_tunes(&self) -> FineTunes {
-        FineTunes::new(self)
     }
 
     /// To call [FineTuning] group related APIs using this client.

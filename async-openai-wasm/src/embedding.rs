@@ -1,5 +1,4 @@
 use crate::{
-    config::Config,
     error::OpenAIError,
     types::{
         CreateBase64EmbeddingResponse, CreateEmbeddingRequest, CreateEmbeddingResponse,
@@ -12,12 +11,12 @@ use crate::{
 /// consumed by machine learning models and algorithms.
 ///
 /// Related guide: [Embeddings](https://platform.openai.com/docs/guides/embeddings/what-are-embeddings)
-pub struct Embeddings<'c, C: Config> {
-    client: &'c Client<C>,
+pub struct Embeddings<'c> {
+    client: &'c Client,
 }
 
-impl<'c, C: Config> Embeddings<'c, C> {
-    pub fn new(client: &'c Client<C>) -> Self {
+impl<'c> Embeddings<'c> {
+    pub fn new(client: &'c Client) -> Self {
         Self { client }
     }
 
