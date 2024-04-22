@@ -10,6 +10,6 @@ publish = false
 dioxus = "~0.4"
 dioxus-web = "~0.4"
 futures = "0.3.28"
-async-openai = { path = "../../async-openai", default-features = false, features = ["wasm"] }
+async-openai-wasm = { path = "../../async-openai-wasm" }
 console_log = "1.0"
 log = "0.4"

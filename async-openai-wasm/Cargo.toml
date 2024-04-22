@@ -1,0 +1,48 @@
+[package]
+name = "async-openai-wasm"
+version = "0.20.0"
+authors = [
+    "Contributors of the async-openai crate",
+    "ifsheldon <async_openai_wasm@reify.ing>"
+]
+categories = ["api-bindings", "web-programming", "asynchronous"]
+keywords = ["openai", "async", "openapi", "ai", "wasm"]
+description = "Rust library for OpenAI on WASM"
+edition = "2021"
+rust-version = "1.65"
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/ifsheldon/async-openai-wasm"
+repository = "https://github.com/ifsheldon/async-openai-wasm"
+
+[features]
+default = ["rustls"]
+# Enable rustls for TLS support
+rustls = ["reqwest/rustls-tls-native-roots"]
+# Enable rustls and webpki-roots
+rustls-webpki-roots = ["reqwest/rustls-tls-webpki-roots"]
+# Enable native-tls for TLS support
+native-tls = ["reqwest/native-tls"]
+# Remove dependency on OpenSSL
+native-tls-vendored = ["reqwest/native-tls-vendored"]
+
+[dependencies]
+base64 = "0.22"
+futures = "0.3"
+rand = "0.8"
+reqwest = { version = "0.12", features = ["json", "stream", "multipart"], default-features = false }
+reqwest-eventsource = "0.6"
+serde = { version = "1.0", features = ["derive", "rc"] }
+serde_json = "1.0"
+thiserror = "1.0"
+tracing = "0.1"
+derive_builder = "0.20"
+async-convert = "1.0"
+secrecy = { version = "0.8", features = ["serde"] }
+pin-project-lite = "0.2"
+getrandom = { version = "0.2", features = ["js"] }
+bytes = "1.6"
+
+[dev-dependencies]
+tokio-test = "0.4"
+tokio = { version = "1.37", features = ["fs", "macros"] }
