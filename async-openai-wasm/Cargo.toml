@@ -1,6 +1,6 @@
 [package]
 name = "async-openai-wasm"
-version = "0.20.0"
+version = "0.21.0"
 authors = [
     "Contributors of the async-openai crate",
     "ifsheldon <async_openai_wasm@reify.ing>"
