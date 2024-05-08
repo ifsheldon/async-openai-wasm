@@ -11,22 +11,22 @@ use crate::{
     Client, VectorStoreFiles,
 };
 
-pub struct VectorStores<'c, C: Config> {
-    client: &'c Client<C>,
+pub struct VectorStores<'c> {
+    client: &'c Client,
 }
 
-impl<'c, C: Config> VectorStores<'c, C> {
-    pub fn new(client: &'c Client<C>) -> Self {
+impl<'c> VectorStores<'c> {
+    pub fn new(client: &'c Client) -> Self {
         Self { client }
     }
 
     /// [VectorStoreFiles] API group
-    pub fn files(&self, vector_store_id: &str) -> VectorStoreFiles<C> {
+    pub fn files(&self, vector_store_id: &str) -> VectorStoreFiles {
         VectorStoreFiles::new(self.client, vector_store_id)
     }
 
     /// [VectorStoreFileBatches] API group
-    pub fn file_batches(&self, vector_store_id: &str) -> VectorStoreFileBatches<C> {
+    pub fn file_batches(&self, vector_store_id: &str) -> VectorStoreFileBatches {
         VectorStoreFileBatches::new(self.client, vector_store_id)
     }
 

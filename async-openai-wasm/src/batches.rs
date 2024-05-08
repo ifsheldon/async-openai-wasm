@@ -10,12 +10,12 @@ use crate::{
 /// Create large batches of API requests for asynchronous processing. The Batch API returns completions within 24 hours for a 50% discount.
 ///
 /// Related guide: [Batch](https://platform.openai.com/docs/guides/batch)
-pub struct Batches<'c, C: Config> {
-    client: &'c Client<C>,
+pub struct Batches<'c> {
+    client: &'c Client,
 }
 
-impl<'c, C: Config> Batches<'c, C> {
-    pub fn new(client: &'c Client<C>) -> Self {
+impl<'c> Batches<'c> {
+    pub fn new(client: &'c Client) -> Self {
         Self { client }
     }
 

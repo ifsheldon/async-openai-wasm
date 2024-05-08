@@ -13,13 +13,13 @@ use crate::{
 /// Vector store files represent files inside a vector store.
 ///
 /// Related guide: [File Search](https://platform.openai.com/docs/assistants/tools/file-search)
-pub struct VectorStoreFiles<'c, C: Config> {
-    client: &'c Client<C>,
+pub struct VectorStoreFiles<'c> {
+    client: &'c Client,
     pub vector_store_id: String,
 }
 
-impl<'c, C: Config> VectorStoreFiles<'c, C> {
-    pub fn new(client: &'c Client<C>, vector_store_id: &str) -> Self {
+impl<'c> VectorStoreFiles<'c> {
+    pub fn new(client: &'c Client, vector_store_id: &str) -> Self {
         Self {
             client,
             vector_store_id: vector_store_id.into(),

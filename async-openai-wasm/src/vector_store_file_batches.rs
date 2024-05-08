@@ -12,13 +12,13 @@ use crate::{
 /// Vector store file batches represent operations to add multiple files to a vector store.
 ///
 /// Related guide: [File Search](https://platform.openai.com/docs/assistants/tools/file-search)
-pub struct VectorStoreFileBatches<'c, C: Config> {
-    client: &'c Client<C>,
+pub struct VectorStoreFileBatches<'c> {
+    client: &'c Client,
     pub vector_store_id: String,
 }
 
-impl<'c, C: Config> VectorStoreFileBatches<'c, C> {
-    pub fn new(client: &'c Client<C>, vector_store_id: &str) -> Self {
+impl<'c> VectorStoreFileBatches<'c> {
+    pub fn new(client: &'c Client, vector_store_id: &str) -> Self {
         Self {
             client,
             vector_store_id: vector_store_id.into(),
