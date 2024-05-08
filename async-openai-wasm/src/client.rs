@@ -14,10 +14,11 @@ use serde::{de::DeserializeOwned, Serialize};
 use crate::{
     config::{Config, OpenAIConfig},
     error::{map_deserialization_error, OpenAIError, WrappedError},
-    moderation::Moderations,
     file::Files,
     image::Images,
-    Assistants, Audio, Chat, Completions, Embeddings, FineTuning, Models, Threads,
+    moderation::Moderations,
+    Assistants, Audio, Batches, Chat, Completions, Embeddings, FineTuning, Models, Threads,
+    VectorStores,
 };
 
 #[derive(Debug, Clone)]
@@ -138,6 +139,16 @@ impl Client {
     /// To call [Threads] group related APIs using this client.
     pub fn threads(&self) -> Threads {
         Threads::new(self)
+    }
+
+    /// To call [VectorStores] group related APIs using this client.
+    pub fn vector_stores(&self) -> VectorStores {
+        VectorStores::new(self)
+    }
+
+    /// To call [Batches] group related APIs using this client.
+    pub fn batches(&self) -> Batches {
+        Batches::new(self)
     }
 
     pub fn config(&self) -> &Rc<dyn Config> {

@@ -91,7 +91,7 @@ pub struct CreateImageRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub quality: Option<ImageQuality>,
 
-    /// The format in which the generated images are returned. Must be one of `url` or `b64_json`.
+    /// The format in which the generated images are returned. Must be one of `url` or `b64_json`. URLs are only valid for 60 minutes after the image has been generated.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub response_format: Option<ResponseFormat>,
 
@@ -133,12 +133,12 @@ pub struct ImagesResponse {
     pub data: Vec<std::sync::Arc<Image>>,
 }
 
-#[derive(Debug, Clone, PartialEq, Default)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct ImageInput {
     pub source: InputSource,
 }
 
-#[derive(Debug, Clone, PartialEq, Default, Builder)]
+#[derive(Debug, Clone, Default, Builder, PartialEq)]
 #[builder(name = "CreateImageEditRequestArgs")]
 #[builder(pattern = "mutable")]
 #[builder(setter(into, strip_option), default)]
@@ -170,8 +170,7 @@ pub struct CreateImageEditRequest {
     pub user: Option<String>,
 }
 
-
-#[derive(Debug, Clone, PartialEq, Default, Builder)]
+#[derive(Debug, Default, Clone, Builder, PartialEq)]
 #[builder(name = "CreateImageVariationRequestArgs")]
 #[builder(pattern = "mutable")]
 #[builder(setter(into, strip_option), default)]

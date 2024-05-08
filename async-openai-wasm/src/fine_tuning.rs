@@ -3,8 +3,8 @@ use serde::Serialize;
 use crate::{
     error::OpenAIError,
     types::{
-        CreateFineTuningJobRequest, FineTuningJob, ListFineTuningJobEventsResponse,
-        ListPaginatedFineTuningJobsResponse,
+        CreateFineTuningJobRequest, FineTuningJob, ListFineTuningJobCheckpointsResponse,
+        ListFineTuningJobEventsResponse, ListPaginatedFineTuningJobsResponse,
     },
     Client,
 };
@@ -75,6 +75,22 @@ impl<'c> FineTuning<'c> {
         self.client
             .get_with_query(
                 format!("/fine_tuning/jobs/{fine_tuning_job_id}/events").as_str(),
+                query,
+            )
+            .await
+    }
+
+    pub async fn list_checkpoints<Q>(
+        &self,
+        fine_tuning_job_id: &str,
+        query: &Q,
+    ) -> Result<ListFineTuningJobCheckpointsResponse, OpenAIError>
+    where
+        Q: Serialize + ?Sized,
+    {
+        self.client
+            .get_with_query(
+                format!("/fine_tuning/jobs/{fine_tuning_job_id}/checkpoints").as_str(),
                 query,
             )
             .await

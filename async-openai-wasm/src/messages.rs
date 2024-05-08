@@ -2,7 +2,10 @@ use serde::Serialize;
 
 use crate::{
     error::OpenAIError,
-    types::{CreateMessageRequest, ListMessagesResponse, MessageObject, ModifyMessageRequest},
+    types::{
+        CreateMessageRequest, DeleteMessageResponse, ListMessagesResponse, MessageObject,
+        ModifyMessageRequest,
+    },
     Client, MessageFiles,
 };
 
@@ -67,6 +70,15 @@ impl<'c> Messages<'c> {
     {
         self.client
             .get_with_query(&format!("/threads/{}/messages", self.thread_id), query)
+            .await
+    }
+
+    pub async fn delete(&self, message_id: &str) -> Result<DeleteMessageResponse, OpenAIError> {
+        self.client
+            .delete(&format!(
+                "/threads/{}/messages/{message_id}",
+                self.thread_id
+            ))
             .await
     }
 }

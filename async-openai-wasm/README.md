@@ -21,8 +21,10 @@ a `x.y.z` version.
 
 - It's based on [OpenAI OpenAPI spec](https://github.com/openai/openai-openapi)
 - Current features:
-    - [x] Assistants (Beta)
+    - [x] Assistants v2
+    - [ ] Assistants v2 streaming
     - [x] Audio
+    - [x] Batch
     - [x] Chat
     - [x] Completions (Legacy)
     - [x] Embeddings
