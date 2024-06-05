@@ -25,8 +25,13 @@ use super::{
     CreateTranscriptionRequest, CreateTranslationRequest,
     FileInput, ImageInput, ImageSize, ImageUrl,
     ResponseFormat, TimestampGranularity,
+    ChatCompletionRequestUserMessageContent, ChatCompletionToolChoiceOption, CreateFileRequest,
+    CreateImageEditRequest, CreateImageVariationRequest, CreateMessageRequestContent,
+    CreateSpeechResponse, CreateTranscriptionRequest, CreateTranslationRequest, DallE2ImageSize,
+    EmbeddingInput, FileInput, FilePurpose, FunctionName, Image, ImageInput, ImageModel, ImageSize,
+    ImageUrl, ImagesResponse, ModerationInput, Prompt, ResponseFormat, Role, Stop,
+    TimestampGranularity,
 };
-
 
 /// for `impl_from!(T, Enum)`, implements
 /// - `From<T>`
@@ -253,6 +258,85 @@ impl Display for Role {
     }
 }
 
+impl Display for FilePurpose {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Assistants => "assistants",
+                Self::Batch => "batch",
+                Self::FineTune => "fine-tune",
+                Self::Vision => "vision",
+            }
+        )
+    }
+}
+
+impl ImagesResponse {
+    /// Save each image in a dedicated Tokio task and return paths to saved files.
+    /// For [ResponseFormat::Url] each file is downloaded in dedicated Tokio task.
+    pub async fn save<P: AsRef<Path>>(&self, dir: P) -> Result<Vec<PathBuf>, OpenAIError> {
+        create_all_dir(dir.as_ref())?;
+
+        let mut handles = vec![];
+        for id in self.data.clone() {
+            let dir_buf = PathBuf::from(dir.as_ref());
+            handles.push(tokio::spawn(async move { id.save(dir_buf).await }));
+        }
+
+        let results = futures::future::join_all(handles).await;
+        let mut errors = vec![];
+        let mut paths = vec![];
+
+        for result in results {
+            match result {
+                Ok(inner) => match inner {
+                    Ok(path) => paths.push(path),
+                    Err(e) => errors.push(e),
+                },
+                Err(e) => errors.push(OpenAIError::FileSaveError(e.to_string())),
+            }
+        }
+
+        if errors.is_empty() {
+            Ok(paths)
+        } else {
+            Err(OpenAIError::FileSaveError(
+                errors
+                    .into_iter()
+                    .map(|e| e.to_string())
+                    .collect::<Vec<String>>()
+                    .join("; "),
+            ))
+        }
+    }
+}
+
+impl CreateSpeechResponse {
+    pub async fn save<P: AsRef<Path>>(&self, file_path: P) -> Result<(), OpenAIError> {
+        let dir = file_path.as_ref().parent();
+
+        if let Some(dir) = dir {
+            create_all_dir(dir)?;
+        }
+
+        tokio::fs::write(file_path, &self.bytes)
+            .await
+            .map_err(|e| OpenAIError::FileSaveError(e.to_string()))?;
+
+        Ok(())
+    }
+}
+
+impl Image {
+    async fn save<P: AsRef<Path>>(&self, dir: P) -> Result<PathBuf, OpenAIError> {
+        match self {
+            Image::Url { url, .. } => download_url(url, dir).await,
+            Image::B64Json { b64_json, .. } => save_b64(b64_json, dir).await,
+        }
+    }
+}
 
 macro_rules! impl_from_for_integer_array {
     ($from_typ:ty, $to_typ:ty) => {
@@ -512,25 +596,19 @@ impl From<ChatCompletionRequestMessageContentPartImage>
 for ChatCompletionRequestMessageContentPart
 {
     fn from(value: ChatCompletionRequestMessageContentPartImage) -> Self {
-        ChatCompletionRequestMessageContentPart::Image(value)
+        ChatCompletionRequestMessageContentPart::ImageUrl(value)
     }
 }
 
 impl From<&str> for ChatCompletionRequestMessageContentPartText {
     fn from(value: &str) -> Self {
-        ChatCompletionRequestMessageContentPartText {
-            r#type: "text".into(),
-            text: value.into(),
-        }
+        ChatCompletionRequestMessageContentPartText { text: value.into() }
     }
 }
 
 impl From<String> for ChatCompletionRequestMessageContentPartText {
     fn from(value: String) -> Self {
-        ChatCompletionRequestMessageContentPartText {
-            r#type: "text".into(),
-            text: value,
-        }
+        ChatCompletionRequestMessageContentPartText { text: value }
     }
 }
 
@@ -552,9 +630,27 @@ impl From<String> for ImageUrl {
     }
 }
 
+impl From<String> for CreateMessageRequestContent {
+    fn from(value: String) -> Self {
+        Self::Content(value)
+    }
+}
+
+impl From<&str> for CreateMessageRequestContent {
+    fn from(value: &str) -> Self {
+        Self::Content(value.to_string())
+    }
+}
+
 impl Default for ChatCompletionRequestUserMessageContent {
     fn default() -> Self {
         ChatCompletionRequestUserMessageContent::Text("".into())
+    }
+}
+
+impl Default for CreateMessageRequestContent {
+    fn default() -> Self {
+        Self::Content("".into())
     }
 }
 
@@ -708,7 +804,7 @@ impl async_convert::TryFrom<CreateFileRequest> for reqwest::multipart::Form {
         let file_part = create_file_part(request.file.source).await?;
         let form = reqwest::multipart::Form::new()
             .part("file", file_part)
-            .text("purpose", request.purpose);
+            .text("purpose", request.purpose.to_string());
         Ok(form)
     }
 }
