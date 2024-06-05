@@ -493,6 +493,7 @@ impl<C: Config> Client<C> {
 pub struct OpenAIEventStream<O: DeserializeOwned + Send + 'static> {
     #[pin]
     stream: Filter<EventSource, future::Ready<bool>, fn(&Result<Event, reqwest_eventsource::Error>) -> future::Ready<bool>>,
+    done: bool,
     _phantom_data: PhantomData<O>,
 }
 
@@ -503,6 +504,7 @@ impl<O: DeserializeOwned + Send + 'static> OpenAIEventStream<O> {
                 // filter out the first event which is always Event::Open
                 future::ready(!(result.is_ok() && result.as_ref().unwrap().eq(&Event::Open)))
             ),
+            done: false,
             _phantom_data: PhantomData,
         }
     }
@@ -513,6 +515,9 @@ impl<O: DeserializeOwned + Send + 'static> Stream for OpenAIEventStream<O> {
 
     fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
         let this = self.project();
+        if *this.done {
+            return Poll::Ready(None);
+        }
         let stream: Pin<&mut _> = this.stream;
         match stream.poll_next(cx) {
             Poll::Ready(response) => {
@@ -523,17 +528,24 @@ impl<O: DeserializeOwned + Send + 'static> Stream for OpenAIEventStream<O> {
                             Event::Open => unreachable!(), // it has been filtered out
                             Event::Message(message) => {
                                 if message.data == "[DONE]" {
+                                    *this.done = true;
                                     Poll::Ready(None)  // end of the stream, defined by OpenAI
                                 } else {
                                     // deserialize the data
                                     match serde_json::from_str::<O>(&message.data) {
-                                        Err(e) => Poll::Ready(Some(Err(map_deserialization_error(e, &message.data.as_bytes())))),
+                                        Err(e) => {
+                                            *this.done = true;
+                                            Poll::Ready(Some(Err(map_deserialization_error(e, &message.data.as_bytes()))))
+                                        }
                                         Ok(output) => Poll::Ready(Some(Ok(output))),
                                     }
                                 }
                             }
                         }
-                        Err(e) => Poll::Ready(Some(Err(OpenAIError::StreamError(e.to_string()))))
+                        Err(e) => {
+                            *this.done = true;
+                            Poll::Ready(Some(Err(OpenAIError::StreamError(e.to_string()))))
+                        }
                     }
                 }
             }
