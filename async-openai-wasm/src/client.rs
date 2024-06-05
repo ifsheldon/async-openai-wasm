@@ -6,7 +6,7 @@ use std::task::{Context, Poll};
 use bytes::Bytes;
 use futures::{Stream, stream::StreamExt};
 use futures::stream::Filter;
-use pin_project_lite::pin_project;
+use pin_project::pin_project;
 use reqwest_eventsource::{Event, EventSource, RequestBuilderExt};
 use serde::{de::DeserializeOwned, Serialize};
 
@@ -449,7 +449,7 @@ impl<C: Config> Client<C> {
     ) -> Pin<Box<dyn Stream<Item=Result<O, OpenAIError>> + Send>>
         where
             I: Serialize,
-            O: DeserializeOwned + std::marker::Send + 'static,
+            O: DeserializeOwned + Send + 'static,
     {
         let event_source = self
             .http_client
@@ -487,14 +487,14 @@ impl<C: Config> Client<C> {
     }
 }
 
-pin_project! {
-    /// Request which responds with SSE.
-    /// [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#event_stream_format)
-    pub struct OpenAIEventStream<O> {
-        #[pin]
-        stream: Filter<EventSource, future::Ready<bool>, fn(&Result<Event, reqwest_eventsource::Error>) -> future::Ready<bool>>,
-        _phantom_data: PhantomData<O>
-    }
+
+/// Request which responds with SSE.
+/// [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#event_stream_format)
+#[pin_project]
+pub struct OpenAIEventStream<O> {
+    #[pin]
+    stream: Filter<EventSource, future::Ready<bool>, fn(&Result<Event, reqwest_eventsource::Error>) -> future::Ready<bool>>,
+    _phantom_data: PhantomData<O>,
 }
 
 impl<O> OpenAIEventStream<O> {
