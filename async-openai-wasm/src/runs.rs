@@ -1,6 +1,7 @@
 use serde::Serialize;
 
 use crate::{
+    Client,
     config::Config,
     error::OpenAIError,
     steps::Steps,
@@ -8,7 +9,6 @@ use crate::{
         AssistantEventStream, AssistantStreamEvent, CreateRunRequest, ListRunsResponse,
         ModifyRunRequest, RunObject, SubmitToolOutputsRunRequest,
     },
-    Client,
 };
 
 /// Represents an execution run on a thread.

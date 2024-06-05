@@ -1,13 +1,13 @@
 use serde::Serialize;
 
 use crate::{
+    Client,
     config::Config,
     error::OpenAIError,
     types::{
         AssistantFileObject, CreateAssistantFileRequest, DeleteAssistantFileResponse,
         ListAssistantFilesResponse,
     },
-    Client,
 };
 
 /// Files attached to an assistant.

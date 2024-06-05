@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use crate::{error::OpenAIError, types::FunctionCall};
 
 use super::{
-    AssistantTools, AssistantsApiResponseFormatOption, AssistantsApiToolChoiceOption,
+    AssistantsApiResponseFormatOption, AssistantsApiToolChoiceOption, AssistantTools,
     CreateMessageRequest,
 };
 

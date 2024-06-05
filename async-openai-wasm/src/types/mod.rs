@@ -1,26 +1,6 @@
 //! Types used in OpenAI API requests and responses.
 //! These types are created from component schemas in the [OpenAPI spec](https://github.com/openai/openai-openapi)
-mod assistant;
-mod assistant_file;
-mod assistant_impls;
-mod assistant_stream;
-mod audio;
-mod batch;
-mod chat;
-mod common;
-mod completion;
-mod embedding;
-mod file;
-mod fine_tuning;
-mod image;
-mod message;
-mod message_file;
-mod model;
-mod moderation;
-mod run;
-mod step;
-mod thread;
-mod vector_store;
+use derive_builder::UninitializedFieldError;
 
 pub use assistant::*;
 pub use assistant_file::*;
@@ -43,10 +23,32 @@ pub use step::*;
 pub use thread::*;
 pub use vector_store::*;
 
-mod impls;
-use derive_builder::UninitializedFieldError;
-
 use crate::error::OpenAIError;
+
+mod assistant;
+mod assistant_file;
+mod assistant_impls;
+mod assistant_stream;
+mod audio;
+mod batch;
+mod chat;
+mod common;
+mod completion;
+mod embedding;
+mod file;
+mod fine_tune;
+mod fine_tuning;
+mod image;
+mod message;
+mod message_file;
+mod model;
+mod moderation;
+mod run;
+mod step;
+mod thread;
+mod vector_store;
+
+mod impls;
 
 impl From<UninitializedFieldError> for OpenAIError {
     fn from(value: UninitializedFieldError) -> Self {

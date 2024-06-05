@@ -21,8 +21,7 @@ a `x.y.z` version.
 
 - It's based on [OpenAI OpenAPI spec](https://github.com/openai/openai-openapi)
 - Current features:
-    - [x] Assistants v2
-    - [ ] Assistants v2 streaming
+    - [x] Assistants (v2)
     - [x] Audio
     - [x] Batch
     - [x] Chat
@@ -31,12 +30,14 @@ a `x.y.z` version.
     - [x] Files
     - [x] Fine-Tuning
     - [x] Images
-    - [x] Microsoft Azure OpenAI Service
     - [x] Models
     - [x] Moderations
     - [x] **WASM support**
-- Support SSE streaming on available APIs
+- SSE streaming on all available APIs
+- Requests (except SSE streaming) including form submissions are retried with exponential backoff
+  when [rate limited](https://platform.openai.com/docs/guides/rate-limits).
 - Ergonomic builder pattern for all request objects.
+- Microsoft Azure OpenAI Service (only APIs matching OpenAI spec)
 
 **Note on Azure OpenAI Service (AOS)**:  `async-openai-wasm` primarily implements OpenAI spec, and doesn't try to
 maintain parity with spec of AOS. Just like `async-openai`.

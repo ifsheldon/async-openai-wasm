@@ -1,10 +1,10 @@
 use serde::Serialize;
 
 use crate::{
+    Client,
     config::Config,
     error::OpenAIError,
     types::{ListMessageFilesResponse, MessageFileObject},
-    Client,
 };
 
 /// Files attached to a message.

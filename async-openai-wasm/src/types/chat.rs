@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
 use derive_builder::Builder;
-use crate::client::OpenAIEventStream;
 use serde::{Deserialize, Serialize};
 
+use crate::client::OpenAIEventStream;
 use crate::error::OpenAIError;
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]

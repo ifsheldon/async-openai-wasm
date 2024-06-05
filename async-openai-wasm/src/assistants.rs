@@ -1,13 +1,13 @@
 use serde::Serialize;
 
 use crate::{
+    AssistantFiles,
+    Client,
     config::Config,
-    error::OpenAIError,
-    types::{
+    error::OpenAIError, types::{
         AssistantObject, CreateAssistantRequest, DeleteAssistantResponse, ListAssistantsResponse,
         ModifyAssistantRequest,
     },
-    AssistantFiles, Client,
 };
 
 /// Build assistants that can call models and use tools to perform tasks.

@@ -2,8 +2,9 @@ use bytes::Bytes;
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
-use super::InputSource;
 use crate::error::OpenAIError;
+
+use super::InputSource;
 
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct AudioInput {

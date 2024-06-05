@@ -1,8 +1,8 @@
 use crate::{
+    Client,
     config::Config,
     error::OpenAIError,
     types::{CreateModerationRequest, CreateModerationResponse},
-    Client,
 };
 
 /// Given some input text, outputs if the model classifies it as potentially harmful across several categories.

@@ -2,7 +2,7 @@ use crate::{
     client::Client,
     config::Config,
     error::OpenAIError,
-    types::{CreateCompletionRequest, CreateCompletionResponse, CompletionResponseStream},
+    types::{CompletionResponseStream, CreateCompletionRequest, CreateCompletionResponse},
 };
 
 /// Given a prompt, the model will return one or more predicted completions,

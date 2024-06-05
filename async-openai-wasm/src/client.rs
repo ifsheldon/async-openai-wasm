@@ -2,21 +2,21 @@ use std::future;
 use std::marker::PhantomData;
 use std::pin::Pin;
 use std::task::{Context, Poll};
-use pin_project_lite::pin_project;
 
 use bytes::Bytes;
-use futures::{stream::StreamExt, Stream};
+use futures::{Stream, stream::StreamExt};
 use futures::stream::Filter;
+use pin_project_lite::pin_project;
 use reqwest_eventsource::{Event, EventSource, RequestBuilderExt};
 use serde::{de::DeserializeOwned, Serialize};
 
 use crate::{
-    config::{Config, OpenAIConfig},
+    Assistants, Audio, Batches, Chat, Completions,
+    config::{Config, OpenAIConfig}, Embeddings,
     error::{map_deserialization_error, OpenAIError, WrappedError},
-    file::Files,
-    image::Images,
-    moderation::Moderations,
-    Assistants, Audio, Batches, Chat, Completions, Embeddings, FineTuning, Models, Threads,
+    file::Files, FineTuning,
+    image::Images, Models,
+    moderation::Moderations, Threads,
     VectorStores,
 };
 
@@ -156,8 +156,8 @@ impl<C: Config> Client<C> {
 
     /// Make a GET request to {path} and deserialize the response body
     pub(crate) async fn get<O>(&self, path: &str) -> Result<O, OpenAIError>
-    where
-        O: DeserializeOwned,
+        where
+            O: DeserializeOwned,
     {
         let request_maker = || async {
             Ok(self
@@ -173,9 +173,9 @@ impl<C: Config> Client<C> {
 
     /// Make a GET request to {path} with given Query and deserialize the response body
     pub(crate) async fn get_with_query<Q, O>(&self, path: &str, query: &Q) -> Result<O, OpenAIError>
-    where
-        O: DeserializeOwned,
-        Q: Serialize + ?Sized,
+        where
+            O: DeserializeOwned,
+            Q: Serialize + ?Sized,
     {
         let request_maker = || async {
             Ok(self
@@ -192,8 +192,8 @@ impl<C: Config> Client<C> {
 
     /// Make a DELETE request to {path} and deserialize the response body
     pub(crate) async fn delete<O>(&self, path: &str) -> Result<O, OpenAIError>
-    where
-        O: DeserializeOwned,
+        where
+            O: DeserializeOwned,
     {
         let request_maker = || async {
             Ok(self
@@ -223,8 +223,8 @@ impl<C: Config> Client<C> {
 
     /// Make a POST request to {path} and return the response body
     pub(crate) async fn post_raw<I>(&self, path: &str, request: I) -> Result<Bytes, OpenAIError>
-    where
-        I: Serialize,
+        where
+            I: Serialize,
     {
         let request_maker = || async {
             Ok(self
@@ -241,9 +241,9 @@ impl<C: Config> Client<C> {
 
     /// Make a POST request to {path} and deserialize the response body
     pub(crate) async fn post<I, O>(&self, path: &str, request: I) -> Result<O, OpenAIError>
-    where
-        I: Serialize,
-        O: DeserializeOwned,
+        where
+            I: Serialize,
+            O: DeserializeOwned,
     {
         let request_maker = || async {
             Ok(self
@@ -260,9 +260,9 @@ impl<C: Config> Client<C> {
 
     /// POST a form at {path} and return the response body
     pub(crate) async fn post_form_raw<F>(&self, path: &str, form: F) -> Result<Bytes, OpenAIError>
-    where
-        reqwest::multipart::Form: async_convert::TryFrom<F, Error = OpenAIError>,
-        F: Clone,
+        where
+            reqwest::multipart::Form: async_convert::TryFrom<F, Error=OpenAIError>,
+            F: Clone,
     {
         let request_maker = || async {
             Ok(self
@@ -279,10 +279,10 @@ impl<C: Config> Client<C> {
 
     /// POST a form at {path} and deserialize the response body
     pub(crate) async fn post_form<O, F>(&self, path: &str, form: F) -> Result<O, OpenAIError>
-    where
-        O: DeserializeOwned,
-        reqwest::multipart::Form: async_convert::TryFrom<F, Error = OpenAIError>,
-        F: Clone,
+        where
+            O: DeserializeOwned,
+            reqwest::multipart::Form: async_convert::TryFrom<F, Error=OpenAIError>,
+            F: Clone,
     {
         let request_maker = || async {
             Ok(self
@@ -363,7 +363,7 @@ impl<C: Config> Client<C> {
     async fn execute_raw<M, Fut>(&self, request_maker: M) -> Result<Bytes, OpenAIError>
         where
             M: Fn() -> Fut,
-            Fut: future::Future<Output = Result<reqwest::Request, OpenAIError>>,
+            Fut: future::Future<Output=Result<reqwest::Request, OpenAIError>>,
     {
         let client = self.http_client.clone();
 
@@ -406,10 +406,10 @@ impl<C: Config> Client<C> {
     /// to retry API call after getting rate limited. request_maker is async because
     /// reqwest::multipart::Form is created by async calls to read files for uploads.
     async fn execute<O, M, Fut>(&self, request_maker: M) -> Result<O, OpenAIError>
-    where
-        O: DeserializeOwned,
-        M: Fn() -> Fut,
-        Fut: core::future::Future<Output = Result<reqwest::Request, OpenAIError>>,
+        where
+            O: DeserializeOwned,
+            M: Fn() -> Fut,
+            Fut: core::future::Future<Output=Result<reqwest::Request, OpenAIError>>,
     {
         let bytes = self.execute_raw(request_maker).await?;
 
@@ -425,9 +425,9 @@ impl<C: Config> Client<C> {
         path: &str,
         request: I,
     ) -> OpenAIEventStream<O>
-    where
-        I: Serialize,
-        O: DeserializeOwned + Send + 'static,
+        where
+            I: Serialize,
+            O: DeserializeOwned + Send + 'static,
     {
         let event_source = self
             .http_client
@@ -446,10 +446,10 @@ impl<C: Config> Client<C> {
         path: &str,
         request: I,
         event_mapper: impl Fn(eventsource_stream::Event) -> Result<O, OpenAIError> + Send + 'static,
-    ) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
-    where
-        I: Serialize,
-        O: DeserializeOwned + std::marker::Send + 'static,
+    ) -> Pin<Box<dyn Stream<Item=Result<O, OpenAIError>> + Send>>
+        where
+            I: Serialize,
+            O: DeserializeOwned + std::marker::Send + 'static,
     {
         let event_source = self
             .http_client
@@ -469,9 +469,9 @@ impl<C: Config> Client<C> {
         path: &str,
         query: &Q,
     ) -> OpenAIEventStream<O>
-    where
-        Q: Serialize + ?Sized,
-        O: DeserializeOwned + Send + 'static,
+        where
+            Q: Serialize + ?Sized,
+            O: DeserializeOwned + Send + 'static,
     {
         let event_source = self
             .http_client
@@ -501,9 +501,9 @@ impl<O> OpenAIEventStream<O> {
         Self {
             stream: event_source.filter(|result|
                 // filter out the first event which is always Event::Open
-                future::ready(!(result.is_ok()&&result.as_ref().unwrap().eq(&Event::Open)))
+                future::ready(!(result.is_ok() && result.as_ref().unwrap().eq(&Event::Open)))
             ),
-            _phantom_data: PhantomData
+            _phantom_data: PhantomData,
         }
     }
 }
@@ -545,9 +545,9 @@ impl<O: DeserializeOwned + Send + 'static> Stream for OpenAIEventStream<O> {
 pub(crate) async fn stream_mapped_raw_events<O>(
     mut event_source: EventSource,
     event_mapper: impl Fn(eventsource_stream::Event) -> Result<O, OpenAIError> + Send + 'static,
-) -> Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>
-where
-    O: DeserializeOwned + std::marker::Send + 'static,
+) -> Pin<Box<dyn Stream<Item=Result<O, OpenAIError>> + Send>>
+    where
+        O: DeserializeOwned + std::marker::Send + 'static,
 {
     let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
 

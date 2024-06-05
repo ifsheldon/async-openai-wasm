@@ -1,11 +1,11 @@
 use crate::{
+    Client,
     config::Config,
     error::OpenAIError,
     types::{
         CreateBase64EmbeddingResponse, CreateEmbeddingRequest, CreateEmbeddingResponse,
         EncodingFormat,
     },
-    Client,
 };
 
 /// Get a vector representation of a given input that can be easily
@@ -53,9 +53,9 @@ impl<'c, C: Config> Embeddings<'c, C> {
 
 #[cfg(test)]
 mod tests {
+    use crate::{Client, types::CreateEmbeddingRequestArgs};
     use crate::error::OpenAIError;
     use crate::types::{CreateEmbeddingResponse, Embedding, EncodingFormat};
-    use crate::{types::CreateEmbeddingRequestArgs, Client};
 
     #[tokio::test]
     async fn test_embedding_string() {

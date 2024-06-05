@@ -3,7 +3,7 @@ use std::pin::Pin;
 use futures::Stream;
 use serde::Deserialize;
 
-use crate::error::{map_deserialization_error, ApiError, OpenAIError};
+use crate::error::{ApiError, map_deserialization_error, OpenAIError};
 
 use super::{
     MessageDeltaObject, MessageObject, RunObject, RunStepDeltaObject, RunStepObject, ThreadObject,

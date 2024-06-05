@@ -80,6 +80,28 @@
 //!
 
 
+pub use assistant_files::AssistantFiles;
+pub use assistants::Assistants;
+pub use audio::Audio;
+pub use batches::Batches;
+pub use chat::Chat;
+pub use client::Client;
+pub use completion::Completions;
+pub use embedding::Embeddings;
+pub use file::Files;
+pub use fine_tuning::FineTuning;
+pub use image::Images;
+pub use message_files::MessageFiles;
+pub use messages::Messages;
+pub use model::Models;
+pub use moderation::Moderations;
+pub use runs::Runs;
+pub use steps::Steps;
+pub use threads::Threads;
+pub use vector_store_file_batches::VectorStoreFileBatches;
+pub use vector_store_files::VectorStoreFiles;
+pub use vector_stores::VectorStores;
+
 mod assistant_files;
 mod assistants;
 mod audio;
@@ -106,24 +128,3 @@ mod vector_store_file_batches;
 mod vector_store_files;
 mod vector_stores;
 
-pub use assistant_files::AssistantFiles;
-pub use assistants::Assistants;
-pub use audio::Audio;
-pub use batches::Batches;
-pub use chat::Chat;
-pub use client::Client;
-pub use completion::Completions;
-pub use embedding::Embeddings;
-pub use file::Files;
-pub use fine_tuning::FineTuning;
-pub use image::Images;
-pub use message_files::MessageFiles;
-pub use messages::Messages;
-pub use model::Models;
-pub use moderation::Moderations;
-pub use runs::Runs;
-pub use steps::Steps;
-pub use threads::Threads;
-pub use vector_store_file_batches::VectorStoreFileBatches;
-pub use vector_store_files::VectorStoreFiles;
-pub use vector_stores::VectorStores;

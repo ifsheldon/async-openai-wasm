@@ -1,14 +1,14 @@
 use serde::Serialize;
 
 use crate::{
+    Client,
     config::Config,
     error::OpenAIError,
     types::{
         CreateVectorStoreRequest, DeleteVectorStoreResponse, ListVectorStoresResponse,
         UpdateVectorStoreRequest, VectorStoreObject,
     },
-    vector_store_file_batches::VectorStoreFileBatches,
-    Client, VectorStoreFiles,
+    vector_store_file_batches::VectorStoreFileBatches, VectorStoreFiles,
 };
 
 pub struct VectorStores<'c, C: Config> {

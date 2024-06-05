@@ -3,7 +3,6 @@ use reqwest::Body;
 use crate::error::OpenAIError;
 use crate::types::InputSource;
 
-
 /// Creates the part for the given file for multipart upload.
 pub(crate) async fn create_file_part(
     source: InputSource,
