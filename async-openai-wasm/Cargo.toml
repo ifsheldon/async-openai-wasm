@@ -42,6 +42,7 @@ secrecy = { version = "0.8", features = ["serde"] }
 pin-project-lite = "0.2"
 getrandom = { version = "0.2", features = ["js"] }
 bytes = "1.6"
+eventsource-stream = "0.2"
 
 [dev-dependencies]
 tokio-test = "0.4"
