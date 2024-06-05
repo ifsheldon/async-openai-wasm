@@ -1,8 +1,6 @@
-use std::pin::Pin;
-
-use futures::Stream;
 use serde::Deserialize;
 
+use crate::client::OpenAIEventMappedStream;
 use crate::error::{ApiError, map_deserialization_error, OpenAIError};
 
 use super::{
@@ -28,7 +26,6 @@ use super::{
 /// We may add additional events over time, so we recommend handling unknown events gracefully
 /// in your code. See the [Assistants API quickstart](https://platform.openai.com/docs/assistants/overview) to learn how to
 /// integrate the Assistants API with streaming.
-
 #[derive(Debug, Deserialize, Clone)]
 #[serde(tag = "event", content = "data")]
 #[non_exhaustive]
@@ -110,8 +107,7 @@ pub enum AssistantStreamEvent {
     Done(String),
 }
 
-pub type AssistantEventStream =
-    Pin<Box<dyn Stream<Item = Result<AssistantStreamEvent, OpenAIError>> + Send>>;
+pub type AssistantEventStream = OpenAIEventMappedStream<AssistantStreamEvent>;
 
 impl TryFrom<eventsource_stream::Event> for AssistantStreamEvent {
     type Error = OpenAIError;
