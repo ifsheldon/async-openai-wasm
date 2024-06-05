@@ -549,6 +549,7 @@ pub struct OpenAIEventMappedStream<O>
     #[pin]
     stream: Filter<EventSource, future::Ready<bool>, fn(&Result<Event, reqwest_eventsource::Error>) -> future::Ready<bool>>,
     event_mapper: Box<dyn Fn(eventsource_stream::Event) -> Result<O, OpenAIError> + Send + 'static>,
+    done: bool,
     _phantom_data: PhantomData<O>,
 }
 
@@ -562,6 +563,7 @@ impl<O> OpenAIEventMappedStream<O>
                 // filter out the first event which is always Event::Open
                 future::ready(!(result.is_ok() && result.as_ref().unwrap().eq(&Event::Open)))
             ),
+            done: false,
             event_mapper: Box::new(event_mapper),
             _phantom_data: PhantomData,
         }
@@ -574,8 +576,12 @@ impl<O> Stream for OpenAIEventMappedStream<O>
 {
     type Item = Result<O, OpenAIError>;
 
+    // TODO: test this
     fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
         let this = self.project();
+        if *this.done {
+            return Poll::Ready(None);
+        }
         let stream: Pin<&mut _> = this.stream;
         match stream.poll_next(cx) {
             Poll::Ready(response) => {
@@ -586,13 +592,19 @@ impl<O> Stream for OpenAIEventMappedStream<O>
                             Event::Open => unreachable!(), // it has been filtered out
                             Event::Message(message) => {
                                 if message.data == "[DONE]" {
-                                    Poll::Ready(None)  // end of the stream, defined by OpenAI
-                                } else {
-                                    todo!()
+                                    *this.done = true;
+                                }
+                                let response = (this.event_mapper)(message);
+                                match response {
+                                    Ok(output) => Poll::Ready(Some(Ok(output))),
+                                    Err(_) => Poll::Ready(None)
                                 }
                             }
                         }
-                        Err(e) => Poll::Ready(Some(Err(OpenAIError::StreamError(e.to_string()))))
+                        Err(e) => {
+                            *this.done = true;
+                            Poll::Ready(Some(Err(OpenAIError::StreamError(e.to_string()))))
+                        }
                     }
                 }
             }
