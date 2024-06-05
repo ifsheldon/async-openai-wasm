@@ -1,5 +1,5 @@
 [package]
-name = "openai-web-app"
+name = "openai-web-app-chat"
 version = "0.1.0"
 edition = "2021"
 publish = false
@@ -7,9 +7,9 @@ publish = false
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-dioxus = "~0.4"
-dioxus-web = "~0.4"
-futures = "0.3.28"
+dioxus = {version = "~0.5", features = ["web"]}
+futures = "0.3.30"
 async-openai-wasm = { path = "../../async-openai-wasm" }
-console_log = "1.0"
-log = "0.4"
+# Debug
+tracing = "0.1.40"
+dioxus-logger = "~0.5"
