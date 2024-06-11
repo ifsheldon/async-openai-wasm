@@ -588,7 +588,6 @@ impl<O> Stream for OpenAIEventMappedStream<O>
 {
     type Item = Result<O, OpenAIError>;
 
-    // TODO: test this
     fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
         let this = self.project();
         if *this.done {
