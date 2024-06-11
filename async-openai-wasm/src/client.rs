@@ -446,10 +446,10 @@ impl<C: Config> Client<C> {
         path: &str,
         request: I,
         event_mapper: impl Fn(eventsource_stream::Event) -> Result<O, OpenAIError> + Send + 'static,
-    ) -> Pin<Box<dyn Stream<Item=Result<O, OpenAIError>> + Send>>
+    ) -> OpenAIEventMappedStream<O>
         where
             I: Serialize,
-            O: DeserializeOwned + Send + 'static,
+            O: DeserializeOwned + Send + 'static
     {
         let event_source = self
             .http_client
@@ -460,8 +460,7 @@ impl<C: Config> Client<C> {
             .eventsource()
             .unwrap();
 
-        // stream_mapped_raw_events(event_source, event_mapper).await
-        todo!()
+        OpenAIEventMappedStream::new(event_source, event_mapper)
     }
 
     /// Make HTTP GET request to receive SSE
@@ -491,19 +490,21 @@ impl<C: Config> Client<C> {
 /// Request which responds with SSE.
 /// [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#event_stream_format)
 #[pin_project]
-pub struct OpenAIEventStream<O> {
+pub struct OpenAIEventStream<O: DeserializeOwned + Send + 'static> {
     #[pin]
     stream: Filter<EventSource, future::Ready<bool>, fn(&Result<Event, reqwest_eventsource::Error>) -> future::Ready<bool>>,
+    done: bool,
     _phantom_data: PhantomData<O>,
 }
 
-impl<O> OpenAIEventStream<O> {
+impl<O: DeserializeOwned + Send + 'static> OpenAIEventStream<O> {
     pub(crate) fn new(event_source: EventSource) -> Self {
         Self {
             stream: event_source.filter(|result|
                 // filter out the first event which is always Event::Open
                 future::ready(!(result.is_ok() && result.as_ref().unwrap().eq(&Event::Open)))
             ),
+            done: false,
             _phantom_data: PhantomData,
         }
     }
@@ -514,6 +515,9 @@ impl<O: DeserializeOwned + Send + 'static> Stream for OpenAIEventStream<O> {
 
     fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
         let this = self.project();
+        if *this.done {
+            return Poll::Ready(None);
+        }
         let stream: Pin<&mut _> = this.stream;
         match stream.poll_next(cx) {
             Poll::Ready(response) => {
@@ -524,17 +528,24 @@ impl<O: DeserializeOwned + Send + 'static> Stream for OpenAIEventStream<O> {
                             Event::Open => unreachable!(), // it has been filtered out
                             Event::Message(message) => {
                                 if message.data == "[DONE]" {
+                                    *this.done = true;
                                     Poll::Ready(None)  // end of the stream, defined by OpenAI
                                 } else {
                                     // deserialize the data
                                     match serde_json::from_str::<O>(&message.data) {
-                                        Err(e) => Poll::Ready(Some(Err(map_deserialization_error(e, &message.data.as_bytes())))),
+                                        Err(e) => {
+                                            *this.done = true;
+                                            Poll::Ready(Some(Err(map_deserialization_error(e, &message.data.as_bytes()))))
+                                        }
                                         Ok(output) => Poll::Ready(Some(Ok(output))),
                                     }
                                 }
                             }
                         }
-                        Err(e) => Poll::Ready(Some(Err(OpenAIError::StreamError(e.to_string()))))
+                        Err(e) => {
+                            *this.done = true;
+                            Poll::Ready(Some(Err(OpenAIError::StreamError(e.to_string()))))
+                        }
                     }
                 }
             }
@@ -542,6 +553,77 @@ impl<O: DeserializeOwned + Send + 'static> Stream for OpenAIEventStream<O> {
         }
     }
 }
+
+#[pin_project]
+pub struct OpenAIEventMappedStream<O>
+    where O: Send + 'static
+{
+    #[pin]
+    stream: Filter<EventSource, future::Ready<bool>, fn(&Result<Event, reqwest_eventsource::Error>) -> future::Ready<bool>>,
+    event_mapper: Box<dyn Fn(eventsource_stream::Event) -> Result<O, OpenAIError> + Send + 'static>,
+    done: bool,
+    _phantom_data: PhantomData<O>,
+}
+
+impl<O> OpenAIEventMappedStream<O>
+    where O: Send + 'static
+{
+    pub(crate) fn new<M>(event_source: EventSource, event_mapper: M) -> Self
+        where M: Fn(eventsource_stream::Event) -> Result<O, OpenAIError> + Send + 'static {
+        Self {
+            stream: event_source.filter(|result|
+                // filter out the first event which is always Event::Open
+                future::ready(!(result.is_ok() && result.as_ref().unwrap().eq(&Event::Open)))
+            ),
+            done: false,
+            event_mapper: Box::new(event_mapper),
+            _phantom_data: PhantomData,
+        }
+    }
+}
+
+
+impl<O> Stream for OpenAIEventMappedStream<O>
+    where O: Send + 'static
+{
+    type Item = Result<O, OpenAIError>;
+
+    fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
+        let this = self.project();
+        if *this.done {
+            return Poll::Ready(None);
+        }
+        let stream: Pin<&mut _> = this.stream;
+        match stream.poll_next(cx) {
+            Poll::Ready(response) => {
+                match response {
+                    None => Poll::Ready(None), // end of the stream
+                    Some(result) => match result {
+                        Ok(event) => match event {
+                            Event::Open => unreachable!(), // it has been filtered out
+                            Event::Message(message) => {
+                                if message.data == "[DONE]" {
+                                    *this.done = true;
+                                }
+                                let response = (this.event_mapper)(message);
+                                match response {
+                                    Ok(output) => Poll::Ready(Some(Ok(output))),
+                                    Err(_) => Poll::Ready(None)
+                                }
+                            }
+                        }
+                        Err(e) => {
+                            *this.done = true;
+                            Poll::Ready(Some(Err(OpenAIError::StreamError(e.to_string()))))
+                        }
+                    }
+                }
+            }
+            Poll::Pending => Poll::Pending
+        }
+    }
+}
+
 
 // pub(crate) async fn stream_mapped_raw_events<O>(
 //     mut event_source: EventSource,
