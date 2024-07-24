@@ -1,10 +1,10 @@
-use base64::engine::{Engine, general_purpose};
+use base64::engine::{general_purpose, Engine};
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
 use crate::error::OpenAIError;
 
-#[derive(Debug, Serialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Clone, PartialEq, Deserialize)]
 #[serde(untagged)]
 pub enum EmbeddingInput {
     String(String),
@@ -14,7 +14,7 @@ pub enum EmbeddingInput {
     ArrayOfIntegerArray(Vec<Vec<u32>>),
 }
 
-#[derive(Debug, Serialize, Default, Clone, PartialEq)]
+#[derive(Debug, Serialize, Default, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum EncodingFormat {
     #[default]
@@ -22,7 +22,7 @@ pub enum EncodingFormat {
     Base64,
 }
 
-#[derive(Debug, Serialize, Default, Clone, Builder, PartialEq)]
+#[derive(Debug, Serialize, Default, Clone, Builder, PartialEq, Deserialize)]
 #[builder(name = "CreateEmbeddingRequestArgs")]
 #[builder(pattern = "mutable")]
 #[builder(setter(into, strip_option), default)]

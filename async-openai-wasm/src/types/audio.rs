@@ -2,16 +2,15 @@ use bytes::Bytes;
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
-use crate::error::OpenAIError;
-
 use super::InputSource;
+use crate::error::OpenAIError;
 
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct AudioInput {
     pub source: InputSource,
 }
 
-#[derive(Debug, Serialize, Default, Clone, Copy, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone, Copy, PartialEq)]
 #[serde(rename_all = "snake_case")]
 pub enum AudioResponseFormat {
     #[default]
@@ -22,7 +21,7 @@ pub enum AudioResponseFormat {
     Vtt,
 }
 
-#[derive(Debug, Serialize, Default, Clone, Copy, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone, Copy, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum SpeechResponseFormat {
     #[default]
@@ -34,7 +33,7 @@ pub enum SpeechResponseFormat {
     Wav,
 }
 
-#[derive(Debug, Default, Serialize, Clone, PartialEq)]
+#[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 #[non_exhaustive]
 pub enum Voice {
@@ -47,7 +46,7 @@ pub enum Voice {
     Shimmer,
 }
 
-#[derive(Debug, Default, Serialize, Clone, PartialEq)]
+#[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq)]
 pub enum SpeechModel {
     #[default]
     #[serde(rename = "tts-1")]
@@ -58,7 +57,7 @@ pub enum SpeechModel {
     Other(String),
 }
 
-#[derive(Debug, Default, Serialize, Clone, PartialEq)]
+#[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum TimestampGranularity {
     Word,
@@ -173,7 +172,7 @@ pub struct TranscriptionSegment {
     pub no_speech_prob: f32,
 }
 
-#[derive(Clone, Default, Debug, Builder, PartialEq, Serialize)]
+#[derive(Clone, Default, Debug, Builder, PartialEq, Serialize, Deserialize)]
 #[builder(name = "CreateSpeechRequestArgs")]
 #[builder(pattern = "mutable")]
 #[builder(setter(into, strip_option), default)]
