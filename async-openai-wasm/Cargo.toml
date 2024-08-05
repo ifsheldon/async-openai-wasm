@@ -41,9 +41,9 @@ async-convert = "1.0"
 secrecy = { version = "0.8", features = ["serde"] }
 pin-project = "1.1"
 getrandom = { version = "0.2", features = ["js"] }
-bytes = "1.6"
+bytes = "1.7"
 eventsource-stream = "0.2"
 
 [dev-dependencies]
 tokio-test = "0.4"
-tokio = { version = "1.38", features = ["fs", "macros"] }
+tokio = { version = "1.39", features = ["fs", "macros"] }
