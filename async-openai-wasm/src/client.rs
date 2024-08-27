@@ -21,13 +21,11 @@ use crate::{
 };
 
 #[derive(Debug, Clone)]
-/// Client is a container for config, backoff and http_client
+/// Client is a container for config and http_client
 /// used to make API calls.
 pub struct Client<C: Config> {
     http_client: reqwest::Client,
     config: C,
-    // #[cfg(feature = "backoff")]
-    // backoff: backoff::ExponentialBackoff,
 }
 
 impl Client<OpenAIConfig> {
@@ -36,25 +34,19 @@ impl Client<OpenAIConfig> {
         Self {
             http_client: reqwest::Client::new(),
             config: OpenAIConfig::default(),
-            // #[cfg(feature = "backoff")]
-            // backoff: Default::default(),
         }
     }
 }
 
 impl<C: Config> Client<C> {
-    /// Create client with a custom HTTP client, OpenAI config, and backoff.
+    /// Create client with a custom HTTP client, OpenAI config
     pub fn build(
         http_client: reqwest::Client,
         config: C,
-        // #[cfg(feature = "backoff")]
-        // backoff: backoff::ExponentialBackoff,
     ) -> Self {
         Self {
             http_client,
             config,
-            // #[cfg(feature = "backoff")]
-            // backoff,
         }
     }
 
@@ -62,9 +54,7 @@ impl<C: Config> Client<C> {
     pub fn with_config(config: C) -> Self {
         Self {
             http_client: reqwest::Client::new(),
-            config,
-            // #[cfg(feature = "backoff")]
-            // backoff: Default::default(),
+            config
         }
     }
 
@@ -75,13 +65,6 @@ impl<C: Config> Client<C> {
         self.http_client = http_client;
         self
     }
-
-    // #[cfg(feature = "backoff")]
-    // /// Exponential backoff for retrying [rate limited](https://platform.openai.com/docs/guides/rate-limits) requests.
-    // pub fn with_backoff(mut self, backoff: backoff::ExponentialBackoff) -> Self {
-    //     self.backoff = backoff;
-    //     self
-    // }
 
     // API groups
 
@@ -297,64 +280,6 @@ impl<C: Config> Client<C> {
         self.execute(request_maker).await
     }
 
-    // #[cfg(feature = "backoff")]
-    // /// Execute a HTTP request and retry on rate limit
-    // ///
-    // /// request_maker serves one purpose: to be able to create request again
-    // /// to retry API call after getting rate limited. request_maker is async because
-    // /// reqwest::multipart::Form is created by async calls to read files for uploads.
-    // async fn execute_raw<M, Fut>(&self, request_maker: M) -> Result<Bytes, OpenAIError>
-    // where
-    //     M: Fn() -> Fut,
-    //     Fut: core::future::Future<Output = Result<reqwest::Request, OpenAIError>>,
-    // {
-    //     let client = self.http_client.clone();
-    //
-    //     backoff::future::retry(self.backoff.clone(), || async {
-    //         let request = request_maker().await.map_err(backoff::Error::Permanent)?;
-    //         let response = client
-    //             .execute(request)
-    //             .await
-    //             .map_err(OpenAIError::Reqwest)
-    //             .map_err(backoff::Error::Permanent)?;
-    //
-    //         let status = response.status();
-    //         let bytes = response
-    //             .bytes()
-    //             .await
-    //             .map_err(OpenAIError::Reqwest)
-    //             .map_err(backoff::Error::Permanent)?;
-    //
-    //         // Deserialize response body from either error object or actual response object
-    //         if !status.is_success() {
-    //             let wrapped_error: WrappedError = serde_json::from_slice(bytes.as_ref())
-    //                 .map_err(|e| map_deserialization_error(e, bytes.as_ref()))
-    //                 .map_err(backoff::Error::Permanent)?;
-    //
-    //             if status.as_u16() == 429
-    //                 // API returns 429 also when:
-    //                 // "You exceeded your current quota, please check your plan and billing details."
-    //                 && wrapped_error.error.r#type != Some("insufficient_quota".to_string())
-    //             {
-    //                 // Rate limited retry...
-    //                 tracing::warn!("Rate limited: {}", wrapped_error.error.message);
-    //                 return Err(backoff::Error::Transient {
-    //                     err: OpenAIError::ApiError(wrapped_error.error),
-    //                     retry_after: None,
-    //                 });
-    //             } else {
-    //                 return Err(backoff::Error::Permanent(OpenAIError::ApiError(
-    //                     wrapped_error.error,
-    //                 )));
-    //             }
-    //         }
-    //
-    //         Ok(bytes)
-    //     })
-    //     .await
-    // }
-
-    #[cfg(not(feature = "backoff"))]
     /// Execute a HTTP request and retry on rate limit
     ///
     /// request_maker serves one purpose: to be able to create request again

@@ -34,8 +34,6 @@ a `x.y.z` version.
     - [x] Moderations
     - [x] **WASM support**
 - SSE streaming on all available APIs
-- Requests (except SSE streaming) including form submissions are retried with exponential backoff
-  when [rate limited](https://platform.openai.com/docs/guides/rate-limits).
 - Ergonomic builder pattern for all request objects.
 - Microsoft Azure OpenAI Service (only APIs matching OpenAI spec)
 
@@ -44,17 +42,15 @@ maintain parity with spec of AOS. Just like `async-openai`.
 
 ## Differences from `async-openai`
 
-**++** WASM support
-
-**++** WASM examples
-
-**--** Tokio
-
-**--** Non-wasm examples: please refer to the original project [async-openai](https://github.com/64bit/async-openai/).
-
-**--** Backoff retries: due to [this issue](https://github.com/ihrwein/backoff/issues/61). **HELP WANTED**
-
-**--** File saving: `wasm32-unknown-unknown` on browsers doesn't have access to filesystem.
+```diff
++ * WASM support
++ * WASM examples
+- * Tokio
+- * Non-wasm examples: please refer to the original project [async-openai](https://github.com/64bit/async-openai/).
+- * Buitin backoff retries: due to [this issue](https://github.com/ihrwein/backoff/issues/61). 
+-   * Recommend: use `backon` with `gloo-timers-sleep` feature instead.
+- * File saving: `wasm32-unknown-unknown` on browsers doesn't have access to filesystem.
+```
 
 ## Usage
 
