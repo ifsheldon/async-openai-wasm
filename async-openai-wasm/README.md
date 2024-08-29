@@ -47,7 +47,7 @@ maintain parity with spec of AOS. Just like `async-openai`.
 + * WASM examples
 - * Tokio
 - * Non-wasm examples: please refer to the original project [async-openai](https://github.com/64bit/async-openai/).
-- * Buitin backoff retries: due to [this issue](https://github.com/ihrwein/backoff/issues/61). 
+- * Builtin backoff retries: due to [this issue](https://github.com/ihrwein/backoff/issues/61). 
 -   * Recommend: use `backon` with `gloo-timers-sleep` feature instead.
 - * File saving: `wasm32-unknown-unknown` on browsers doesn't have access to filesystem.
 ```
