@@ -125,6 +125,7 @@ pub fn create_assistant_request() -> CreateAssistantRequest {
                     "required": ["location", "unit"]
                 }
             )),
+                strict: None,
             }.into(),
             FunctionObject {
                 name: "get_rain_probability".into(),
@@ -141,6 +142,7 @@ pub fn create_assistant_request() -> CreateAssistantRequest {
                     "required": ["location"]
                 }
             )),
+                strict: None,
             }.into(),
         ])
         .build()

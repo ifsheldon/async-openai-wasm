@@ -8,25 +8,7 @@ use crate::{
     util::create_file_part,
 };
 
-use super::{
-    AudioInput,
-    AudioResponseFormat,
-    ChatCompletionFunctionCall, ChatCompletionFunctions,
-    ChatCompletionNamedToolChoice, ChatCompletionRequestAssistantMessage,
-    ChatCompletionRequestFunctionMessage, ChatCompletionRequestMessage,
-    ChatCompletionRequestMessageContentPart, ChatCompletionRequestMessageContentPartImage,
-    ChatCompletionRequestMessageContentPartText, ChatCompletionRequestSystemMessage,
-    ChatCompletionRequestToolMessage,
-    ChatCompletionRequestUserMessage, ChatCompletionRequestUserMessageContent,
-    ChatCompletionToolChoiceOption,
-    CreateFileRequest,
-    CreateImageEditRequest, CreateImageVariationRequest, CreateMessageRequestContent,
-    CreateTranscriptionRequest, CreateTranslationRequest, DallE2ImageSize,
-    EmbeddingInput, FileInput, FilePurpose,
-    FunctionName, ImageInput, ImageModel, ImageSize, ImageUrl, ModerationInput,
-    Prompt, ImageResponseFormat, Role, Stop,
-    TimestampGranularity,
-};
+use super::{AudioInput, AudioResponseFormat, ChatCompletionFunctionCall, ChatCompletionFunctions, ChatCompletionNamedToolChoice, ChatCompletionRequestAssistantMessage, ChatCompletionRequestFunctionMessage, ChatCompletionRequestMessage, ChatCompletionRequestMessageContentPartText, ChatCompletionRequestMessageContentPartImage, ChatCompletionRequestSystemMessage, ChatCompletionRequestToolMessage, ChatCompletionRequestUserMessage, ChatCompletionRequestUserMessageContent, ChatCompletionToolChoiceOption, CreateFileRequest, CreateImageEditRequest, CreateImageVariationRequest, CreateMessageRequestContent, CreateTranscriptionRequest, CreateTranslationRequest, DallE2ImageSize, EmbeddingInput, FileInput, FilePurpose, FunctionName, ImageInput, ImageModel, ImageSize, ImageUrl, ModerationInput, Prompt, ImageResponseFormat, Role, Stop, TimestampGranularity, ChatCompletionRequestSystemMessageContent, ChatCompletionRequestAssistantMessageContent, ChatCompletionRequestToolMessageContent, ChatCompletionRequestUserMessageContentPart};
 
 /// for `impl_from!(T, Enum)`, implements
 /// - `From<T>`
