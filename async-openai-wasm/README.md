@@ -33,9 +33,9 @@ a `x.y.z` version.
     - [x] Models
     - [x] Moderations
     - [x] **WASM support**
-- SSE streaming on all available APIs
+- SSE streaming on available APIs
 - Ergonomic builder pattern for all request objects.
-- Microsoft Azure OpenAI Service (only APIs matching OpenAI spec)
+- Microsoft Azure OpenAI Service (only for APIs matching OpenAI spec)
 
 **Note on Azure OpenAI Service (AOS)**:  `async-openai-wasm` primarily implements OpenAI spec, and doesn't try to
 maintain parity with spec of AOS. Just like `async-openai`.
@@ -75,7 +75,7 @@ $Env:OPENAI_API_KEY='sk-...'
 
 ```rust
 use async_openai_wasm::{
-    types::{CreateImageRequestArgs, ImageSize, ResponseFormat},
+    types::{CreateImageRequestArgs, ImageSize, ImageResponseFormat},
     Client,
 };
 use std::error::Error;
@@ -88,7 +88,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let request = CreateImageRequestArgs::default()
         .prompt("cats on sofa and carpet in living room")
         .n(2)
-        .response_format(ResponseFormat::Url)
+        .response_format(ImageResponseFormat::Url)
         .size(ImageSize::S256x256)
         .user("async-openai-wasm")
         .build()?;
