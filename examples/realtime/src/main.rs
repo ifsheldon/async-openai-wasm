@@ -1,6 +1,6 @@
 use std::process::exit;
 
-use async_openai::types::realtime::{
+use async_openai_wasm::types::realtime::{
     ConversationItemCreateEvent, Item, ResponseCreateEvent, ServerEvent,
 };
 use futures_util::{future, pin_mut, StreamExt};

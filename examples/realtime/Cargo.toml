@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-async-openai = { path = "../../async-openai", features = ["realtime"] }
+async-openai-wasm = { path = "../../async-openai-wasm", features = ["realtime"] }
 futures-channel = "0.3.31"
 futures-util = { version = "0.3.31", features = ["sink", "std"] }
 serde = { version = "1.0.210", features = ["derive"] }

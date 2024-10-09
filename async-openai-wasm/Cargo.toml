@@ -1,6 +1,6 @@
 [package]
 name = "async-openai-wasm"
-version = "0.24.0"
+version = "0.25.0"
 authors = [
     "Contributors of the async-openai crate",
     "ifsheldon <async_openai_wasm@reify.ing>"
@@ -25,6 +25,7 @@ rustls-webpki-roots = ["reqwest/rustls-tls-webpki-roots"]
 native-tls = ["reqwest/native-tls"]
 # Remove dependency on OpenSSL
 native-tls-vendored = ["reqwest/native-tls-vendored"]
+realtime = ["dep:tokio-tungstenite"]
 
 [dependencies]
 base64 = "0.22"
@@ -43,7 +44,13 @@ pin-project = "1.1"
 getrandom = { version = "0.2", features = ["js"] }
 bytes = "1.7"
 eventsource-stream = "0.2"
+tokio-tungstenite = { version = "0.24.0", optional = true, default-features = false }
+
 
 [dev-dependencies]
 tokio-test = "0.4"
 tokio = { version = "1.39", features = ["fs", "macros"] }
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]

@@ -86,7 +86,6 @@ mod chat;
 mod client;
 mod completion;
 pub mod config;
-mod download;
 mod embedding;
 pub mod error;
 mod file;
