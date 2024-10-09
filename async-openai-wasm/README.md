@@ -32,6 +32,9 @@ a `x.y.z` version.
     - [x] Images
     - [x] Models
     - [x] Moderations
+    - [ ] Organizations | Administration
+    - [x] Realtime API types (Beta)
+    - [ ] Uploads
     - [x] **WASM support**
 - SSE streaming on available APIs
 - Ergonomic builder pattern for all request objects.
@@ -45,6 +48,7 @@ maintain parity with spec of AOS. Just like `async-openai`.
 ```diff
 + * WASM support
 + * WASM examples
++ * Realtime API: Does not bundle with a specific WS implementation. Need to convert a client event into a WS message by yourself, which is just simple `your_ws_impl::Message::Text(some_client_event.into_text())`
 - * Tokio
 - * Non-wasm examples: please refer to the original project [async-openai](https://github.com/64bit/async-openai/).
 - * Builtin backoff retries: due to [this issue](https://github.com/ihrwein/backoff/issues/61). 
@@ -70,6 +74,13 @@ $Env:OPENAI_API_KEY='sk-...'
 - Visit [examples](https://github.com/64bit/async-openai/tree/main/examples) directory on how to use `async-openai`,
   and [WASM examples](https://github.com/ifsheldon/async-openai-wasm/tree/main/examples) in `async-openai-wasm`.
 - Visit [docs.rs/async-openai](https://docs.rs/async-openai) for docs.
+
+## Realtime API
+
+Only types for Realtime API are implemented, and can be enabled with feature flag `realtime`
+These types may change when OpenAI releases official specs for them.
+
+Again, the types do not bundle with a specific WS implementation. Need to convert a client event into a WS message by yourself, which is just simple `your_ws_impl::Message::Text(some_client_event.into_text())`.
 
 ## Image Generation Example
 
