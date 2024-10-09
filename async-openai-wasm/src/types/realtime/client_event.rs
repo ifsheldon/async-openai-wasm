@@ -1,7 +1,14 @@
 use serde::{Deserialize, Serialize};
-use tokio_tungstenite::tungstenite::Message;
-
 use super::{item::Item, session_resource::SessionResource};
+
+///
+/// A trait same as Into<String>
+///
+/// For converting event structs into text part of WS message
+///
+pub trait ToText {
+    fn to_text(self) -> String;
+}
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct SessionUpdateEvent {
@@ -133,29 +140,13 @@ pub enum ClientEvent {
     ResponseCancel(ResponseCancelEvent),
 }
 
-impl From<&ClientEvent> for String {
-    fn from(value: &ClientEvent) -> Self {
-        serde_json::to_string(value).unwrap()
+impl Into<String> for &ClientEvent {
+    fn into(self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }
 
-impl From<ClientEvent> for Message {
-    fn from(value: ClientEvent) -> Self {
-        Message::Text(String::from(&value))
-    }
-}
-
-macro_rules! message_from_event {
-    ($from_typ:ty, $evt_typ:ty) => {
-        impl From<$from_typ> for Message {
-            fn from(value: $from_typ) -> Self {
-                Self::from(<$evt_typ>::from(value))
-            }
-        }
-    };
-}
-
-macro_rules! event_from {
+macro_rules! event_struct_to_variant {
     ($from_typ:ty, $evt_typ:ty, $variant:ident) => {
         impl From<$from_typ> for $evt_typ {
             fn from(value: $from_typ) -> Self {
@@ -165,49 +156,46 @@ macro_rules! event_from {
     };
 }
 
-event_from!(SessionUpdateEvent, ClientEvent, SessionUpdate);
-event_from!(
+event_struct_to_variant!(SessionUpdateEvent, ClientEvent, SessionUpdate);
+event_struct_to_variant!(
     InputAudioBufferAppendEvent,
     ClientEvent,
     InputAudioBufferAppend
 );
-event_from!(
+event_struct_to_variant!(
     InputAudioBufferCommitEvent,
     ClientEvent,
     InputAudioBufferCommit
 );
-event_from!(
+event_struct_to_variant!(
     InputAudioBufferClearEvent,
     ClientEvent,
     InputAudioBufferClear
 );
-event_from!(
+event_struct_to_variant!(
     ConversationItemCreateEvent,
     ClientEvent,
     ConversationItemCreate
 );
-event_from!(
+event_struct_to_variant!(
     ConversationItemTruncateEvent,
     ClientEvent,
     ConversationItemTruncate
 );
-event_from!(
+event_struct_to_variant!(
     ConversationItemDeleteEvent,
     ClientEvent,
     ConversationItemDelete
 );
-event_from!(ResponseCreateEvent, ClientEvent, ResponseCreate);
-event_from!(ResponseCancelEvent, ClientEvent, ResponseCancel);
+event_struct_to_variant!(ResponseCreateEvent, ClientEvent, ResponseCreate);
+event_struct_to_variant!(ResponseCancelEvent, ClientEvent, ResponseCancel);
 
-message_from_event!(SessionUpdateEvent, ClientEvent);
-message_from_event!(InputAudioBufferAppendEvent, ClientEvent);
-message_from_event!(InputAudioBufferCommitEvent, ClientEvent);
-message_from_event!(InputAudioBufferClearEvent, ClientEvent);
-message_from_event!(ConversationItemCreateEvent, ClientEvent);
-message_from_event!(ConversationItemTruncateEvent, ClientEvent);
-message_from_event!(ConversationItemDeleteEvent, ClientEvent);
-message_from_event!(ResponseCreateEvent, ClientEvent);
-message_from_event!(ResponseCancelEvent, ClientEvent);
+impl<T: Into<ClientEvent>> ToText for T {
+    // blanket impl for all client event structs
+    fn to_text(self) -> String {
+        (&self.into()).into()
+    }
+}
 
 impl From<Item> for ConversationItemCreateEvent {
     fn from(value: Item) -> Self {

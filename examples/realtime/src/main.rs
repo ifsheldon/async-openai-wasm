@@ -1,8 +1,6 @@
 use std::process::exit;
 
-use async_openai_wasm::types::realtime::{
-    ConversationItemCreateEvent, Item, ResponseCreateEvent, ServerEvent,
-};
+use async_openai_wasm::types::realtime::{ConversationItemCreateEvent, Item, ResponseCreateEvent, ServerEvent, ToText};
 use futures_util::{future, pin_mut, StreamExt};
 
 use tokio::io::AsyncReadExt;
@@ -138,11 +136,11 @@ async fn read_stdin(tx: futures_channel::mpsc::UnboundedSender<Message>) {
         // Create event of type "conversation.item.create"
         let event: ConversationItemCreateEvent = item.into();
         // Create WebSocket message from client event
-        let message: Message = event.into();
+        let message: Message = Message::Text(event.to_text());
         // send WebSocket message containing event of type "conversation.item.create" to server
         tx.unbounded_send(message).unwrap();
         // send WebSocket message containing event of type "response.create" to server
-        tx.unbounded_send(ResponseCreateEvent::default().into())
+        tx.unbounded_send(Message::Text(ResponseCreateEvent::default().to_text()))
             .unwrap();
     }
 }
