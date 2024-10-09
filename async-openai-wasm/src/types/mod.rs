@@ -36,13 +36,15 @@ mod common;
 mod completion;
 mod embedding;
 mod file;
-mod fine_tune;
 mod fine_tuning;
 mod image;
 mod message;
 mod message_file;
 mod model;
 mod moderation;
+#[cfg_attr(docsrs, doc(cfg(feature = "realtime")))]
+#[cfg(feature = "realtime")]
+pub mod realtime;
 mod run;
 mod step;
 mod thread;

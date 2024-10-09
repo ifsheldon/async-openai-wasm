@@ -77,8 +77,33 @@
 //! For full working examples of the original `async-openai` for all supported features see [examples](https://github.com/64bit/async-openai/tree/main/examples) directory in the repository.
 //! Also see [wasm examples](https://github.com/ifsheldon/async-openai-wasm/tree/main/examples)
 //!
-//!
-
+#![cfg_attr(docsrs, feature(doc_cfg))]
+mod assistant_files;
+mod assistants;
+mod audio;
+mod batches;
+mod chat;
+mod client;
+mod completion;
+pub mod config;
+mod download;
+mod embedding;
+pub mod error;
+mod file;
+mod fine_tuning;
+mod image;
+mod message_files;
+mod messages;
+mod model;
+mod moderation;
+mod runs;
+mod steps;
+mod threads;
+pub mod types;
+mod util;
+mod vector_store_file_batches;
+mod vector_store_files;
+mod vector_stores;
 
 pub use assistant_files::AssistantFiles;
 pub use assistants::Assistants;
@@ -101,30 +126,3 @@ pub use threads::Threads;
 pub use vector_store_file_batches::VectorStoreFileBatches;
 pub use vector_store_files::VectorStoreFiles;
 pub use vector_stores::VectorStores;
-
-mod assistant_files;
-mod assistants;
-mod audio;
-mod batches;
-mod chat;
-mod client;
-mod completion;
-pub mod config;
-mod embedding;
-pub mod error;
-mod file;
-mod fine_tuning;
-mod image;
-mod message_files;
-mod messages;
-mod model;
-mod moderation;
-mod runs;
-mod steps;
-mod threads;
-pub mod types;
-mod util;
-mod vector_store_file_batches;
-mod vector_store_files;
-mod vector_stores;
-
