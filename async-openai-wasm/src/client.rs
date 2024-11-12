@@ -4,20 +4,20 @@ use std::pin::Pin;
 use std::task::{Context, Poll};
 
 use bytes::Bytes;
-use futures::{Stream, stream::StreamExt};
 use futures::stream::Filter;
+use futures::{stream::StreamExt, Stream};
 use pin_project::pin_project;
 use reqwest_eventsource::{Event, EventSource, RequestBuilderExt};
 use serde::{de::DeserializeOwned, Serialize};
 
 use crate::{
-    Assistants, Audio, Batches, Chat, Completions,
-    config::{Config, OpenAIConfig}, Embeddings,
+    config::{Config, OpenAIConfig},
     error::{map_deserialization_error, OpenAIError, WrappedError},
-    file::Files, FineTuning,
-    image::Images, Models,
-    moderation::Moderations, Threads,
-    VectorStores,
+    file::Files,
+    image::Images,
+    moderation::Moderations,
+    Assistants, Audio, AuditLogs, Batches, Chat, Completions, Embeddings, FineTuning, Invites,
+    Models, Projects, Threads, Users, VectorStores,
 };
 
 #[derive(Debug, Clone)]
@@ -40,10 +40,7 @@ impl Client<OpenAIConfig> {
 
 impl<C: Config> Client<C> {
     /// Create client with a custom HTTP client, OpenAI config
-    pub fn build(
-        http_client: reqwest::Client,
-        config: C,
-    ) -> Self {
+    pub fn build(http_client: reqwest::Client, config: C) -> Self {
         Self {
             http_client,
             config,
@@ -54,7 +51,7 @@ impl<C: Config> Client<C> {
     pub fn with_config(config: C) -> Self {
         Self {
             http_client: reqwest::Client::new(),
-            config
+            config,
         }
     }
 
@@ -133,14 +130,34 @@ impl<C: Config> Client<C> {
         Batches::new(self)
     }
 
+    /// To call [AuditLogs] group related APIs using this client.
+    pub fn audit_logs(&self) -> AuditLogs<C> {
+        AuditLogs::new(self)
+    }
+
+    /// To call [Invites] group related APIs using this client.
+    pub fn invites(&self) -> Invites<C> {
+        Invites::new(self)
+    }
+
+    /// To call [Users] group related APIs using this client.
+    pub fn users(&self) -> Users<C> {
+        Users::new(self)
+    }
+
+    /// To call [Projects] group related APIs using this client.
+    pub fn projects(&self) -> Projects<C> {
+        Projects::new(self)
+    }
+
     pub fn config(&self) -> &C {
         &self.config
     }
 
     /// Make a GET request to {path} and deserialize the response body
     pub(crate) async fn get<O>(&self, path: &str) -> Result<O, OpenAIError>
-        where
-            O: DeserializeOwned,
+    where
+        O: DeserializeOwned,
     {
         let request_maker = || async {
             Ok(self
@@ -156,9 +173,9 @@ impl<C: Config> Client<C> {
 
     /// Make a GET request to {path} with given Query and deserialize the response body
     pub(crate) async fn get_with_query<Q, O>(&self, path: &str, query: &Q) -> Result<O, OpenAIError>
-        where
-            O: DeserializeOwned,
-            Q: Serialize + ?Sized,
+    where
+        O: DeserializeOwned,
+        Q: Serialize + ?Sized,
     {
         let request_maker = || async {
             Ok(self
@@ -175,8 +192,8 @@ impl<C: Config> Client<C> {
 
     /// Make a DELETE request to {path} and deserialize the response body
     pub(crate) async fn delete<O>(&self, path: &str) -> Result<O, OpenAIError>
-        where
-            O: DeserializeOwned,
+    where
+        O: DeserializeOwned,
     {
         let request_maker = || async {
             Ok(self
@@ -206,8 +223,8 @@ impl<C: Config> Client<C> {
 
     /// Make a POST request to {path} and return the response body
     pub(crate) async fn post_raw<I>(&self, path: &str, request: I) -> Result<Bytes, OpenAIError>
-        where
-            I: Serialize,
+    where
+        I: Serialize,
     {
         let request_maker = || async {
             Ok(self
@@ -224,9 +241,9 @@ impl<C: Config> Client<C> {
 
     /// Make a POST request to {path} and deserialize the response body
     pub(crate) async fn post<I, O>(&self, path: &str, request: I) -> Result<O, OpenAIError>
-        where
-            I: Serialize,
-            O: DeserializeOwned,
+    where
+        I: Serialize,
+        O: DeserializeOwned,
     {
         let request_maker = || async {
             Ok(self
@@ -243,9 +260,9 @@ impl<C: Config> Client<C> {
 
     /// POST a form at {path} and return the response body
     pub(crate) async fn post_form_raw<F>(&self, path: &str, form: F) -> Result<Bytes, OpenAIError>
-        where
-            reqwest::multipart::Form: async_convert::TryFrom<F, Error=OpenAIError>,
-            F: Clone,
+    where
+        reqwest::multipart::Form: async_convert::TryFrom<F, Error = OpenAIError>,
+        F: Clone,
     {
         let request_maker = || async {
             Ok(self
@@ -262,10 +279,10 @@ impl<C: Config> Client<C> {
 
     /// POST a form at {path} and deserialize the response body
     pub(crate) async fn post_form<O, F>(&self, path: &str, form: F) -> Result<O, OpenAIError>
-        where
-            O: DeserializeOwned,
-            reqwest::multipart::Form: async_convert::TryFrom<F, Error=OpenAIError>,
-            F: Clone,
+    where
+        O: DeserializeOwned,
+        reqwest::multipart::Form: async_convert::TryFrom<F, Error = OpenAIError>,
+        F: Clone,
     {
         let request_maker = || async {
             Ok(self
@@ -286,9 +303,9 @@ impl<C: Config> Client<C> {
     /// to retry API call after getting rate limited. request_maker is async because
     /// reqwest::multipart::Form is created by async calls to read files for uploads.
     async fn execute_raw<M, Fut>(&self, request_maker: M) -> Result<Bytes, OpenAIError>
-        where
-            M: Fn() -> Fut,
-            Fut: future::Future<Output=Result<reqwest::Request, OpenAIError>>,
+    where
+        M: Fn() -> Fut,
+        Fut: future::Future<Output = Result<reqwest::Request, OpenAIError>>,
     {
         let client = self.http_client.clone();
 
@@ -299,10 +316,7 @@ impl<C: Config> Client<C> {
             .map_err(OpenAIError::Reqwest)?;
 
         let status = response.status();
-        let bytes = response
-            .bytes()
-            .await
-            .map_err(OpenAIError::Reqwest)?;
+        let bytes = response.bytes().await.map_err(OpenAIError::Reqwest)?;
 
         // Deserialize response body from either error object or actual response object
         if !status.is_success() {
@@ -331,10 +345,10 @@ impl<C: Config> Client<C> {
     /// to retry API call after getting rate limited. request_maker is async because
     /// reqwest::multipart::Form is created by async calls to read files for uploads.
     async fn execute<O, M, Fut>(&self, request_maker: M) -> Result<O, OpenAIError>
-        where
-            O: DeserializeOwned,
-            M: Fn() -> Fut,
-            Fut: core::future::Future<Output=Result<reqwest::Request, OpenAIError>>,
+    where
+        O: DeserializeOwned,
+        M: Fn() -> Fut,
+        Fut: core::future::Future<Output = Result<reqwest::Request, OpenAIError>>,
     {
         let bytes = self.execute_raw(request_maker).await?;
 
@@ -345,14 +359,10 @@ impl<C: Config> Client<C> {
     }
 
     /// Make HTTP POST request to receive SSE
-    pub(crate) async fn post_stream<I, O>(
-        &self,
-        path: &str,
-        request: I,
-    ) -> OpenAIEventStream<O>
-        where
-            I: Serialize,
-            O: DeserializeOwned + Send + 'static,
+    pub(crate) async fn post_stream<I, O>(&self, path: &str, request: I) -> OpenAIEventStream<O>
+    where
+        I: Serialize,
+        O: DeserializeOwned + Send + 'static,
     {
         let event_source = self
             .http_client
@@ -372,9 +382,9 @@ impl<C: Config> Client<C> {
         request: I,
         event_mapper: impl Fn(eventsource_stream::Event) -> Result<O, OpenAIError> + Send + 'static,
     ) -> OpenAIEventMappedStream<O>
-        where
-            I: Serialize,
-            O: DeserializeOwned + Send + 'static
+    where
+        I: Serialize,
+        O: DeserializeOwned + Send + 'static,
     {
         let event_source = self
             .http_client
@@ -389,14 +399,10 @@ impl<C: Config> Client<C> {
     }
 
     /// Make HTTP GET request to receive SSE
-    pub(crate) async fn _get_stream<Q, O>(
-        &self,
-        path: &str,
-        query: &Q,
-    ) -> OpenAIEventStream<O>
-        where
-            Q: Serialize + ?Sized,
-            O: DeserializeOwned + Send + 'static,
+    pub(crate) async fn _get_stream<Q, O>(&self, path: &str, query: &Q) -> OpenAIEventStream<O>
+    where
+        Q: Serialize + ?Sized,
+        O: DeserializeOwned + Send + 'static,
     {
         let event_source = self
             .http_client
@@ -411,13 +417,16 @@ impl<C: Config> Client<C> {
     }
 }
 
-
 /// Request which responds with SSE.
 /// [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#event_stream_format)
 #[pin_project]
 pub struct OpenAIEventStream<O: DeserializeOwned + Send + 'static> {
     #[pin]
-    stream: Filter<EventSource, future::Ready<bool>, fn(&Result<Event, reqwest_eventsource::Error>) -> future::Ready<bool>>,
+    stream: Filter<
+        EventSource,
+        future::Ready<bool>,
+        fn(&Result<Event, reqwest_eventsource::Error>) -> future::Ready<bool>,
+    >,
     done: bool,
     _phantom_data: PhantomData<O>,
 }
@@ -427,8 +436,7 @@ impl<O: DeserializeOwned + Send + 'static> OpenAIEventStream<O> {
         Self {
             stream: event_source.filter(|result|
                 // filter out the first event which is always Event::Open
-                future::ready(!(result.is_ok() && result.as_ref().unwrap().eq(&Event::Open)))
-            ),
+                future::ready(!(result.is_ok() && result.as_ref().unwrap().eq(&Event::Open)))),
             done: false,
             _phantom_data: PhantomData,
         }
@@ -454,52 +462,62 @@ impl<O: DeserializeOwned + Send + 'static> Stream for OpenAIEventStream<O> {
                             Event::Message(message) => {
                                 if message.data == "[DONE]" {
                                     *this.done = true;
-                                    Poll::Ready(None)  // end of the stream, defined by OpenAI
+                                    Poll::Ready(None) // end of the stream, defined by OpenAI
                                 } else {
                                     // deserialize the data
                                     match serde_json::from_str::<O>(&message.data) {
                                         Err(e) => {
                                             *this.done = true;
-                                            Poll::Ready(Some(Err(map_deserialization_error(e, &message.data.as_bytes()))))
+                                            Poll::Ready(Some(Err(map_deserialization_error(
+                                                e,
+                                                &message.data.as_bytes(),
+                                            ))))
                                         }
                                         Ok(output) => Poll::Ready(Some(Ok(output))),
                                     }
                                 }
                             }
-                        }
+                        },
                         Err(e) => {
                             *this.done = true;
                             Poll::Ready(Some(Err(OpenAIError::StreamError(e.to_string()))))
                         }
-                    }
+                    },
                 }
             }
-            Poll::Pending => Poll::Pending
+            Poll::Pending => Poll::Pending,
         }
     }
 }
 
 #[pin_project]
 pub struct OpenAIEventMappedStream<O>
-    where O: Send + 'static
+where
+    O: Send + 'static,
 {
     #[pin]
-    stream: Filter<EventSource, future::Ready<bool>, fn(&Result<Event, reqwest_eventsource::Error>) -> future::Ready<bool>>,
+    stream: Filter<
+        EventSource,
+        future::Ready<bool>,
+        fn(&Result<Event, reqwest_eventsource::Error>) -> future::Ready<bool>,
+    >,
     event_mapper: Box<dyn Fn(eventsource_stream::Event) -> Result<O, OpenAIError> + Send + 'static>,
     done: bool,
     _phantom_data: PhantomData<O>,
 }
 
 impl<O> OpenAIEventMappedStream<O>
-    where O: Send + 'static
+where
+    O: Send + 'static,
 {
     pub(crate) fn new<M>(event_source: EventSource, event_mapper: M) -> Self
-        where M: Fn(eventsource_stream::Event) -> Result<O, OpenAIError> + Send + 'static {
+    where
+        M: Fn(eventsource_stream::Event) -> Result<O, OpenAIError> + Send + 'static,
+    {
         Self {
             stream: event_source.filter(|result|
                 // filter out the first event which is always Event::Open
-                future::ready(!(result.is_ok() && result.as_ref().unwrap().eq(&Event::Open)))
-            ),
+                future::ready(!(result.is_ok() && result.as_ref().unwrap().eq(&Event::Open)))),
             done: false,
             event_mapper: Box::new(event_mapper),
             _phantom_data: PhantomData,
@@ -507,9 +525,9 @@ impl<O> OpenAIEventMappedStream<O>
     }
 }
 
-
 impl<O> Stream for OpenAIEventMappedStream<O>
-    where O: Send + 'static
+where
+    O: Send + 'static,
 {
     type Item = Result<O, OpenAIError>;
 
@@ -533,22 +551,21 @@ impl<O> Stream for OpenAIEventMappedStream<O>
                                 let response = (this.event_mapper)(message);
                                 match response {
                                     Ok(output) => Poll::Ready(Some(Ok(output))),
-                                    Err(_) => Poll::Ready(None)
+                                    Err(_) => Poll::Ready(None),
                                 }
                             }
-                        }
+                        },
                         Err(e) => {
                             *this.done = true;
                             Poll::Ready(Some(Err(OpenAIError::StreamError(e.to_string()))))
                         }
-                    }
+                    },
                 }
             }
-            Poll::Pending => Poll::Pending
+            Poll::Pending => Poll::Pending,
         }
     }
 }
-
 
 // pub(crate) async fn stream_mapped_raw_events<O>(
 //     mut event_source: EventSource,

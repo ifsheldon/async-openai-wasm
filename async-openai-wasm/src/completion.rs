@@ -33,7 +33,6 @@ impl<'c, C: Config> Completions<'c, C> {
         self.client.post("/completions", request).await
     }
 
-
     /// Creates a completion request for the provided prompt and parameters
     ///
     /// Stream back partial progress. Tokens will be sent as data-only

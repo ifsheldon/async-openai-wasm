@@ -32,9 +32,9 @@ a `x.y.z` version.
     - [x] Images
     - [x] Models
     - [x] Moderations
-    - [ ] Organizations | Administration
+    - [x] Organizations | Administration
     - [x] Realtime API types (Beta)
-    - [ ] Uploads
+    - [x] Uploads
     - [x] **WASM support**
 - SSE streaming on available APIs
 - Ergonomic builder pattern for all request objects.
@@ -78,7 +78,7 @@ $Env:OPENAI_API_KEY='sk-...'
 ## Realtime API
 
 Only types for Realtime API are implemented, and can be enabled with feature flag `realtime`
-These types may change when OpenAI releases official specs for them.
+These types may change if/when OpenAI releases official specs for them.
 
 Again, the types do not bundle with a specific WS implementation. Need to convert a client event into a WS message by yourself, which is just simple `your_ws_impl::Message::Text(some_client_event.into_text())`.
 

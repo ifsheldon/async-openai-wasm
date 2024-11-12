@@ -1,5 +1,5 @@
 //! Client configurations: [OpenAIConfig] for OpenAI, [AzureConfig] for Azure OpenAI Service.
-use reqwest::header::{AUTHORIZATION, HeaderMap};
+use reqwest::header::{HeaderMap, AUTHORIZATION};
 use secrecy::{ExposeSecret, SecretString};
 use serde::Deserialize;
 
@@ -187,10 +187,7 @@ impl Config for AzureConfig {
     fn headers(&self) -> HeaderMap {
         let mut headers = HeaderMap::new();
 
-        headers.insert(
-            "api-key",
-            self.api_key.expose_secret().parse().unwrap(),
-        );
+        headers.insert("api-key", self.api_key.expose_secret().parse().unwrap());
 
         headers
     }

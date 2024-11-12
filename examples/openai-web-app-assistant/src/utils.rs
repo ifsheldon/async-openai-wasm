@@ -1,20 +1,21 @@
-use std::error::Error;
-use dioxus::prelude::Signal;
-use futures::StreamExt;
-use tracing::{error, info};
-use async_openai_wasm::Client;
-use async_openai_wasm::config::OpenAIConfig;
-use async_openai_wasm::types::{AssistantStreamEvent, CreateAssistantRequest, CreateAssistantRequestArgs, FunctionObject, MessageDeltaContent, RunObject, SubmitToolOutputsRunRequest, ToolsOutputs};
 use crate::{API_BASE, API_KEY};
+use async_openai_wasm::config::OpenAIConfig;
+use async_openai_wasm::types::{
+    AssistantStreamEvent, CreateAssistantRequest, CreateAssistantRequestArgs, FunctionObject,
+    MessageDeltaContent, RunObject, SubmitToolOutputsRunRequest, ToolsOutputs,
+};
+use async_openai_wasm::Client;
+use dioxus::prelude::Signal;
 use dioxus::prelude::*;
-
+use futures::StreamExt;
+use std::error::Error;
+use tracing::{error, info};
 
 pub const TEMPERATURE: &str = "57";
 pub const RAIN_PROBABILITY: &str = "0.06";
 
 pub fn get_client() -> Client<OpenAIConfig> {
-    let config = OpenAIConfig::new()
-        .with_api_key(API_KEY);
+    let config = OpenAIConfig::new().with_api_key(API_KEY);
     let config = if API_BASE != "..." {
         config.with_api_base(API_BASE)
     } else {
@@ -24,7 +25,11 @@ pub fn get_client() -> Client<OpenAIConfig> {
     Client::with_config(config)
 }
 
-pub async fn handle_requires_action(client: &Client<OpenAIConfig>, run_object: RunObject, reply_signal: Signal<String>) {
+pub async fn handle_requires_action(
+    client: &Client<OpenAIConfig>,
+    run_object: RunObject,
+    reply_signal: Signal<String>,
+) {
     let mut tool_outputs: Vec<ToolsOutputs> = vec![];
     if let Some(ref required_action) = run_object.required_action {
         for tool in &required_action.submit_tool_outputs.tool_calls {

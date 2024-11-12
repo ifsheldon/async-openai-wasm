@@ -1,6 +1,8 @@
 use std::process::exit;
 
-use async_openai_wasm::types::realtime::{ConversationItemCreateEvent, Item, ResponseCreateEvent, ServerEvent, ToText};
+use async_openai_wasm::types::realtime::{
+    ConversationItemCreateEvent, Item, ResponseCreateEvent, ServerEvent, ToText,
+};
 use futures_util::{future, pin_mut, StreamExt};
 
 use tokio::io::AsyncReadExt;

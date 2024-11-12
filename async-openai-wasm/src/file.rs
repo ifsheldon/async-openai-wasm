@@ -2,10 +2,10 @@ use bytes::Bytes;
 use serde::Serialize;
 
 use crate::{
-    Client,
     config::Config,
     error::OpenAIError,
     types::{CreateFileRequest, DeleteFileResponse, ListFilesResponse, OpenAIFile},
+    Client,
 };
 
 /// Files are used to upload documents that can be used with features like Assistants and Fine-tuning.
@@ -33,8 +33,8 @@ impl<'c, C: Config> Files<'c, C> {
 
     /// Returns a list of files that belong to the user's organization.
     pub async fn list<Q>(&self, query: &Q) -> Result<ListFilesResponse, OpenAIError>
-        where
-            Q: Serialize + ?Sized,
+    where
+        Q: Serialize + ?Sized,
     {
         self.client.get_with_query("/files", query).await
     }

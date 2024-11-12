@@ -1,7 +1,6 @@
 use bytes::Bytes;
 
 use crate::{
-    Client,
     config::Config,
     error::OpenAIError,
     types::{
@@ -10,6 +9,7 @@ use crate::{
         CreateTranslationRequest, CreateTranslationResponseJson,
         CreateTranslationResponseVerboseJson,
     },
+    Client,
 };
 
 /// Turn audio into text or text into audio.

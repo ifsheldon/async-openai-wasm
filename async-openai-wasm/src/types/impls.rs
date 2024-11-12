@@ -2,13 +2,23 @@ use std::fmt::Display;
 
 use bytes::Bytes;
 
-use crate::{
-    error::OpenAIError,
-    types::InputSource,
-    util::create_file_part,
-};
+use crate::{error::OpenAIError, types::InputSource, util::create_file_part};
 
-use super::{AudioInput, AudioResponseFormat, ChatCompletionFunctionCall, ChatCompletionFunctions, ChatCompletionNamedToolChoice, ChatCompletionRequestAssistantMessage, ChatCompletionRequestFunctionMessage, ChatCompletionRequestMessage, ChatCompletionRequestMessageContentPartText, ChatCompletionRequestMessageContentPartImage, ChatCompletionRequestSystemMessage, ChatCompletionRequestToolMessage, ChatCompletionRequestUserMessage, ChatCompletionRequestUserMessageContent, ChatCompletionToolChoiceOption, CreateFileRequest, CreateImageEditRequest, CreateImageVariationRequest, CreateMessageRequestContent, CreateTranscriptionRequest, CreateTranslationRequest, DallE2ImageSize, EmbeddingInput, FileInput, FilePurpose, FunctionName, ImageInput, ImageModel, ImageSize, ImageUrl, ModerationInput, Prompt, ImageResponseFormat, Role, Stop, TimestampGranularity, ChatCompletionRequestSystemMessageContent, ChatCompletionRequestAssistantMessageContent, ChatCompletionRequestToolMessageContent, ChatCompletionRequestUserMessageContentPart};
+use super::{
+    AddUploadPartRequest, AudioInput, AudioResponseFormat, ChatCompletionFunctionCall,
+    ChatCompletionFunctions, ChatCompletionNamedToolChoice, ChatCompletionRequestAssistantMessage,
+    ChatCompletionRequestAssistantMessageContent, ChatCompletionRequestFunctionMessage,
+    ChatCompletionRequestMessage, ChatCompletionRequestMessageContentPartImage,
+    ChatCompletionRequestMessageContentPartText, ChatCompletionRequestSystemMessage,
+    ChatCompletionRequestSystemMessageContent, ChatCompletionRequestToolMessage,
+    ChatCompletionRequestToolMessageContent, ChatCompletionRequestUserMessage,
+    ChatCompletionRequestUserMessageContent, ChatCompletionRequestUserMessageContentPart,
+    ChatCompletionToolChoiceOption, CreateFileRequest, CreateImageEditRequest,
+    CreateImageVariationRequest, CreateMessageRequestContent, CreateTranscriptionRequest,
+    CreateTranslationRequest, DallE2ImageSize, EmbeddingInput, FileInput, FilePurpose,
+    FunctionName, ImageInput, ImageModel, ImageResponseFormat, ImageSize, ImageUrl,
+    ModerationInput, Prompt, Role, Stop, TimestampGranularity,
+};
 
 /// for `impl_from!(T, Enum)`, implements
 /// - `From<T>`
@@ -249,7 +259,6 @@ impl Display for FilePurpose {
         )
     }
 }
-
 
 macro_rules! impl_from_for_integer_array {
     ($from_typ:ty, $to_typ:ty) => {
@@ -833,6 +842,17 @@ impl async_convert::TryFrom<CreateFileRequest> for reqwest::multipart::Form {
         let form = reqwest::multipart::Form::new()
             .part("file", file_part)
             .text("purpose", request.purpose.to_string());
+        Ok(form)
+    }
+}
+
+#[async_convert::async_trait]
+impl async_convert::TryFrom<AddUploadPartRequest> for reqwest::multipart::Form {
+    type Error = OpenAIError;
+
+    async fn try_from(request: AddUploadPartRequest) -> Result<Self, Self::Error> {
+        let file_part = create_file_part(request.data).await?;
+        let form = reqwest::multipart::Form::new().part("data", file_part);
         Ok(form)
     }
 }

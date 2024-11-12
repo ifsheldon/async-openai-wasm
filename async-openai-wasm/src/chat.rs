@@ -1,10 +1,10 @@
 use crate::{
-    Client,
     config::Config,
     error::OpenAIError,
     types::{
-        ChatCompletionResponseStream, CreateChatCompletionRequest, CreateChatCompletionResponse
+        ChatCompletionResponseStream, CreateChatCompletionRequest, CreateChatCompletionResponse,
     },
+    Client,
 };
 
 /// Given a list of messages comprising a conversation, the model will return a response.
@@ -31,7 +31,6 @@ impl<'c, C: Config> Chat<'c, C> {
         }
         self.client.post("/chat/completions", request).await
     }
-
 
     /// Creates a completion for the chat message
     ///

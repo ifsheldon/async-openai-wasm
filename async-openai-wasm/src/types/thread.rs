@@ -6,8 +6,8 @@ use serde::{Deserialize, Serialize};
 use crate::error::OpenAIError;
 
 use super::{
-    AssistantsApiResponseFormatOption, AssistantsApiToolChoiceOption, AssistantToolResources,
-    AssistantTools, CreateAssistantToolResources, CreateMessageRequest,
+    AssistantToolResources, AssistantTools, AssistantsApiResponseFormatOption,
+    AssistantsApiToolChoiceOption, CreateAssistantToolResources, CreateMessageRequest,
     TruncationObject,
 };
 

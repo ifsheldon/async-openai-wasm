@@ -1,7 +1,7 @@
 use serde::Deserialize;
 
 use crate::client::OpenAIEventMappedStream;
-use crate::error::{ApiError, map_deserialization_error, OpenAIError};
+use crate::error::{map_deserialization_error, ApiError, OpenAIError};
 
 use super::{
     MessageDeltaObject, MessageObject, RunObject, RunStepDeltaObject, RunStepObject, ThreadObject,

@@ -4,7 +4,9 @@ use dioxus::prelude::*;
 use dioxus_logger::tracing::{error, info, Level};
 use futures::stream::StreamExt;
 
-use async_openai_wasm::types::{AssistantStreamEvent, CreateMessageRequest, CreateRunRequest, CreateThreadRequest, MessageRole};
+use async_openai_wasm::types::{
+    AssistantStreamEvent, CreateMessageRequest, CreateRunRequest, CreateThreadRequest, MessageRole,
+};
 
 use crate::utils::*;
 
@@ -12,7 +14,6 @@ mod utils;
 
 pub const API_BASE: &str = "...";
 pub const API_KEY: &str = "...";
-
 
 pub fn App() -> Element {
     const QUERY: &str = "What's the weather in San Francisco today and the likelihood it'll rain?";
@@ -60,7 +61,6 @@ pub fn App() -> Element {
                 .await
                 .expect("failed to create run");
 
-
             while let Some(event) = event_stream.next().await {
                 match event {
                     Ok(event) => match event {
@@ -76,8 +76,16 @@ pub fn App() -> Element {
                 }
             }
 
-            client.threads().delete(&thread.id).await.expect("failed to delete thread");
-            client.assistants().delete(&assistant.id).await.expect("failed to delete assistant");
+            client
+                .threads()
+                .delete(&thread.id)
+                .await
+                .expect("failed to delete thread");
+            client
+                .assistants()
+                .delete(&assistant.id)
+                .await
+                .expect("failed to delete assistant");
             info!("Done!");
         }
     });

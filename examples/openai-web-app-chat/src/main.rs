@@ -1,12 +1,14 @@
 #![allow(non_snake_case)]
 
-use dioxus::prelude::*;
-use dioxus_logger::tracing::{Level, info, error};
-use futures::stream::StreamExt;
-use async_openai_wasm::Client;
 use async_openai_wasm::config::OpenAIConfig;
-use async_openai_wasm::types::{ChatCompletionRequestMessage, ChatCompletionRequestUserMessageArgs, CreateChatCompletionRequestArgs};
-
+use async_openai_wasm::types::{
+    ChatCompletionRequestMessage, ChatCompletionRequestUserMessageArgs,
+    CreateChatCompletionRequestArgs,
+};
+use async_openai_wasm::Client;
+use dioxus::prelude::*;
+use dioxus_logger::tracing::{error, info, Level};
+use futures::stream::StreamExt;
 
 const API_BASE: &str = "...";
 const API_KEY: &str = "...";
@@ -16,21 +18,19 @@ pub fn App() -> Element {
     let request = CreateChatCompletionRequestArgs::default()
         .max_tokens(512u16)
         .model("gpt-3.5-turbo")
-        .messages([
-            ChatCompletionRequestMessage::User(
-                ChatCompletionRequestUserMessageArgs::default()
-                    .content(GREETING)
-                    .build()
-                    .unwrap()
-            )
-        ])
-        .build().unwrap();
+        .messages([ChatCompletionRequestMessage::User(
+            ChatCompletionRequestUserMessageArgs::default()
+                .content(GREETING)
+                .build()
+                .unwrap(),
+        )])
+        .build()
+        .unwrap();
     let response_string = use_signal(String::new);
     let _fetch_completion_chunks: Coroutine<()> = use_coroutine(|_rx| {
         let mut response_string = response_string.to_owned();
         async move {
-            let config = OpenAIConfig::new()
-                .with_api_key(API_KEY);
+            let config = OpenAIConfig::new().with_api_key(API_KEY);
             let config = if API_BASE != "..." {
                 config.with_api_base(API_BASE)
             } else {
@@ -40,14 +40,13 @@ pub fn App() -> Element {
             let mut stream = client.chat().create_stream(request).await.unwrap();
             while let Some(chunk) = stream.next().await {
                 match chunk {
-                    Ok(response) =>
-                        response_string.with_mut(|string| {
-                            if let Some(content) = response.choices[0].delta.content.as_ref() {
-                                info!("Response chunk: {:?}", content);
-                                string.push_str(content);
-                            }
-                        }),
-                    Err(e) => error!("OpenAI Error: {:?}", e)
+                    Ok(response) => response_string.with_mut(|string| {
+                        if let Some(content) = response.choices[0].delta.content.as_ref() {
+                            info!("Response chunk: {:?}", content);
+                            string.push_str(content);
+                        }
+                    }),
+                    Err(e) => error!("OpenAI Error: {:?}", e),
                 }
             }
         }
