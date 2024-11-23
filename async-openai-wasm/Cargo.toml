@@ -35,20 +35,20 @@ reqwest = { version = "0.12", features = ["json", "stream", "multipart"], defaul
 reqwest-eventsource = "0.6"
 serde = { version = "1.0", features = ["derive", "rc"] }
 serde_json = "1.0"
-thiserror = "1.0"
+thiserror = "2.0"
 tracing = "0.1"
 derive_builder = "0.20"
 async-convert = "1.0"
 secrecy = { version = "0.10", features = ["serde"] }
 pin-project = "1.1"
 getrandom = { version = "0.2", features = ["js"] }
-bytes = "1.7"
+bytes = "1.8"
 eventsource-stream = "0.2"
 
 
 [dev-dependencies]
 tokio-test = "0.4"
-tokio = { version = "1.40", features = ["fs", "macros"] }
+tokio = { version = "1.41", features = ["fs", "macros"] }
 
 [package.metadata.docs.rs]
 all-features = true
