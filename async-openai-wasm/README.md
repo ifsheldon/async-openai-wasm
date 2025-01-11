@@ -32,8 +32,8 @@ a `x.y.z` version.
     - [x] Images
     - [x] Models
     - [x] Moderations
-    - [x] Organizations | Administration
-    - [x] Realtime API types (Beta)
+    - [x] Organizations | Administration (partially implemented)
+    - [x] Realtime (Beta) (partially implemented)
     - [x] Uploads
     - [x] **WASM support**
 - SSE streaming on available APIs
