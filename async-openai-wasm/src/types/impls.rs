@@ -2,8 +2,6 @@ use std::fmt::Display;
 
 use bytes::Bytes;
 
-use crate::{error::OpenAIError, types::InputSource, util::create_file_part};
-
 use super::{
     AddUploadPartRequest, AudioInput, AudioResponseFormat, ChatCompletionFunctionCall,
     ChatCompletionFunctions, ChatCompletionNamedToolChoice, ChatCompletionRequestAssistantMessage,
@@ -14,13 +12,14 @@ use super::{
     ChatCompletionRequestSystemMessage, ChatCompletionRequestSystemMessageContent,
     ChatCompletionRequestToolMessage, ChatCompletionRequestToolMessageContent,
     ChatCompletionRequestUserMessage, ChatCompletionRequestUserMessageContent,
-    ChatCompletionRequestUserMessageContentPart,ChatCompletionToolChoiceOption, CreateFileRequest, CreateImageEditRequest,
-    CreateImageVariationRequest, CreateMessageRequestContent, CreateTranscriptionRequest,
-    CreateTranslationRequest, DallE2ImageSize, EmbeddingInput, FileInput, FilePurpose,
-    FunctionName, ImageInput, ImageModel, ImageResponseFormat, ImageSize, ImageUrl,
-    ModerationInput, Prompt, Role, Stop,
-    TimestampGranularity,
+    ChatCompletionRequestUserMessageContentPart, ChatCompletionToolChoiceOption, CreateFileRequest,
+    CreateImageEditRequest, CreateImageVariationRequest, CreateMessageRequestContent,
+    CreateTranscriptionRequest, CreateTranslationRequest, DallE2ImageSize, EmbeddingInput,
+    FileInput, FilePurpose, FunctionName, ImageInput, ImageModel, ImageResponseFormat, ImageSize,
+    ImageUrl, ModerationInput, Prompt, Role, Stop, TimestampGranularity,
 };
+use crate::util::async_convert::AsyncTryFrom;
+use crate::{error::OpenAIError, types::InputSource, util::create_file_part};
 
 /// for `impl_from!(T, Enum)`, implements
 /// - `From<T>`
@@ -742,8 +741,7 @@ impl Default for ChatCompletionRequestToolMessageContent {
 
 // start: types to multipart from
 
-#[async_convert::async_trait]
-impl async_convert::TryFrom<CreateTranscriptionRequest> for reqwest::multipart::Form {
+impl AsyncTryFrom<CreateTranscriptionRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;
 
     async fn try_from(request: CreateTranscriptionRequest) -> Result<Self, Self::Error> {
@@ -779,8 +777,7 @@ impl async_convert::TryFrom<CreateTranscriptionRequest> for reqwest::multipart::
     }
 }
 
-#[async_convert::async_trait]
-impl async_convert::TryFrom<CreateTranslationRequest> for reqwest::multipart::Form {
+impl AsyncTryFrom<CreateTranslationRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;
 
     async fn try_from(request: CreateTranslationRequest) -> Result<Self, Self::Error> {
@@ -805,8 +802,7 @@ impl async_convert::TryFrom<CreateTranslationRequest> for reqwest::multipart::Fo
     }
 }
 
-#[async_convert::async_trait]
-impl async_convert::TryFrom<CreateImageEditRequest> for reqwest::multipart::Form {
+impl AsyncTryFrom<CreateImageEditRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;
 
     async fn try_from(request: CreateImageEditRequest) -> Result<Self, Self::Error> {
@@ -847,8 +843,7 @@ impl async_convert::TryFrom<CreateImageEditRequest> for reqwest::multipart::Form
     }
 }
 
-#[async_convert::async_trait]
-impl async_convert::TryFrom<CreateImageVariationRequest> for reqwest::multipart::Form {
+impl AsyncTryFrom<CreateImageVariationRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;
 
     async fn try_from(request: CreateImageVariationRequest) -> Result<Self, Self::Error> {
@@ -882,8 +877,7 @@ impl async_convert::TryFrom<CreateImageVariationRequest> for reqwest::multipart:
     }
 }
 
-#[async_convert::async_trait]
-impl async_convert::TryFrom<CreateFileRequest> for reqwest::multipart::Form {
+impl AsyncTryFrom<CreateFileRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;
 
     async fn try_from(request: CreateFileRequest) -> Result<Self, Self::Error> {
@@ -895,8 +889,7 @@ impl async_convert::TryFrom<CreateFileRequest> for reqwest::multipart::Form {
     }
 }
 
-#[async_convert::async_trait]
-impl async_convert::TryFrom<AddUploadPartRequest> for reqwest::multipart::Form {
+impl AsyncTryFrom<AddUploadPartRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;
 
     async fn try_from(request: AddUploadPartRequest) -> Result<Self, Self::Error> {

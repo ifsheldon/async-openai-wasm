@@ -7,9 +7,11 @@ use bytes::Bytes;
 use futures::stream::Filter;
 use futures::{stream::StreamExt, Stream};
 use pin_project::pin_project;
+use reqwest::multipart::Form;
 use reqwest_eventsource::{Event, EventSource, RequestBuilderExt};
 use serde::{de::DeserializeOwned, Serialize};
 
+use crate::util::async_convert::AsyncTryFrom;
 use crate::{
     config::{Config, OpenAIConfig},
     error::{map_deserialization_error, OpenAIError, WrappedError},
@@ -261,7 +263,7 @@ impl<C: Config> Client<C> {
     /// POST a form at {path} and return the response body
     pub(crate) async fn post_form_raw<F>(&self, path: &str, form: F) -> Result<Bytes, OpenAIError>
     where
-        reqwest::multipart::Form: async_convert::TryFrom<F, Error = OpenAIError>,
+        Form: AsyncTryFrom<F, Error = OpenAIError>,
         F: Clone,
     {
         let request_maker = || async {
@@ -270,7 +272,7 @@ impl<C: Config> Client<C> {
                 .post(self.config.url(path))
                 .query(&self.config.query())
                 .headers(self.config.headers())
-                .multipart(async_convert::TryFrom::try_from(form.clone()).await?)
+                .multipart(<Form as AsyncTryFrom<F>>::try_from(form.clone()).await?)
                 .build()?)
         };
 
@@ -281,7 +283,7 @@ impl<C: Config> Client<C> {
     pub(crate) async fn post_form<O, F>(&self, path: &str, form: F) -> Result<O, OpenAIError>
     where
         O: DeserializeOwned,
-        reqwest::multipart::Form: async_convert::TryFrom<F, Error = OpenAIError>,
+        Form: AsyncTryFrom<F, Error = OpenAIError>,
         F: Clone,
     {
         let request_maker = || async {
@@ -290,7 +292,7 @@ impl<C: Config> Client<C> {
                 .post(self.config.url(path))
                 .query(&self.config.query())
                 .headers(self.config.headers())
-                .multipart(async_convert::TryFrom::try_from(form.clone()).await?)
+                .multipart(<Form as AsyncTryFrom<F>>::try_from(form.clone()).await?)
                 .build()?)
         };
 
