@@ -146,12 +146,6 @@ impl From<&ClientEvent> for String {
     }
 }
 
-impl From<ClientEvent> for Message {
-    fn from(value: ClientEvent) -> Self {
-        Message::Text(String::from(&value).into())
-    }
-}
-
 macro_rules! event_struct_to_variant {
     ($from_typ:ty, $evt_typ:ty, $variant:ident) => {
         impl From<$from_typ> for $evt_typ {

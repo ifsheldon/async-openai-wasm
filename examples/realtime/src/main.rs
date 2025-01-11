@@ -138,11 +138,11 @@ async fn read_stdin(tx: futures_channel::mpsc::UnboundedSender<Message>) {
         // Create event of type "conversation.item.create"
         let event: ConversationItemCreateEvent = item.into();
         // Create WebSocket message from client event
-        let message: Message = Message::Text(event.to_text());
+        let message: Message = Message::Text(event.to_text().into());
         // send WebSocket message containing event of type "conversation.item.create" to server
         tx.unbounded_send(message).unwrap();
         // send WebSocket message containing event of type "response.create" to server
-        tx.unbounded_send(Message::Text(ResponseCreateEvent::default().to_text()))
+        tx.unbounded_send(Message::Text(ResponseCreateEvent::default().to_text().into()))
             .unwrap();
     }
 }

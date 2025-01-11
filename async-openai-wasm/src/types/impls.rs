@@ -624,12 +624,6 @@ impl From<String> for ChatCompletionRequestDeveloperMessage {
     }
 }
 
-impl From<String> for ChatCompletionRequestDeveloperMessage {
-    fn from(value: String) -> Self {
-        value.as_str().into()
-    }
-}
-
 impl From<&str> for ChatCompletionRequestAssistantMessage {
     fn from(value: &str) -> Self {
         ChatCompletionRequestAssistantMessageContent::Text(value.into()).into()
