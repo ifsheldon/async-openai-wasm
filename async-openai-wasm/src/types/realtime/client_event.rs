@@ -68,7 +68,7 @@ pub struct ConversationItemTruncateEvent {
     /// The index of the content part to truncate.
     pub content_index: u32,
 
-    /// Inclusive duration up to which audio is truncated, in milliseconds.        
+    /// Inclusive duration up to which audio is truncated, in milliseconds.
     pub audio_end_ms: u32,
 }
 
@@ -140,9 +140,15 @@ pub enum ClientEvent {
     ResponseCancel(ResponseCancelEvent),
 }
 
-impl Into<String> for &ClientEvent {
-    fn into(self) -> String {
-        serde_json::to_string(self).unwrap()
+impl From<&ClientEvent> for String {
+    fn from(value: &ClientEvent) -> Self {
+        serde_json::to_string(value).unwrap()
+    }
+}
+
+impl From<ClientEvent> for Message {
+    fn from(value: ClientEvent) -> Self {
+        Message::Text(String::from(&value).into())
     }
 }
 
