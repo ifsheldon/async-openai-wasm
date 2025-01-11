@@ -40,7 +40,7 @@ derive_builder = "0.20"
 async-convert = "1.0"
 secrecy = { version = "0.10", features = ["serde"] }
 pin-project = "1.1"
-bytes = "1.8"
+bytes = "1.9"
 eventsource-stream = "0.2"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
@@ -50,7 +50,7 @@ getrandom = { version = "0.2", features = ["js"] }
 
 [dev-dependencies]
 tokio-test = "0.4"
-tokio = { version = "1.41", features = ["fs", "macros"] }
+tokio = { version = "1.43", features = ["fs", "macros"] }
 
 [package.metadata.docs.rs]
 all-features = true
