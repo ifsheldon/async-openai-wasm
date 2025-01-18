@@ -473,6 +473,12 @@ impl From<ChatCompletionRequestSystemMessage> for ChatCompletionRequestMessage {
     }
 }
 
+impl From<ChatCompletionRequestDeveloperMessage> for ChatCompletionRequestMessage {
+    fn from(value: ChatCompletionRequestDeveloperMessage) -> Self {
+        Self::Developer(value)
+    }
+}
+
 impl From<ChatCompletionRequestAssistantMessage> for ChatCompletionRequestMessage {
     fn from(value: ChatCompletionRequestAssistantMessage) -> Self {
         Self::Assistant(value)
