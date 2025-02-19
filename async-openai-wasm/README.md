@@ -36,6 +36,7 @@ a `x.y.z` version.
     - [x] Realtime (Beta) (partially implemented)
     - [x] Uploads
     - [x] **WASM support**
+    - [x] Reasoning Model Support: support models like DeepSeek R1 via broader support for OpenAI-compatible endpoints, see `examples/reasoning`
 - SSE streaming on available APIs
 - Ergonomic builder pattern for all request objects.
 - Microsoft Azure OpenAI Service (only for APIs matching OpenAI spec)
@@ -49,6 +50,8 @@ maintain parity with spec of AOS. Just like `async-openai`.
 + * WASM support
 + * WASM examples
 + * Realtime API: Does not bundle with a specific WS implementation. Need to convert a client event into a WS message by yourself, which is just simple `your_ws_impl::Message::Text(some_client_event.into_text())`
++ * Broader support for OpenAI-compatible Endpoints
++ * Reasoning Model Support
 - * Tokio
 - * Non-wasm examples: please refer to the original project [async-openai](https://github.com/64bit/async-openai/).
 - * Builtin backoff retries: due to [this issue](https://github.com/ihrwein/backoff/issues/61). 
