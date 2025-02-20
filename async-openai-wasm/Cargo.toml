@@ -1,6 +1,6 @@
 [package]
 name = "async-openai-wasm"
-version = "0.27.3"
+version = "0.27.4"
 authors = [
     "Contributors of the async-openai crate",
     "ifsheldon <async_openai_wasm@reify.ing>"
@@ -8,8 +8,8 @@ authors = [
 categories = ["api-bindings", "web-programming", "asynchronous"]
 keywords = ["openai", "async", "openapi", "ai", "wasm"]
 description = "Rust library for OpenAI on WASM"
-edition = "2021"
-rust-version = "1.75"
+edition = "2024"
+rust-version = "1.85"
 license = "MIT"
 readme = "README.md"
 homepage = "https://github.com/ifsheldon/async-openai-wasm"
