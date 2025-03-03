@@ -3,6 +3,7 @@ name = "realtime"
 version = "0.2.0"
 edition = "2024"
 rust-version = "1.85"
+publish = false
 
 [dependencies]
 async-openai-wasm = { path = "../../async-openai-wasm", features = ["realtime"] }
