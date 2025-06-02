@@ -1,12 +1,10 @@
 use std::{
     error::Error,
     io::{stdout, Write},
-    pin::Pin,
 };
 
-use async_openai::{config::OpenAIConfig, error::OpenAIError, Client};
+use async_openai_wasm::{config::OpenAIConfig, Client, OpenAIEventStream};
 use futures::StreamExt;
-use futures_core::Stream;
 
 use serde_json::{json, Value};
 
@@ -36,7 +34,7 @@ async fn chat(client: &Client<OpenAIConfig>) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-type MyStreamingType = Pin<Box<dyn Stream<Item = Result<Value, OpenAIError>> + Send>>;
+type MyStreamingType = OpenAIEventStream<Value>;
 
 async fn chat_stream(client: &Client<OpenAIConfig>) -> Result<(), Box<dyn Error>> {
     let mut stream: MyStreamingType = client

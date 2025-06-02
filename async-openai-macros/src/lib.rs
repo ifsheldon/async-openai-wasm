@@ -13,6 +13,7 @@ struct BoundArgs {
     bounds: Vec<(String, syn::TypeParamBound)>,
     where_clause: Option<String>,
     stream: bool, // Add stream flag
+    use_mapped_events: bool,
 }
 
 impl Parse for BoundArgs {
@@ -20,6 +21,7 @@ impl Parse for BoundArgs {
         let mut bounds = Vec::new();
         let mut where_clause = None;
         let mut stream = false; // Default to false
+        let mut use_mapped_events = false; // Default to false
         let vars = Punctuated::<syn::MetaNameValue, Comma>::parse_terminated(input)?;
 
         for var in vars {
@@ -30,6 +32,9 @@ impl Parse for BoundArgs {
                 }
                 "stream" => {
                     stream = var.value.into_token_stream().to_string().contains("true");
+                }
+                "use_mapped_events" => {
+                    use_mapped_events = var.value.into_token_stream().to_string().contains("true");
                 }
                 _ => {
                     let bound: syn::TypeParamBound =
@@ -42,6 +47,7 @@ impl Parse for BoundArgs {
             bounds,
             where_clause,
             stream,
+            use_mapped_events,
         })
     }
 }
@@ -124,7 +130,11 @@ pub fn byot(args: TokenStream, item: TokenStream) -> TokenStream {
 
     // Generate return type based on stream flag
     let return_type = if bounds_args.stream {
-        quote! { Result<::std::pin::Pin<Box<dyn ::futures::Stream<Item = Result<R, OpenAIError>> + Send>>, OpenAIError> }
+        if bounds_args.use_mapped_events {
+            quote! { Result<crate::client::OpenAIEventMappedStream<R>, OpenAIError> }
+        } else {
+            quote! { Result<crate::client::OpenAIEventStream<R>, OpenAIError> }
+        }
     } else {
         quote! { Result<R, OpenAIError> }
     };

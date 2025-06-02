@@ -1,10 +1,10 @@
 use serde::Serialize;
 
 use crate::{
+    Client,
     config::Config,
     error::OpenAIError,
     types::{ProjectApiKey, ProjectApiKeyDeleteResponse, ProjectApiKeyListResponse},
-    Client,
 };
 
 /// Manage API keys for a given project. Supports listing and deleting keys for users.

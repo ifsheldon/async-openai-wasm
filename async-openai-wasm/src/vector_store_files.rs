@@ -1,13 +1,13 @@
 use serde::Serialize;
 
 use crate::{
+    Client,
     config::Config,
     error::OpenAIError,
     types::{
         CreateVectorStoreFileRequest, DeleteVectorStoreFileResponse, ListVectorStoreFilesResponse,
         VectorStoreFileObject,
     },
-    Client,
 };
 
 /// Vector store files represent files inside a vector store.
@@ -82,12 +82,12 @@ impl<'c, C: Config> VectorStoreFiles<'c, C> {
 
 #[cfg(test)]
 mod tests {
-    use crate::types::{CreateFileRequest, CreateVectorStoreRequest, FileInput, FilePurpose};
     use crate::Client;
+    use crate::types::{CreateFileRequest, CreateVectorStoreRequest, FileInput, FilePurpose};
 
     #[tokio::test]
-    async fn vector_store_file_creation_and_deletion(
-    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    async fn vector_store_file_creation_and_deletion()
+    -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let client = Client::new();
 
         // Create a file

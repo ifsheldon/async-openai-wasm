@@ -1,11 +1,11 @@
 use crate::{
+    Client, Messages, Runs,
     config::Config,
     error::OpenAIError,
     types::{
         AssistantEventStream, CreateThreadAndRunRequest, CreateThreadRequest, DeleteThreadResponse,
         ModifyThreadRequest, RunObject, ThreadObject,
     },
-    Client, Messages, Runs,
 };
 
 /// Create threads that assistants can interact with.
@@ -46,6 +46,7 @@ impl<'c, C: Config> Threads<'c, C> {
         T0 = serde::Serialize,
         R = serde::de::DeserializeOwned,
         stream = "true",
+        use_mapped_events = "true",
         where_clause = "R: std::marker::Send + 'static + TryFrom<eventsource_stream::Event, Error = OpenAIError>"
     )]
     #[allow(unused_mut)]

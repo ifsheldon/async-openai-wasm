@@ -1,8 +1,8 @@
 use crate::{
+    Client,
     config::Config,
     error::OpenAIError,
     types::{AddUploadPartRequest, CompleteUploadRequest, CreateUploadRequest, Upload, UploadPart},
-    Client,
 };
 
 /// Allows you to upload large files in multiple parts.

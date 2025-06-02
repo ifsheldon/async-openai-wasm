@@ -5,22 +5,21 @@ use std::task::{Context, Poll};
 
 use bytes::Bytes;
 use futures::stream::Filter;
-use futures::{stream::StreamExt, Stream};
+use futures::{Stream, stream::StreamExt};
 use pin_project::pin_project;
 use reqwest::multipart::Form;
 use reqwest_eventsource::{Event, EventSource, RequestBuilderExt};
-use serde::{de::DeserializeOwned, Serialize};
+use serde::{Serialize, de::DeserializeOwned};
 
-use crate::util::async_convert::AsyncTryFrom;
 use crate::{
+    Assistants, Audio, AuditLogs, Batches, Chat, Completions, Embeddings, FineTuning, Invites,
+    Models, Projects, Threads, Uploads, Users, VectorStores,
     config::{Config, OpenAIConfig},
-    error::{map_deserialization_error, OpenAIError, WrappedError},
+    error::{OpenAIError, WrappedError, map_deserialization_error},
     file::Files,
     image::Images,
     moderation::Moderations,
     traits::AsyncTryFrom,
-    Assistants, Audio, AuditLogs, Batches, Chat, Completions, Embeddings, FineTuning, Invites,
-    Models, Projects, Threads, Uploads, Users, VectorStores,
 };
 
 #[derive(Debug, Clone)]

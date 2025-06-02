@@ -1,8 +1,8 @@
 use crate::{
+    Client,
     config::Config,
     error::OpenAIError,
     types::{CreateBase64EmbeddingResponse, CreateEmbeddingRequest, CreateEmbeddingResponse},
-    Client,
 };
 
 #[cfg(not(feature = "byot"))]
@@ -66,7 +66,7 @@ impl<'c, C: Config> Embeddings<'c, C> {
 mod tests {
     use crate::error::OpenAIError;
     use crate::types::{CreateEmbeddingResponse, Embedding, EncodingFormat};
-    use crate::{types::CreateEmbeddingRequestArgs, Client};
+    use crate::{Client, types::CreateEmbeddingRequestArgs};
 
     #[tokio::test]
     async fn test_embedding_string() {

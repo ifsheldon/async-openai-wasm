@@ -1,6 +1,7 @@
 use serde::Serialize;
 
 use crate::{
+    Client, VectorStoreFiles,
     config::Config,
     error::OpenAIError,
     types::{
@@ -8,7 +9,6 @@ use crate::{
         UpdateVectorStoreRequest, VectorStoreObject,
     },
     vector_store_file_batches::VectorStoreFileBatches,
-    Client, VectorStoreFiles,
 };
 
 pub struct VectorStores<'c, C: Config> {

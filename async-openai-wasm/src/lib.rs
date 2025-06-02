@@ -97,7 +97,7 @@
 //! ## Microsoft Azure
 //!
 //! ```
-//! use async_openai::{Client, config::AzureConfig};
+//! use async_openai_wasm::{Client, config::AzureConfig};
 //!
 //! let config = AzureConfig::new()
 //!     .with_api_base("https://my-resource-name.openai.azure.com")
@@ -163,7 +163,7 @@ pub use audio::Audio;
 pub use audit_logs::AuditLogs;
 pub use batches::Batches;
 pub use chat::Chat;
-pub use client::Client;
+pub use client::{Client, OpenAIEventMappedStream, OpenAIEventStream};
 pub use completion::Completions;
 pub use embedding::Embeddings;
 pub use file::Files;

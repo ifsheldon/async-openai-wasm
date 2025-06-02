@@ -1,6 +1,7 @@
 use serde::Serialize;
 
 use crate::{
+    Client,
     config::Config,
     error::OpenAIError,
     steps::Steps,
@@ -8,7 +9,6 @@ use crate::{
         AssistantEventStream, CreateRunRequest, ListRunsResponse, ModifyRunRequest, RunObject,
         SubmitToolOutputsRunRequest,
     },
-    Client,
 };
 
 /// Represents an execution run on a thread.
@@ -47,6 +47,7 @@ impl<'c, C: Config> Runs<'c, C> {
         T0 = serde::Serialize,
         R = serde::de::DeserializeOwned,
         stream = "true",
+        use_mapped_events = "true",
         where_clause = "R: std::marker::Send + 'static + TryFrom<eventsource_stream::Event, Error = OpenAIError>"
     )]
     #[allow(unused_mut)]
@@ -133,6 +134,7 @@ impl<'c, C: Config> Runs<'c, C> {
         T1 = serde::Serialize,
         R = serde::de::DeserializeOwned,
         stream = "true",
+        use_mapped_events = "true",
         where_clause = "R: std::marker::Send + 'static + TryFrom<eventsource_stream::Event, Error = OpenAIError>"
     )]
     #[allow(unused_mut)]

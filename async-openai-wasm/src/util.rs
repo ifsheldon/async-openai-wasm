@@ -1,5 +1,3 @@
-pub(crate) mod async_convert;
-
 use reqwest::Body;
 
 use crate::error::OpenAIError;

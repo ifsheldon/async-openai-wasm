@@ -1,10 +1,10 @@
 use serde::Serialize;
 
 use crate::{
+    Client,
     config::Config,
     error::OpenAIError,
     types::{Invite, InviteDeleteResponse, InviteListResponse, InviteRequest},
-    Client,
 };
 
 /// Invite and manage invitations for an organization. Invited users are automatically added to the Default project.

@@ -18,7 +18,7 @@ use super::{
     FileInput, FilePurpose, FunctionName, ImageInput, ImageModel, ImageResponseFormat, ImageSize,
     ImageUrl, ModerationInput, Prompt, Role, Stop, TimestampGranularity,
 };
-use crate::util::async_convert::AsyncTryFrom;
+use crate::traits::AsyncTryFrom;
 use crate::{error::OpenAIError, types::InputSource, util::create_file_part};
 
 /// for `impl_from!(T, Enum)`, implements

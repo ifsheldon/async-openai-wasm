@@ -1,10 +1,10 @@
 use crate::{
+    Client,
     config::Config,
     error::OpenAIError,
     types::{
         ChatCompletionResponseStream, CreateChatCompletionRequest, CreateChatCompletionResponse,
     },
-    Client,
 };
 
 /// Given a list of messages comprising a conversation, the model will return a response.

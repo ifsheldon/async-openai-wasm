@@ -1,6 +1,6 @@
 [package]
 name = "async-openai-wasm"
-version = "0.27.4"
+version = "0.28.0"
 authors = [
     "Contributors of the async-openai crate",
     "ifsheldon <async_openai_wasm@reify.ing>"
@@ -9,7 +9,7 @@ categories = ["api-bindings", "web-programming", "asynchronous"]
 keywords = ["openai", "async", "openapi", "ai", "wasm"]
 description = "Rust library for OpenAI on WASM"
 edition = "2024"
-rust-version = "1.85"
+rust-version = {workspace = true}
 license = "MIT"
 readme = "README.md"
 homepage = "https://github.com/ifsheldon/async-openai-wasm"
@@ -26,8 +26,10 @@ native-tls = ["reqwest/native-tls"]
 # Remove dependency on OpenSSL
 native-tls-vendored = ["reqwest/native-tls-vendored"]
 realtime = []
+byot = []
 
 [dependencies]
+async-openai-macros = { path = "../async-openai-macros", version = "0.1.0" }
 base64 = "0.22"
 futures = "0.3"
 reqwest = { version = "0.12", features = ["json", "stream", "multipart"], default-features = false }
@@ -50,6 +52,11 @@ getrandom = { version = "0.2", features = ["js"] }
 [dev-dependencies]
 tokio-test = "0.4"
 tokio = { version = "1.43", features = ["fs", "macros"] }
+serde_json = "1.0"
+
+[[test]]
+name = "bring-your-own-type"
+required-features = ["byot"]
 
 [package.metadata.docs.rs]
 all-features = true

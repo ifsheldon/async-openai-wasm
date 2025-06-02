@@ -5,4 +5,4 @@ default-members = ["async-openai-wasm", "async-openai-*"]
 resolver = "2"
 
 [workspace.package]
-rust-version = "1.75"
+rust-version = "1.85"
