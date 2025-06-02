@@ -1,7 +1,7 @@
 use tokio_test::assert_err;
 
 use async_openai_wasm::types::CreateTranslationRequestArgs;
-use async_openai_wasm::{types::CreateTranscriptionRequestArgs, Client};
+use async_openai_wasm::{Client, types::CreateTranscriptionRequestArgs};
 
 #[tokio::test]
 async fn transcribe_test() {

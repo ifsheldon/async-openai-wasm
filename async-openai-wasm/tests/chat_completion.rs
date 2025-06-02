@@ -1,8 +1,8 @@
+use async_openai_wasm::Client;
 use async_openai_wasm::config::OpenAIConfig;
 use async_openai_wasm::types::{
     ChatCompletionRequestUserMessageArgs, CreateChatCompletionRequestArgs,
 };
-use async_openai_wasm::Client;
 use futures::StreamExt;
 use serde_json::json;
 
@@ -26,11 +26,13 @@ async fn test_chat_completion_reasoning() {
             .with_api_key(test_key),
     );
     let request = CreateChatCompletionRequestArgs::default()
-        .messages(vec![ChatCompletionRequestUserMessageArgs::default()
-            .content("Hello! Do you know the Rust programming language?")
-            .build()
-            .unwrap()
-            .into()])
+        .messages(vec![
+            ChatCompletionRequestUserMessageArgs::default()
+                .content("Hello! Do you know the Rust programming language?")
+                .build()
+                .unwrap()
+                .into(),
+        ])
         .model("deepseek/deepseek-r1")
         // The extra params that OpenRouter requires to get reasoning content
         // See https://openrouter.ai/docs/api-reference/parameters#include-reasoning
@@ -66,11 +68,13 @@ async fn test_chat_completion_reasoning_stream() {
             .with_api_key(test_key),
     );
     let request = CreateChatCompletionRequestArgs::default()
-        .messages(vec![ChatCompletionRequestUserMessageArgs::default()
-            .content("Hello! Do you know the Rust programming language?")
-            .build()
-            .unwrap()
-            .into()])
+        .messages(vec![
+            ChatCompletionRequestUserMessageArgs::default()
+                .content("Hello! Do you know the Rust programming language?")
+                .build()
+                .unwrap()
+                .into(),
+        ])
         .model("deepseek/deepseek-r1")
         // The extra params that OpenRouter requires to get reasoning content
         // See https://openrouter.ai/docs/api-reference/parameters#include-reasoning

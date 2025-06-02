@@ -1,8 +1,8 @@
+use async_openai_wasm::Client;
 use async_openai_wasm::config::OpenAIConfig;
 use async_openai_wasm::types::{
     ChatCompletionRequestUserMessageArgs, CreateChatCompletionRequestArgs,
 };
-use async_openai_wasm::Client;
 use futures::StreamExt;
 use serde_json::json;
 
@@ -13,26 +13,35 @@ const DEEPSEEK_REASONING_KEY: &str = "reasoning_content";
 const DEEPSEEK_BASEURL: &str = "https://api.deepseek.com";
 const DEEPSEEK_MODEL_NAME: &str = "deepseek-reasoner";
 
-
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
     let test_key = std::env::var("TEST_API_KEY").unwrap();
     let use_deepseek = std::env::var("USE_DEEPSEEK").is_ok();
     let (reasoning_key, base_url, model_name) = if use_deepseek {
-        (DEEPSEEK_REASONING_KEY, DEEPSEEK_BASEURL, DEEPSEEK_MODEL_NAME)
+        (
+            DEEPSEEK_REASONING_KEY,
+            DEEPSEEK_BASEURL,
+            DEEPSEEK_MODEL_NAME,
+        )
     } else {
-        (OPENROUTER_REASONING_KEY, OPENROUTER_BASEURL, OPENROUTER_MODEL_NAME)
+        (
+            OPENROUTER_REASONING_KEY,
+            OPENROUTER_BASEURL,
+            OPENROUTER_MODEL_NAME,
+        )
     };
     let client = Client::with_config(
         OpenAIConfig::new()
             .with_api_base(base_url)
             .with_api_key(test_key),
     );
-    let messages = vec![ChatCompletionRequestUserMessageArgs::default()
-        .content("Hello! Do you know the Rust programming language?")
-        .build()
-        .unwrap()
-        .into()];
+    let messages = vec![
+        ChatCompletionRequestUserMessageArgs::default()
+            .content("Hello! Do you know the Rust programming language?")
+            .build()
+            .unwrap()
+            .into(),
+    ];
     let request = if use_deepseek {
         CreateChatCompletionRequestArgs::default()
             .messages(messages)

@@ -1,13 +1,13 @@
 #![allow(non_snake_case)]
 
+use async_openai_wasm::Client;
 use async_openai_wasm::config::OpenAIConfig;
 use async_openai_wasm::types::{
     ChatCompletionRequestMessage, ChatCompletionRequestUserMessageArgs,
     CreateChatCompletionRequestArgs,
 };
-use async_openai_wasm::Client;
 use dioxus::prelude::*;
-use dioxus_logger::tracing::{error, info, Level};
+use dioxus_logger::tracing::{Level, error, info};
 use futures::stream::StreamExt;
 
 const API_BASE: &str = "...";

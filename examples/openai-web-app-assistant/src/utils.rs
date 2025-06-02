@@ -1,10 +1,10 @@
 use crate::{API_BASE, API_KEY};
+use async_openai_wasm::Client;
 use async_openai_wasm::config::OpenAIConfig;
 use async_openai_wasm::types::{
     AssistantStreamEvent, CreateAssistantRequest, CreateAssistantRequestArgs, FunctionObject,
     MessageDeltaContent, RunObject, SubmitToolOutputsRunRequest, ToolsOutputs,
 };
-use async_openai_wasm::Client;
 use dioxus::prelude::Signal;
 use dioxus::prelude::*;
 use futures::StreamExt;
