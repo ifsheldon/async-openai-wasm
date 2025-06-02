@@ -47,7 +47,6 @@ impl<'c, C: Config> Runs<'c, C> {
         T0 = serde::Serialize,
         R = serde::de::DeserializeOwned,
         stream = "true",
-        use_mapped_events = "true",
         where_clause = "R: std::marker::Send + 'static + TryFrom<eventsource_stream::Event, Error = OpenAIError>"
     )]
     #[allow(unused_mut)]
@@ -134,7 +133,6 @@ impl<'c, C: Config> Runs<'c, C> {
         T1 = serde::Serialize,
         R = serde::de::DeserializeOwned,
         stream = "true",
-        use_mapped_events = "true",
         where_clause = "R: std::marker::Send + 'static + TryFrom<eventsource_stream::Event, Error = OpenAIError>"
     )]
     #[allow(unused_mut)]

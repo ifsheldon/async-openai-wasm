@@ -163,7 +163,7 @@ pub use audio::Audio;
 pub use audit_logs::AuditLogs;
 pub use batches::Batches;
 pub use chat::Chat;
-pub use client::{Client, OpenAIEventMappedStream, OpenAIEventStream};
+pub use client::{Client, OpenAIEventStream};
 pub use completion::Completions;
 pub use embedding::Embeddings;
 pub use file::Files;

@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-use crate::client::OpenAIEventMappedStream;
+use crate::client::OpenAIEventStream;
 use crate::error::{ApiError, OpenAIError, map_deserialization_error};
 
 use super::{
@@ -107,7 +107,7 @@ pub enum AssistantStreamEvent {
     Done(String),
 }
 
-pub type AssistantEventStream = OpenAIEventMappedStream<AssistantStreamEvent>;
+pub type AssistantEventStream = OpenAIEventStream<AssistantStreamEvent>;
 
 impl TryFrom<eventsource_stream::Event> for AssistantStreamEvent {
     type Error = OpenAIError;

@@ -388,7 +388,7 @@ impl<C: Config> Client<C> {
         path: &str,
         request: I,
         event_mapper: impl Fn(eventsource_stream::Event) -> Result<O, OpenAIError> + Send + 'static,
-    ) -> OpenAIEventMappedStream<O>
+    ) -> OpenAIEventStream<O>
     where
         I: Serialize,
         O: DeserializeOwned + Send + 'static,
@@ -402,7 +402,7 @@ impl<C: Config> Client<C> {
             .eventsource()
             .unwrap();
 
-        OpenAIEventMappedStream::new(event_source, event_mapper)
+        OpenAIEventStream::with_event_mapping(event_source, event_mapper)
     }
 
     /// Make HTTP GET request to receive SSE
@@ -426,81 +426,11 @@ impl<C: Config> Client<C> {
 
 /// Request which responds with SSE.
 /// [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#event_stream_format)
-#[pin_project]
-pub struct OpenAIEventStream<O: DeserializeOwned + Send + 'static> {
-    #[pin]
-    stream: Filter<
-        EventSource,
-        future::Ready<bool>,
-        fn(&Result<Event, reqwest_eventsource::Error>) -> future::Ready<bool>,
-    >,
-    done: bool,
-    _phantom_data: PhantomData<O>,
-}
-
-impl<O: DeserializeOwned + Send + 'static> OpenAIEventStream<O> {
-    pub(crate) fn new(event_source: EventSource) -> Self {
-        Self {
-            stream: event_source.filter(|result|
-                // filter out the first event which is always Event::Open
-                future::ready(!(result.is_ok() && result.as_ref().unwrap().eq(&Event::Open)))),
-            done: false,
-            _phantom_data: PhantomData,
-        }
-    }
-}
-
-impl<O: DeserializeOwned + Send + 'static> Stream for OpenAIEventStream<O> {
-    type Item = Result<O, OpenAIError>;
-
-    fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
-        let this = self.project();
-        if *this.done {
-            return Poll::Ready(None);
-        }
-        let stream: Pin<&mut _> = this.stream;
-        match stream.poll_next(cx) {
-            Poll::Ready(response) => {
-                match response {
-                    None => Poll::Ready(None), // end of the stream
-                    Some(result) => match result {
-                        Ok(event) => match event {
-                            Event::Open => unreachable!(), // it has been filtered out
-                            Event::Message(message) => {
-                                if message.data == "[DONE]" {
-                                    *this.done = true;
-                                    Poll::Ready(None) // end of the stream, defined by OpenAI
-                                } else {
-                                    // deserialize the data
-                                    match serde_json::from_str::<O>(&message.data) {
-                                        Err(e) => {
-                                            *this.done = true;
-                                            Poll::Ready(Some(Err(map_deserialization_error(
-                                                e,
-                                                &message.data.as_bytes(),
-                                            ))))
-                                        }
-                                        Ok(output) => Poll::Ready(Some(Ok(output))),
-                                    }
-                                }
-                            }
-                        },
-                        Err(e) => {
-                            *this.done = true;
-                            Poll::Ready(Some(Err(OpenAIError::StreamError(e.to_string()))))
-                        }
-                    },
-                }
-            }
-            Poll::Pending => Poll::Pending,
-        }
-    }
-}
 
 #[pin_project]
-pub struct OpenAIEventMappedStream<O>
+pub struct OpenAIEventStream<O>
 where
-    O: Send + 'static,
+    O: DeserializeOwned + Send + 'static,
 {
     #[pin]
     stream: Filter<
@@ -508,16 +438,17 @@ where
         future::Ready<bool>,
         fn(&Result<Event, reqwest_eventsource::Error>) -> future::Ready<bool>,
     >,
-    event_mapper: Box<dyn Fn(eventsource_stream::Event) -> Result<O, OpenAIError> + Send + 'static>,
+    event_mapper:
+        Option<Box<dyn Fn(eventsource_stream::Event) -> Result<O, OpenAIError> + Send + 'static>>,
     done: bool,
     _phantom_data: PhantomData<O>,
 }
 
-impl<O> OpenAIEventMappedStream<O>
+impl<O> OpenAIEventStream<O>
 where
-    O: Send + 'static,
+    O: DeserializeOwned + Send + 'static,
 {
-    pub(crate) fn new<M>(event_source: EventSource, event_mapper: M) -> Self
+    pub(crate) fn with_event_mapping<M>(event_source: EventSource, event_mapper: M) -> Self
     where
         M: Fn(eventsource_stream::Event) -> Result<O, OpenAIError> + Send + 'static,
     {
@@ -526,15 +457,26 @@ where
                 // filter out the first event which is always Event::Open
                 future::ready(!(result.is_ok() && result.as_ref().unwrap().eq(&Event::Open)))),
             done: false,
-            event_mapper: Box::new(event_mapper),
+            event_mapper: Some(Box::new(event_mapper)),
+            _phantom_data: PhantomData,
+        }
+    }
+
+    pub(crate) fn new(event_source: EventSource) -> Self {
+        Self {
+            stream: event_source.filter(|result|
+                // filter out the first event which is always Event::Open
+                future::ready(!(result.is_ok() && result.as_ref().unwrap().eq(&Event::Open)))),
+            done: false,
+            event_mapper: None,
             _phantom_data: PhantomData,
         }
     }
 }
 
-impl<O> Stream for OpenAIEventMappedStream<O>
+impl<O> Stream for OpenAIEventStream<O>
 where
-    O: Send + 'static,
+    O: DeserializeOwned + Send + 'static,
 {
     type Item = Result<O, OpenAIError>;
 
@@ -552,13 +494,32 @@ where
                         Ok(event) => match event {
                             Event::Open => unreachable!(), // it has been filtered out
                             Event::Message(message) => {
-                                if message.data == "[DONE]" {
-                                    *this.done = true;
-                                }
-                                let response = (this.event_mapper)(message);
-                                match response {
-                                    Ok(output) => Poll::Ready(Some(Ok(output))),
-                                    Err(_) => Poll::Ready(None),
+                                if let Some(event_mapper) = this.event_mapper.as_ref() {
+                                    if message.data == "[DONE]" {
+                                        *this.done = true;
+                                    }
+                                    let response = event_mapper(message);
+                                    match response {
+                                        Ok(output) => Poll::Ready(Some(Ok(output))),
+                                        Err(_) => Poll::Ready(None),
+                                    }
+                                } else {
+                                    if message.data == "[DONE]" {
+                                        *this.done = true;
+                                        Poll::Ready(None) // end of the stream, defined by OpenAI
+                                    } else {
+                                        // deserialize the data
+                                        match serde_json::from_str::<O>(&message.data) {
+                                            Err(e) => {
+                                                *this.done = true;
+                                                Poll::Ready(Some(Err(map_deserialization_error(
+                                                    e,
+                                                    &message.data.as_bytes(),
+                                                ))))
+                                            }
+                                            Ok(output) => Poll::Ready(Some(Ok(output))),
+                                        }
+                                    }
                                 }
                             }
                         },
