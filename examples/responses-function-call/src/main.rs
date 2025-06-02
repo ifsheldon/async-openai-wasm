@@ -1,4 +1,4 @@
-use async_openai::{
+use async_openai_wasm::{
     types::responses::{
         CreateResponseArgs, FunctionArgs, FunctionCall, Input, InputItem, InputMessageArgs,
         OutputContent, Role, ToolDefinition,

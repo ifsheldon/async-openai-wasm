@@ -1,6 +1,6 @@
 use std::error::Error;
 
-use async_openai::{
+use async_openai_wasm::{
     types::responses::{
         AllowedTools, CreateResponseArgs, Input, InputItem, InputMessageArgs, McpArgs,
         RequireApproval, RequireApprovalPolicy, Role,
