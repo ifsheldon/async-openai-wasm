@@ -40,6 +40,7 @@ a `x.y.z` version.
 - SSE streaming on available APIs
 - Ergonomic builder pattern for all request objects.
 - Microsoft Azure OpenAI Service (only for APIs matching OpenAI spec)
+- Bring your own custom types for Request or Response objects.
 
 **Note on Azure OpenAI Service (AOS)**:  `async-openai-wasm` primarily implements OpenAI spec, and doesn't try to
 maintain parity with spec of AOS. Just like `async-openai`.
@@ -81,7 +82,7 @@ $Env:OPENAI_API_KEY='sk-...'
 ## Realtime API
 
 Only types for Realtime API are implemented, and can be enabled with feature flag `realtime`
-These types may change if/when OpenAI releases official specs for them.
+These types were written before OpenAI released official specs.
 
 Again, the types do not bundle with a specific WS implementation. Need to convert a client event into a WS message by yourself, which is just simple `your_ws_impl::Message::Text(some_client_event.into_text())`.
 
