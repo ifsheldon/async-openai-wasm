@@ -3,7 +3,6 @@ use std::fmt::Display;
 use bytes::Bytes;
 
 use super::{
-    responses::{CodeInterpreterContainer, Input, InputContent, Role as ResponsesRole},
     AddUploadPartRequest, AudioInput, AudioResponseFormat, ChatCompletionFunctionCall,
     ChatCompletionFunctions, ChatCompletionNamedToolChoice, ChatCompletionRequestAssistantMessage,
     ChatCompletionRequestAssistantMessageContent, ChatCompletionRequestDeveloperMessage,
@@ -18,6 +17,7 @@ use super::{
     CreateTranscriptionRequest, CreateTranslationRequest, DallE2ImageSize, EmbeddingInput,
     FileInput, FilePurpose, FunctionName, ImageInput, ImageModel, ImageResponseFormat, ImageSize,
     ImageUrl, ModerationInput, Prompt, Role, Stop, TimestampGranularity,
+    responses::{CodeInterpreterContainer, Input, InputContent, Role as ResponsesRole},
 };
 use crate::traits::AsyncTryFrom;
 use crate::{error::OpenAIError, types::InputSource, util::create_file_part};

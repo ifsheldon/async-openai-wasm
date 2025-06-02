@@ -13,14 +13,13 @@ use serde::{Serialize, de::DeserializeOwned};
 
 use crate::{
     Assistants, Audio, AuditLogs, Batches, Chat, Completions, Embeddings, FineTuning, Invites,
-    Models, Projects, Threads, Uploads, Users, VectorStores,
+    Models, Projects, Responses, Threads, Uploads, Users, VectorStores,
     config::{Config, OpenAIConfig},
     error::{OpenAIError, WrappedError, map_deserialization_error},
     file::Files,
     image::Images,
     moderation::Moderations,
     traits::AsyncTryFrom,
-    Responses
 };
 
 #[derive(Debug, Clone)]

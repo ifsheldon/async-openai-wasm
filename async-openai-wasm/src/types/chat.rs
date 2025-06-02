@@ -569,11 +569,9 @@ pub enum WebSearchContextSize {
     High,
 }
 
-
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum WebSearchUserLocationType {
-
     Approximate,
 }
 
@@ -590,7 +588,6 @@ pub struct WebSearchLocation {
     pub timezone: Option<String>,
 }
 
-
 #[derive(Clone, Serialize, Debug, Deserialize, PartialEq)]
 pub struct WebSearchUserLocation {
     //  The type of location approximation. Always `approximate`.
@@ -603,7 +600,6 @@ pub struct WebSearchUserLocation {
 #[derive(Clone, Serialize, Debug, Default, Deserialize, PartialEq)]
 pub struct WebSearchOptions {
     /// High level guidance for the amount of context window space to use for the search. One of `low`, `medium`, or `high`. `medium` is the default.
-
     pub search_context_size: Option<WebSearchContextSize>,
 
     /// Approximate location parameters for the search.
@@ -856,7 +852,6 @@ pub struct CreateChatCompletionRequest {
 
     /// This tool searches the web for relevant results to use in a response.
     /// Learn more about the [web search tool](https://platform.openai.com/docs/guides/tools-web-search?api-mode=chat).
-
     pub web_search_options: Option<WebSearchOptions>,
 
     /// Deprecated in favor of `tool_choice`.
