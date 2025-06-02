@@ -45,8 +45,8 @@ bytes = "1.9"
 eventsource-stream = "0.2"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-rand = "0.8"
-getrandom = { version = "0.2", features = ["js"] }
+rand = "0.9"
+getrandom = { version = "0.3", features = ["wasm_js"]}
 
 
 [dev-dependencies]
