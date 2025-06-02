@@ -20,6 +20,7 @@ use crate::{
     image::Images,
     moderation::Moderations,
     traits::AsyncTryFrom,
+    Responses
 };
 
 #[derive(Debug, Clone)]
@@ -155,6 +156,11 @@ impl<C: Config> Client<C> {
     /// To call [Projects] group related APIs using this client.
     pub fn projects(&self) -> Projects<C> {
         Projects::new(self)
+    }
+
+    /// To call [Responses] group related APIs using this client.
+    pub fn responses(&self) -> Responses<C> {
+        Responses::new(self)
     }
 
     pub fn config(&self) -> &C {
