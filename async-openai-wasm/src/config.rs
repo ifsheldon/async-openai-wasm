@@ -15,7 +15,7 @@ pub const OPENAI_BETA_HEADER: &str = "OpenAI-Beta";
 
 /// [crate::Client] relies on this for every API call on OpenAI
 /// or Azure OpenAI service
-pub trait Config {
+pub trait Config: Send + Sync {
     fn headers(&self) -> HeaderMap;
     fn url(&self, path: &str) -> String;
     fn query(&self) -> Vec<(&str, &str)>;
@@ -49,7 +49,6 @@ macro_rules! impl_config_for_ptr {
 }
 
 impl_config_for_ptr!(Box<dyn Config>);
-impl_config_for_ptr!(std::rc::Rc<dyn Config>);
 impl_config_for_ptr!(std::sync::Arc<dyn Config>);
 
 /// Configuration for OpenAI API
@@ -242,8 +241,10 @@ impl Config for AzureConfig {
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate::types::{
+        ChatCompletionRequestMessage, ChatCompletionRequestUserMessage, CreateChatCompletionRequest,
+    };
     use crate::Client;
-    use std::rc::Rc;
     use std::sync::Arc;
     #[test]
     fn test_client_creation() {
@@ -252,15 +253,39 @@ mod test {
         let config = Box::new(openai_config.clone()) as Box<dyn Config>;
         let client = Client::with_config(config);
         assert!(client.config().url("").ends_with("/v1"));
-        let config = Rc::new(openai_config.clone()) as Rc<dyn Config>;
-        let client = Client::with_config(config);
-        assert!(client.config().url("").ends_with("/v1"));
-        let cloned_client = client.clone();
-        assert!(cloned_client.config().url("").ends_with("/v1"));
+
         let config = Arc::new(openai_config) as Arc<dyn Config>;
         let client = Client::with_config(config);
         assert!(client.config().url("").ends_with("/v1"));
         let cloned_client = client.clone();
         assert!(cloned_client.config().url("").ends_with("/v1"));
+    }
+
+    async fn dynamic_dispatch_compiles(client: &Client<Box<dyn Config>>) {
+        let _ = client.chat().create(CreateChatCompletionRequest {
+            model: "gpt-4o".to_string(),
+            messages: vec![ChatCompletionRequestMessage::User(
+                ChatCompletionRequestUserMessage {
+                    content: "Hello, world!".into(),
+                    ..Default::default()
+                },
+            )],
+            ..Default::default()
+        });
+    }
+
+    #[tokio::test]
+    async fn test_dynamic_dispatch() {
+        let openai_config = OpenAIConfig::default();
+        let azure_config = AzureConfig::default();
+
+        let azure_client = Client::with_config(Box::new(azure_config.clone()) as Box<dyn Config>);
+        let oai_client = Client::with_config(Box::new(openai_config.clone()) as Box<dyn Config>);
+
+        let _ = dynamic_dispatch_compiles(&azure_client).await;
+        let _ = dynamic_dispatch_compiles(&oai_client).await;
+
+        let _ = tokio::spawn(async move { dynamic_dispatch_compiles(&azure_client).await });
+        let _ = tokio::spawn(async move { dynamic_dispatch_compiles(&oai_client).await });
     }
 }
