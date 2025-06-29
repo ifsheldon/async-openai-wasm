@@ -13,9 +13,7 @@ pub(crate) async fn create_file_part(
     };
 
     let file_part = reqwest::multipart::Part::stream(stream)
-        .file_name(file_name)
-        .mime_str("application/octet-stream")
-        .unwrap();
+        .file_name(file_name);
 
     Ok(file_part)
 }
