@@ -328,6 +328,8 @@ pub enum ServiceTier {
     Auto,
     Default,
     Flex,
+    Scale,
+    Priority,
 }
 
 /// Truncation strategies.
