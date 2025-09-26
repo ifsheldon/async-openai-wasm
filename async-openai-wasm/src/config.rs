@@ -241,10 +241,10 @@ impl Config for AzureConfig {
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate::Client;
     use crate::types::{
         ChatCompletionRequestMessage, ChatCompletionRequestUserMessage, CreateChatCompletionRequest,
     };
-    use crate::Client;
     use std::sync::Arc;
     #[test]
     fn test_client_creation() {

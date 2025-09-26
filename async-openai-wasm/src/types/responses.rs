@@ -1,9 +1,9 @@
+use crate::OpenAIEventStream;
 use crate::error::OpenAIError;
 pub use crate::types::{
     CompletionTokensDetails, ImageDetail, PromptTokensDetails, ReasoningEffort,
     ResponseFormatJsonSchema,
 };
-use crate::OpenAIEventStream;
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -2147,7 +2147,6 @@ pub struct ContentPart {
 // ===== RESPONSE COLLECTOR =====
 
 /// Collects streaming response events into a complete response
-
 /// Output text annotation added event
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[non_exhaustive]
