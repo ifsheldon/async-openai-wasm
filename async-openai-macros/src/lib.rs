@@ -1,11 +1,11 @@
 use proc_macro::TokenStream;
-use quote::{quote, ToTokens};
+use quote::{ToTokens, quote};
 use syn::{
+    FnArg, GenericParam, Generics, ItemFn, Pat, PatType, TypeParam, WhereClause,
     parse::{Parse, ParseStream},
     parse_macro_input,
     punctuated::Punctuated,
     token::Comma,
-    FnArg, GenericParam, Generics, ItemFn, Pat, PatType, TypeParam, WhereClause,
 };
 
 // Parse attribute arguments like #[byot(T0: Display + Debug, T1: Clone, R: Serialize)]
