@@ -1752,6 +1752,7 @@ pub struct ResponseFunctionCallArgumentsDelta {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[non_exhaustive]
 pub struct ResponseFunctionCallArgumentsDone {
+    pub name: String,
     pub sequence_number: u64,
     pub item_id: String,
     pub output_index: u32,
