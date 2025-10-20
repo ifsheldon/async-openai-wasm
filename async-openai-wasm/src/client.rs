@@ -8,10 +8,11 @@ use future::Future;
 use futures::stream::Filter;
 use futures::{Stream, stream::StreamExt};
 use pin_project::pin_project;
-use reqwest::multipart::Form;
+use reqwest::{Response, multipart::Form};
 use reqwest_eventsource::{Event, EventSource, RequestBuilderExt};
 use serde::{Serialize, de::DeserializeOwned};
 
+use crate::error::{ApiError, StreamError};
 use crate::{
     Assistants, Audio, AuditLogs, Batches, Chat, Completions, Embeddings, FineTuning, Invites,
     Models, Projects, Responses, Threads, Uploads, Users, VectorStores,
@@ -315,27 +316,21 @@ impl<C: Config> Client<C> {
             .map_err(OpenAIError::Reqwest)?;
 
         let status = response.status();
-        let bytes = response.bytes().await.map_err(OpenAIError::Reqwest)?;
-
-        // Deserialize response body from either error object or actual response object
-        if !status.is_success() {
-            let wrapped_error: WrappedError = serde_json::from_slice(bytes.as_ref())
-                .map_err(|e| map_deserialization_error(e, bytes.as_ref()))?;
-
-            if status.as_u16() == 429
-                // API returns 429 also when:
-                // "You exceeded your current quota, please check your plan and billing details."
-                && wrapped_error.error.r#type != Some("insufficient_quota".to_string())
-            {
-                // Rate limited retry...
-                tracing::warn!("Rate limited: {}", wrapped_error.error.message);
-                return Err(OpenAIError::ApiError(wrapped_error.error));
-            } else {
-                return Err(OpenAIError::ApiError(wrapped_error.error));
-            }
+        match read_response(response).await {
+            Ok(bytes) => Ok(bytes),
+            Err(e) => match e {
+                OpenAIError::ApiError(api_error) => {
+                    if status.as_u16() == 429
+                        && api_error.r#type != Some("insufficient_quota".to_string())
+                    {
+                        // Rate limited retry...
+                        tracing::warn!("Rate limited: {}", api_error.message);
+                    }
+                    Err(OpenAIError::ApiError(api_error))
+                }
+                _ => Err(e),
+            },
         }
-
-        Ok(bytes)
     }
 
     /// Execute a HTTP request
@@ -514,7 +509,9 @@ where
                         },
                         Err(e) => {
                             *this.done = true;
-                            Poll::Ready(Some(Err(OpenAIError::StreamError(e.to_string()))))
+                            Poll::Ready(Some(Err(OpenAIError::StreamError(
+                                StreamError::ReqwestEventSource(e),
+                            ))))
                         }
                     },
                 }
@@ -524,50 +521,29 @@ where
     }
 }
 
-// pub(crate) async fn stream_mapped_raw_events<O>(
-//     mut event_source: EventSource,
-//     event_mapper: impl Fn(eventsource_stream::Event) -> Result<O, OpenAIError> + Send + 'static,
-// ) -> Pin<Box<dyn Stream<Item=Result<O, OpenAIError>> + Send>>
-//     where
-//         O: DeserializeOwned + std::marker::Send + 'static,
-// {
-//     let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
-//
-//     tokio::spawn(async move {
-//         while let Some(ev) = event_source.next().await {
-//             match ev {
-//                 Err(e) => {
-//                     if let Err(_e) = tx.send(Err(OpenAIError::StreamError(e.to_string()))) {
-//                         // rx dropped
-//                         break;
-//                     }
-//                 }
-//                 Ok(event) => match event {
-//                     Event::Message(message) => {
-//                         let mut done = false;
-//
-//                         if message.data == "[DONE]" {
-//                             done = true;
-//                         }
-//
-//                         let response = event_mapper(message);
-//
-//                         if let Err(_e) = tx.send(response) {
-//                             // rx dropped
-//                             break;
-//                         }
-//
-//                         if done {
-//                             break;
-//                         }
-//                     }
-//                     Event::Open => continue,
-//                 },
-//             }
-//         }
-//
-//         event_source.close();
-//     });
-//
-//     Box::pin(tokio_stream::wrappers::UnboundedReceiverStream::new(rx))
-// }
+async fn read_response(response: Response) -> Result<Bytes, OpenAIError> {
+    let status = response.status();
+    let bytes = response.bytes().await.map_err(OpenAIError::Reqwest)?;
+
+    if status.is_server_error() {
+        // OpenAI does not guarantee server errors are returned as JSON so we cannot deserialize them.
+        let message: String = String::from_utf8_lossy(&bytes).into_owned();
+        tracing::warn!("Server error: {status} - {message}");
+        return Err(OpenAIError::ApiError(ApiError {
+            message,
+            r#type: None,
+            param: None,
+            code: None,
+        }));
+    }
+
+    // Deserialize response body from either error object or actual response object
+    if !status.is_success() {
+        let wrapped_error: WrappedError = serde_json::from_slice(bytes.as_ref())
+            .map_err(|e| map_deserialization_error(e, bytes.as_ref()))?;
+
+        return Err(OpenAIError::ApiError(wrapped_error.error));
+    }
+
+    Ok(bytes)
+}

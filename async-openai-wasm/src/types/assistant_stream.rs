@@ -1,7 +1,7 @@
 use serde::Deserialize;
 
 use crate::client::OpenAIEventStream;
-use crate::error::{ApiError, OpenAIError, map_deserialization_error};
+use crate::error::{ApiError, OpenAIError, StreamError, map_deserialization_error};
 
 use super::{
     MessageDeltaObject, MessageObject, RunObject, RunStepDeltaObject, RunStepObject, ThreadObject,
@@ -203,9 +203,7 @@ impl TryFrom<eventsource_stream::Event> for AssistantStreamEvent {
                 .map(AssistantStreamEvent::ErrorEvent),
             "done" => Ok(AssistantStreamEvent::Done(value.data)),
 
-            _ => Err(OpenAIError::StreamError(
-                "Unrecognized event: {value:?#}".into(),
-            )),
+            _ => Err(OpenAIError::StreamError(StreamError::UnknownEvent(value))),
         }
     }
 }
