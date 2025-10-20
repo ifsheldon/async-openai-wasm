@@ -14,10 +14,10 @@ use super::{
     ChatCompletionRequestUserMessage, ChatCompletionRequestUserMessageContent,
     ChatCompletionRequestUserMessageContentPart, ChatCompletionToolChoiceOption, CreateFileRequest,
     CreateImageEditRequest, CreateImageVariationRequest, CreateMessageRequestContent,
-    CreateTranscriptionRequest, CreateTranslationRequest, DallE2ImageSize, EmbeddingInput,
-    FileExpiresAfterAnchor, FileInput, FilePurpose, FunctionName, ImageInput, ImageModel,
-    ImageResponseFormat, ImageSize, ImageUrl, ModerationInput, Prompt, Role, Stop,
-    TimestampGranularity,
+    CreateTranscriptionRequest, CreateTranslationRequest, CreateVideoRequest, DallE2ImageSize,
+    EmbeddingInput, FileExpiresAfterAnchor, FileInput, FilePurpose, FunctionName, ImageInput,
+    ImageModel, ImageResponseFormat, ImageSize, ImageUrl, ModerationInput, Prompt, Role, Stop,
+    TimestampGranularity, VideoSize,
     responses::{CodeInterpreterContainer, Input, InputContent, Role as ResponsesRole},
 };
 use crate::traits::AsyncTryFrom;
@@ -145,6 +145,21 @@ macro_rules! impl_input {
 impl_input!(AudioInput);
 impl_input!(FileInput);
 impl_input!(ImageInput);
+
+impl Display for VideoSize {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::S720x1280 => "720x1280",
+                Self::S1280x720 => "1280x720",
+                Self::S1024x1792 => "1024x1792",
+                Self::S1792x1024 => "1792x1024",
+            }
+        )
+    }
+}
 
 impl Display for ImageSize {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -921,6 +936,31 @@ impl AsyncTryFrom<AddUploadPartRequest> for reqwest::multipart::Form {
     async fn try_from(request: AddUploadPartRequest) -> Result<Self, Self::Error> {
         let file_part = create_file_part(request.data).await?;
         let form = reqwest::multipart::Form::new().part("data", file_part);
+        Ok(form)
+    }
+}
+
+impl AsyncTryFrom<CreateVideoRequest> for reqwest::multipart::Form {
+    type Error = OpenAIError;
+
+    async fn try_from(request: CreateVideoRequest) -> Result<Self, Self::Error> {
+        let mut form = reqwest::multipart::Form::new().text("model", request.model);
+
+        form = form.text("prompt", request.prompt);
+
+        if request.size.is_some() {
+            form = form.text("size", request.size.unwrap().to_string());
+        }
+
+        if request.seconds.is_some() {
+            form = form.text("seconds", request.seconds.unwrap());
+        }
+
+        if request.input_reference.is_some() {
+            let image_part = create_file_part(request.input_reference.unwrap().source).await?;
+            form = form.part("input_reference", image_part);
+        }
+
         Ok(form)
     }
 }

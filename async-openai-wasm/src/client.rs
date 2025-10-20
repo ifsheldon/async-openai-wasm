@@ -15,7 +15,7 @@ use serde::{Serialize, de::DeserializeOwned};
 use crate::error::{ApiError, StreamError};
 use crate::{
     Assistants, Audio, AuditLogs, Batches, Chat, Completions, Embeddings, FineTuning, Invites,
-    Models, Projects, Responses, Threads, Uploads, Users, VectorStores,
+    Models, Projects, Responses, Threads, Uploads, Users, VectorStores, Videos,
     config::{Config, OpenAIConfig},
     error::{OpenAIError, WrappedError, map_deserialization_error},
     file::Files,
@@ -117,6 +117,11 @@ impl<C: Config> Client<C> {
     /// To call [Audio] group related APIs using this client.
     pub fn audio(&self) -> Audio<'_, C> {
         Audio::new(self)
+    }
+
+    /// To call [Videos] group related APIs using this client.
+    pub fn videos(&self) -> Videos<'_, C> {
+        Videos::new(self)
     }
 
     /// To call [Assistants] group related APIs using this client.
@@ -225,6 +230,26 @@ impl<C: Config> Client<C> {
                 .http_client
                 .get(self.config.url(path))
                 .query(&self.config.query())
+                .headers(self.config.headers())
+                .build()?)
+        })
+        .await
+    }
+
+    pub(crate) async fn get_raw_with_query<Q>(
+        &self,
+        path: &str,
+        query: &Q,
+    ) -> Result<Bytes, OpenAIError>
+    where
+        Q: Serialize + ?Sized,
+    {
+        self.execute_raw(async {
+            Ok(self
+                .http_client
+                .get(self.config.url(path))
+                .query(&self.config.query())
+                .query(query)
                 .headers(self.config.headers())
                 .build()?)
         })
