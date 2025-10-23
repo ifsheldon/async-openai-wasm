@@ -171,7 +171,7 @@ impl<C: Config> Client<C> {
     where
         O: DeserializeOwned,
     {
-        let request_maker = async || {
+        let request_maker = || async {
             Ok(self
                 .http_client
                 .get(self.config.url(path))
@@ -189,7 +189,7 @@ impl<C: Config> Client<C> {
         O: DeserializeOwned,
         Q: Serialize + ?Sized,
     {
-        let request_maker = async || {
+        let request_maker = || async {
             Ok(self
                 .http_client
                 .get(self.config.url(path))
@@ -207,7 +207,7 @@ impl<C: Config> Client<C> {
     where
         O: DeserializeOwned,
     {
-        let request_maker = async || {
+        let request_maker = || async {
             Ok(self
                 .http_client
                 .delete(self.config.url(path))
@@ -221,7 +221,7 @@ impl<C: Config> Client<C> {
 
     /// Make a GET request to {path} and return the response body
     pub(crate) async fn get_raw(&self, path: &str) -> Result<Bytes, OpenAIError> {
-        let request_maker = async || {
+        let request_maker = || async {
             Ok(self
                 .http_client
                 .get(self.config.url(path))
@@ -238,7 +238,7 @@ impl<C: Config> Client<C> {
     where
         I: Serialize,
     {
-        let request_maker = async || {
+        let request_maker = || async {
             Ok(self
                 .http_client
                 .post(self.config.url(path))
@@ -257,7 +257,7 @@ impl<C: Config> Client<C> {
         I: Serialize,
         O: DeserializeOwned,
     {
-        let request_maker = async || {
+        let request_maker = || async {
             Ok(self
                 .http_client
                 .post(self.config.url(path))
@@ -276,7 +276,7 @@ impl<C: Config> Client<C> {
         Form: AsyncTryFrom<F, Error = OpenAIError>,
         F: Clone,
     {
-        let request_maker = async || {
+        let request_maker = || async {
             Ok(self
                 .http_client
                 .post(self.config.url(path))
@@ -296,7 +296,7 @@ impl<C: Config> Client<C> {
         Form: AsyncTryFrom<F, Error = OpenAIError>,
         F: Clone,
     {
-        let request_maker = async || {
+        let request_maker = || async {
             Ok(self
                 .http_client
                 .post(self.config.url(path))
@@ -314,10 +314,11 @@ impl<C: Config> Client<C> {
     /// request_maker serves one purpose: to be able to create request again
     /// to retry API call after getting rate limited. request_maker is async because
     /// reqwest::multipart::Form is created by async calls to read files for uploads.
-    async fn execute_raw(
-        &self,
-        request_maker: impl AsyncFn() -> Result<reqwest::Request, OpenAIError>,
-    ) -> Result<Bytes, OpenAIError> {
+    async fn execute_raw<M, Fut>(&self, request_maker: M) -> Result<Bytes, OpenAIError>
+    where
+        M: Fn() -> Fut,
+        Fut: future::Future<Output = Result<reqwest::Request, OpenAIError>>,
+    {
         let client = self.http_client.clone();
 
         let request = request_maker().await?;
@@ -355,12 +356,11 @@ impl<C: Config> Client<C> {
     /// request_maker serves one purpose: to be able to create request again
     /// to retry API call after getting rate limited. request_maker is async because
     /// reqwest::multipart::Form is created by async calls to read files for uploads.
-    async fn execute<O>(
-        &self,
-        request_maker: impl AsyncFn() -> Result<reqwest::Request, OpenAIError>,
-    ) -> Result<O, OpenAIError>
+    async fn execute<O, M, Fut>(&self, request_maker: M) -> Result<O, OpenAIError>
     where
         O: DeserializeOwned,
+        M: Fn() -> Fut,
+        Fut: core::future::Future<Output = Result<reqwest::Request, OpenAIError>>,
     {
         let bytes = self.execute_raw(request_maker).await?;
 
