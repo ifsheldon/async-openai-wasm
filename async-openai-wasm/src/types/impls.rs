@@ -15,9 +15,10 @@ use super::{
     ChatCompletionRequestUserMessageContentPart, ChatCompletionToolChoiceOption, CreateFileRequest,
     CreateImageEditRequest, CreateImageVariationRequest, CreateMessageRequestContent,
     CreateTranscriptionRequest, CreateTranslationRequest, DallE2ImageSize, EmbeddingInput,
-    FileInput, FilePurpose, FunctionName, ImageInput, ImageModel, ImageResponseFormat, ImageSize,
-    ImageUrl, ModerationInput, Prompt, Role, Stop, TimestampGranularity,
-    responses::{CodeInterpreterContainer, Input, InputContent, Role as ResponsesRole}, FileExpiresAfterAnchor
+    FileExpiresAfterAnchor, FileInput, FilePurpose, FunctionName, ImageInput, ImageModel,
+    ImageResponseFormat, ImageSize, ImageUrl, ModerationInput, Prompt, Role, Stop,
+    TimestampGranularity,
+    responses::{CodeInterpreterContainer, Input, InputContent, Role as ResponsesRole},
 };
 use crate::traits::AsyncTryFrom;
 use crate::{error::OpenAIError, types::InputSource, util::create_file_part};
@@ -906,7 +907,8 @@ impl AsyncTryFrom<CreateFileRequest> for reqwest::multipart::Form {
             .text("purpose", request.purpose.to_string());
 
         if let Some(expires_after) = request.expires_after {
-            form = form.text("expires_after[anchor]", expires_after.anchor.to_string())
+            form = form
+                .text("expires_after[anchor]", expires_after.anchor.to_string())
                 .text("expires_after[seconds]", expires_after.seconds.to_string());
         }
         Ok(form)
