@@ -4,6 +4,7 @@ use std::pin::Pin;
 use std::task::{Context, Poll};
 
 use bytes::Bytes;
+use future::Future;
 use futures::stream::Filter;
 use futures::{Stream, stream::StreamExt};
 use pin_project::pin_project;
@@ -171,16 +172,15 @@ impl<C: Config> Client<C> {
     where
         O: DeserializeOwned,
     {
-        let request_maker = async || {
+        self.execute(async {
             Ok(self
                 .http_client
                 .get(self.config.url(path))
                 .query(&self.config.query())
                 .headers(self.config.headers())
                 .build()?)
-        };
-
-        self.execute(request_maker).await
+        })
+        .await
     }
 
     /// Make a GET request to {path} with given Query and deserialize the response body
@@ -189,7 +189,7 @@ impl<C: Config> Client<C> {
         O: DeserializeOwned,
         Q: Serialize + ?Sized,
     {
-        let request_maker = async || {
+        self.execute(async {
             Ok(self
                 .http_client
                 .get(self.config.url(path))
@@ -197,9 +197,8 @@ impl<C: Config> Client<C> {
                 .query(query)
                 .headers(self.config.headers())
                 .build()?)
-        };
-
-        self.execute(request_maker).await
+        })
+        .await
     }
 
     /// Make a DELETE request to {path} and deserialize the response body
@@ -207,30 +206,28 @@ impl<C: Config> Client<C> {
     where
         O: DeserializeOwned,
     {
-        let request_maker = async || {
+        self.execute(async {
             Ok(self
                 .http_client
                 .delete(self.config.url(path))
                 .query(&self.config.query())
                 .headers(self.config.headers())
                 .build()?)
-        };
-
-        self.execute(request_maker).await
+        })
+        .await
     }
 
     /// Make a GET request to {path} and return the response body
     pub(crate) async fn get_raw(&self, path: &str) -> Result<Bytes, OpenAIError> {
-        let request_maker = async || {
+        self.execute_raw(async {
             Ok(self
                 .http_client
                 .get(self.config.url(path))
                 .query(&self.config.query())
                 .headers(self.config.headers())
                 .build()?)
-        };
-
-        self.execute_raw(request_maker).await
+        })
+        .await
     }
 
     /// Make a POST request to {path} and return the response body
@@ -238,7 +235,7 @@ impl<C: Config> Client<C> {
     where
         I: Serialize,
     {
-        let request_maker = async || {
+        self.execute_raw(async {
             Ok(self
                 .http_client
                 .post(self.config.url(path))
@@ -246,9 +243,8 @@ impl<C: Config> Client<C> {
                 .headers(self.config.headers())
                 .json(&request)
                 .build()?)
-        };
-
-        self.execute_raw(request_maker).await
+        })
+        .await
     }
 
     /// Make a POST request to {path} and deserialize the response body
@@ -257,7 +253,7 @@ impl<C: Config> Client<C> {
         I: Serialize,
         O: DeserializeOwned,
     {
-        let request_maker = async || {
+        self.execute(async {
             Ok(self
                 .http_client
                 .post(self.config.url(path))
@@ -265,28 +261,26 @@ impl<C: Config> Client<C> {
                 .headers(self.config.headers())
                 .json(&request)
                 .build()?)
-        };
-
-        self.execute(request_maker).await
+        })
+        .await
     }
 
     /// POST a form at {path} and return the response body
     pub(crate) async fn post_form_raw<F>(&self, path: &str, form: F) -> Result<Bytes, OpenAIError>
     where
         Form: AsyncTryFrom<F, Error = OpenAIError>,
-        F: Clone,
     {
-        let request_maker = async || {
+        self.execute_raw(async {
+            let form = <Form as AsyncTryFrom<F>>::try_from(form).await?;
             Ok(self
                 .http_client
                 .post(self.config.url(path))
                 .query(&self.config.query())
                 .headers(self.config.headers())
-                .multipart(<Form as AsyncTryFrom<F>>::try_from(form.clone()).await?)
+                .multipart(form)
                 .build()?)
-        };
-
-        self.execute_raw(request_maker).await
+        })
+        .await
     }
 
     /// POST a form at {path} and deserialize the response body
@@ -294,33 +288,27 @@ impl<C: Config> Client<C> {
     where
         O: DeserializeOwned,
         Form: AsyncTryFrom<F, Error = OpenAIError>,
-        F: Clone,
     {
-        let request_maker = async || {
+        self.execute(async {
+            let form = <Form as AsyncTryFrom<F>>::try_from(form).await?;
             Ok(self
                 .http_client
                 .post(self.config.url(path))
                 .query(&self.config.query())
                 .headers(self.config.headers())
-                .multipart(<Form as AsyncTryFrom<F>>::try_from(form.clone()).await?)
+                .multipart(form)
                 .build()?)
-        };
-
-        self.execute(request_maker).await
+        })
+        .await
     }
 
-    /// Execute a HTTP request and retry on rate limit
-    ///
-    /// request_maker serves one purpose: to be able to create request again
-    /// to retry API call after getting rate limited. request_maker is async because
-    /// reqwest::multipart::Form is created by async calls to read files for uploads.
+    /// Execute a HTTP request
     async fn execute_raw(
         &self,
-        request_maker: impl AsyncFn() -> Result<reqwest::Request, OpenAIError>,
+        request_future: impl Future<Output = Result<reqwest::Request, OpenAIError>>,
     ) -> Result<Bytes, OpenAIError> {
         let client = self.http_client.clone();
-
-        let request = request_maker().await?;
+        let request = request_future.await?;
         let response = client
             .execute(request)
             .await
@@ -350,19 +338,15 @@ impl<C: Config> Client<C> {
         Ok(bytes)
     }
 
-    /// Execute a HTTP request and retry on rate limit
-    ///
-    /// request_maker serves one purpose: to be able to create request again
-    /// to retry API call after getting rate limited. request_maker is async because
-    /// reqwest::multipart::Form is created by async calls to read files for uploads.
+    /// Execute a HTTP request
     async fn execute<O>(
         &self,
-        request_maker: impl AsyncFn() -> Result<reqwest::Request, OpenAIError>,
+        request_future: impl Future<Output = Result<reqwest::Request, OpenAIError>>,
     ) -> Result<O, OpenAIError>
     where
         O: DeserializeOwned,
     {
-        let bytes = self.execute_raw(request_maker).await?;
+        let bytes = self.execute_raw(request_future).await?;
 
         let response: O = serde_json::from_slice(bytes.as_ref())
             .map_err(|e| map_deserialization_error(e, bytes.as_ref()))?;
