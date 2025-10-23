@@ -35,6 +35,7 @@ a `x.y.z` version.
     - [x] Organizations | Administration (partially implemented)
     - [x] Realtime (Beta) (partially implemented)
     - [x] Uploads
+    - [x] Videos
     - [x] Responses (partially implemented)
     - [x] **WASM support**
     - [x] Reasoning Model Support: support models like DeepSeek R1 via broader support for OpenAI-compatible endpoints, see `examples/reasoning`
