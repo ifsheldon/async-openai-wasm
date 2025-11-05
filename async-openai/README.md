@@ -33,7 +33,7 @@ a `x.y.z` version.
     - [x] Models
     - [x] Moderations
     - [x] Organizations | Administration (partially implemented)
-    - [x] Realtime (Beta) (partially implemented)
+    - [x] Realtime GA (partially implemented)
     - [x] Uploads
     - [x] Videos
     - [x] Responses (partially implemented)
@@ -83,8 +83,7 @@ $Env:OPENAI_API_KEY='sk-...'
 
 ## Realtime API
 
-Only types for Realtime API are implemented, and can be enabled with feature flag `realtime`
-These types were written before OpenAI released official specs.
+Only types for Realtime API are implemented, and can be enabled with feature flag `realtime`.
 
 Again, the types do not bundle with a specific WS implementation. Need to convert a client event into a WS message by yourself, which is just simple `your_ws_impl::Message::Text(some_client_event.into_text())`.
 
@@ -154,15 +153,6 @@ This repo will only accept issues and PRs related to WASM support. For other iss
 project [async-openai](https://github.com/64bit/async-openai).
 
 This project adheres to [Rust Code of Conduct](https://www.rust-lang.org/policies/code-of-conduct)
-
-## Complimentary Crates
-
-- [openai-func-enums](https://github.com/frankfralick/openai-func-enums) provides procedural macros that make it easier
-  to use this library with OpenAI API's tool calling feature. It also provides derive macros you can add to
-  existing [clap](https://github.com/clap-rs/clap) application subcommands for natural language use of command line
-  tools. It also supports
-  openai's [parallel tool calls](https://platform.openai.com/docs/guides/function-calling/parallel-function-calling) and
-  allows you to choose between running multiple tool calls concurrently or own their own OS threads.
 
 ## Why `async-openai-wasm`
 
