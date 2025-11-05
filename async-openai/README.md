@@ -26,7 +26,8 @@ a `x.y.z` version.
     - [x] Batch
     - [x] Chat
     - [x] Completions (Legacy)
-    - [x] Embeddings
+    - [x] Conversations
+  - [x] Embeddings
     - [x] Files
     - [x] Fine-Tuning
     - [x] Images
