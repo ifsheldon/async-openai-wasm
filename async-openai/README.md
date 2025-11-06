@@ -27,6 +27,7 @@ a `x.y.z` version.
     - [x] Chat
     - [x] Completions (Legacy)
     - [x] Conversations
+  - [x] Containers | Container Files
   - [x] Embeddings
     - [x] Files
     - [x] Fine-Tuning
@@ -37,7 +38,7 @@ a `x.y.z` version.
     - [x] Realtime GA (partially implemented)
     - [x] Uploads
     - [x] Videos
-    - [x] Responses (partially implemented)
+    - [x] Responses
     - [x] **WASM support**
     - [x] Reasoning Model Support: support models like DeepSeek R1 via broader support for OpenAI-compatible endpoints, see `examples/reasoning`
 - SSE streaming on available APIs

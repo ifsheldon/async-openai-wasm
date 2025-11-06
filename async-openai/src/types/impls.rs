@@ -12,8 +12,9 @@ use super::{
     ChatCompletionRequestSystemMessage, ChatCompletionRequestSystemMessageContent,
     ChatCompletionRequestToolMessage, ChatCompletionRequestToolMessageContent,
     ChatCompletionRequestUserMessage, ChatCompletionRequestUserMessageContent,
-    ChatCompletionRequestUserMessageContentPart, ChatCompletionToolChoiceOption, CreateFileRequest,
-    CreateImageEditRequest, CreateImageVariationRequest, CreateMessageRequestContent,
+    ChatCompletionRequestUserMessageContentPart, ChatCompletionToolChoiceOption,
+    CreateContainerFileRequest, CreateFileRequest, CreateImageEditRequest,
+     CreateImageVariationRequest, CreateMessageRequestContent,
     CreateTranscriptionRequest, CreateTranslationRequest, CreateVideoRequest, DallE2ImageSize,
     EmbeddingInput, FileExpiresAfterAnchor, FileInput, FilePurpose, FunctionName, ImageInput,
     ImageModel, ImageResponseFormat, ImageSize, ImageUrl, ModerationInput, Prompt, Role, Stop,
@@ -935,6 +936,24 @@ impl AsyncTryFrom<AddUploadPartRequest> for reqwest::multipart::Form {
     async fn try_from(request: AddUploadPartRequest) -> Result<Self, Self::Error> {
         let file_part = create_file_part(request.data).await?;
         let form = reqwest::multipart::Form::new().part("data", file_part);
+        Ok(form)
+    }
+}
+
+impl AsyncTryFrom<CreateContainerFileRequest> for reqwest::multipart::Form {
+    type Error = OpenAIError;
+
+    async fn try_from(request: CreateContainerFileRequest) -> Result<Self, Self::Error> {
+        let mut form = reqwest::multipart::Form::new();
+
+        // Either file or file_id should be provided
+        if let Some(file_source) = request.file {
+            let file_part = create_file_part(file_source).await?;
+            form = form.part("file", file_part);
+        } else if let Some(file_id) = request.file_id {
+            form = form.text("file_id", file_id);
+        }
+
         Ok(form)
     }
 }
