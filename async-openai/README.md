@@ -89,6 +89,10 @@ Only types for Realtime API are implemented, and can be enabled with feature fla
 
 Again, the types do not bundle with a specific WS implementation. Need to convert a client event into a WS message by yourself, which is just simple `your_ws_impl::Message::Text(some_client_event.into_text())`.
 
+## Webhooks
+
+Support for webhook event types, signature verification, and building webhook events from payloads can be enabled by using the `webhook` feature flag.
+
 ## Image Generation Example
 
 ```rust

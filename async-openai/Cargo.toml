@@ -27,6 +27,7 @@ native-tls = ["reqwest/native-tls"]
 native-tls-vendored = ["reqwest/native-tls-vendored"]
 realtime = []
 byot = []
+webhook = ["dep:hmac", "dep:sha2", "dep:hex"]
 
 [dependencies]
 async-openai-macros = { path = "../async-openai-macros", version = "0.1.0" }
@@ -43,6 +44,10 @@ secrecy = { version = "0.10", features = ["serde"] }
 pin-project = "1.1"
 bytes = "1.9"
 eventsource-stream = "0.2"
+hmac = { version = "0.12", optional = true, default-features = false}
+sha2 = { version = "0.10", optional = true, default-features = false }
+hex = { version = "0.4", optional = true, default-features = false }
+
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 rand = "0.9"
