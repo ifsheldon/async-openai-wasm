@@ -1,5 +1,16 @@
 use std::fmt::Display;
 
+use crate::{
+    error::OpenAIError,
+    traits::AsyncTryFrom,
+    types::{
+        InputSource, VideoSize,
+        audio::{TranscriptionChunkingStrategy, TranslationResponseFormat},
+        images::{ImageBackground, ImageEditInput, ImageOutputFormat, ImageQuality, InputFidelity},
+    },
+    util::create_file_part,
+};
+
 use bytes::Bytes;
 
 use super::{
@@ -13,20 +24,19 @@ use super::{
     ChatCompletionRequestToolMessage, ChatCompletionRequestToolMessageContent,
     ChatCompletionRequestUserMessage, ChatCompletionRequestUserMessageContent,
     ChatCompletionRequestUserMessageContentPart, ChatCompletionToolChoiceOption,
-    CreateContainerFileRequest, CreateFileRequest, CreateImageEditRequest,
-    CreateImageVariationRequest, CreateMessageRequestContent, CreateVideoRequest, DallE2ImageSize,
-    EmbeddingInput, FileExpiresAfterAnchor, FileInput, FilePurpose, FunctionName, ImageInput,
-    ImageModel, ImageResponseFormat, ImageSize, ImageUrl, ModerationInput, Prompt, Role, Stop,
-    VideoSize,
+    CreateContainerFileRequest, CreateFileRequest, CreateMessageRequestContent, CreateVideoRequest,
+    EmbeddingInput, FileExpiresAfterAnchor, FileInput, FilePurpose, FunctionName, ImageUrl,
+    ModerationInput, Prompt, Role, Stop,
     audio::{
         AudioInput, AudioResponseFormat, CreateTranscriptionRequest, CreateTranslationRequest,
         TimestampGranularity, TranscriptionInclude,
     },
+    images::{
+        CreateImageEditRequest, CreateImageVariationRequest, DallE2ImageSize, ImageInput,
+        ImageModel, ImageResponseFormat, ImageSize,
+    },
     responses::EasyInputContent,
 };
-use crate::traits::AsyncTryFrom;
-use crate::types::audio::{TranscriptionChunkingStrategy, TranslationResponseFormat};
-use crate::{error::OpenAIError, types::InputSource, util::create_file_part};
 
 /// for `impl_from!(T, Enum)`, implements
 /// - `From<T>`
@@ -151,6 +161,24 @@ impl_input!(AudioInput);
 impl_input!(FileInput);
 impl_input!(ImageInput);
 
+impl Default for ImageEditInput {
+    fn default() -> Self {
+        Self::Image(ImageInput::default())
+    }
+}
+
+impl From<ImageInput> for ImageEditInput {
+    fn from(value: ImageInput) -> Self {
+        Self::Image(value)
+    }
+}
+
+impl From<Vec<ImageInput>> for ImageEditInput {
+    fn from(value: Vec<ImageInput>) -> Self {
+        Self::Images(value)
+    }
+}
+
 impl Display for VideoSize {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
@@ -177,6 +205,9 @@ impl Display for ImageSize {
                 Self::S1024x1024 => "1024x1024",
                 Self::S1792x1024 => "1792x1024",
                 Self::S1024x1792 => "1024x1792",
+                Self::S1536x1024 => "1536x1024",
+                Self::S1024x1536 => "1024x1536",
+                Self::Auto => "auto",
             }
         )
     }
@@ -204,7 +235,67 @@ impl Display for ImageModel {
             match self {
                 Self::DallE2 => "dall-e-2",
                 Self::DallE3 => "dall-e-3",
+                Self::GptImage1 => "gpt-image-1",
+                Self::GptImage1Mini => "gpt-image-1-mini",
                 Self::Other(other) => other,
+            }
+        )
+    }
+}
+
+impl Display for ImageBackground {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Transparent => "transparent",
+                Self::Opaque => "opaque",
+                Self::Auto => "auto",
+            }
+        )
+    }
+}
+
+impl Display for ImageOutputFormat {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Png => "png",
+                Self::Jpeg => "jpeg",
+                Self::Webp => "webp",
+            }
+        )
+    }
+}
+
+impl Display for InputFidelity {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::High => "high",
+                Self::Low => "low",
+            }
+        )
+    }
+}
+
+impl Display for ImageQuality {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Low => "low",
+                Self::Medium => "medium",
+                Self::High => "high",
+                Self::Auto => "auto",
+                Self::Standard => "standard",
+                Self::HD => "hd",
             }
         )
     }
@@ -913,9 +1004,17 @@ impl AsyncTryFrom<CreateImageEditRequest> for reqwest::multipart::Form {
     async fn try_from(request: CreateImageEditRequest) -> Result<Self, Self::Error> {
         let mut form = reqwest::multipart::Form::new().text("prompt", request.prompt);
 
-        for image in request.image {
-            let image_part = create_file_part(image.source).await?;
-            form = form.part("image[]", image_part);
+        match request.image {
+            ImageEditInput::Image(image) => {
+                let image_part = create_file_part(image.source).await?;
+                form = form.part("image", image_part);
+            }
+            ImageEditInput::Images(images) => {
+                for image in images {
+                    let image_part = create_file_part(image.source).await?;
+                    form = form.part("image[]", image_part);
+                }
+            }
         }
 
         if let Some(mask) = request.mask {
@@ -923,28 +1022,58 @@ impl AsyncTryFrom<CreateImageEditRequest> for reqwest::multipart::Form {
             form = form.part("mask", mask_part);
         }
 
+        if let Some(background) = request.background {
+            form = form.text("background", background.to_string())
+        }
+
         if let Some(model) = request.model {
             form = form.text("model", model.to_string())
         }
 
-        if request.n.is_some() {
-            form = form.text("n", request.n.unwrap().to_string())
+        if let Some(n) = request.n {
+            form = form.text("n", n.to_string())
         }
 
-        if request.size.is_some() {
-            form = form.text("size", request.size.unwrap().to_string())
+        if let Some(size) = request.size {
+            form = form.text("size", size.to_string())
         }
 
-        if request.response_format.is_some() {
-            form = form.text(
-                "response_format",
-                request.response_format.unwrap().to_string(),
-            )
+        if let Some(response_format) = request.response_format {
+            form = form.text("response_format", response_format.to_string())
         }
 
-        if request.user.is_some() {
-            form = form.text("user", request.user.unwrap())
+        if let Some(output_format) = request.output_format {
+            form = form.text("output_format", output_format.to_string())
         }
+
+        if let Some(output_compression) = request.output_compression {
+            form = form.text("output_compression", output_compression.to_string())
+        }
+
+        if let Some(output_compression) = request.output_compression {
+            form = form.text("output_compression", output_compression.to_string())
+        }
+
+        if let Some(user) = request.user {
+            form = form.text("user", user)
+        }
+
+        if let Some(input_fidelity) = request.input_fidelity {
+            form = form.text("input_fidelity", input_fidelity.to_string())
+        }
+
+        if let Some(stream) = request.stream {
+            form = form.text("stream", stream.to_string())
+        }
+
+        if let Some(partial_images) = request.partial_images {
+            form = form.text("partial_images", partial_images.to_string())
+        }
+
+        if let Some(quality) = request.quality {
+            form = form.text("quality", quality.to_string())
+        }
+
         Ok(form)
     }
 }
