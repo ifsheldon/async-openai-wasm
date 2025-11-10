@@ -16,7 +16,7 @@ use serde::{Serialize, de::DeserializeOwned};
 use crate::error::{ApiError, StreamError};
 use crate::{
     Assistants, Audio, AuditLogs, Batches, Chat, Completions, Containers, Conversations,
-    Embeddings, FineTuning, Invites, Models, Projects, Responses, Threads, Uploads, Users,
+    Embeddings, Evals, FineTuning, Invites, Models, Projects, Responses, Threads, Uploads, Users,
     VectorStores, Videos,
     config::{Config, OpenAIConfig},
     error::{OpenAIError, WrappedError, map_deserialization_error},
@@ -179,6 +179,11 @@ impl<C: Config> Client<C> {
     /// To call [Containers] group related APIs using this client.
     pub fn containers(&self) -> Containers<'_, C> {
         Containers::new(self)
+    }
+
+    /// To call [Evals] group related APIs using this client.
+    pub fn evals(&self) -> Evals<'_, C> {
+        Evals::new(self)
     }
 
     pub fn config(&self) -> &C {
@@ -613,15 +618,6 @@ impl<O> OpenAIFormEventStream<O>
 where
     O: DeserializeOwned + Send + 'static,
 {
-    // pub fn new(event_stream: impl Stream<Item = reqwest::Result<Bytes>> + 'static) -> Self {
-    //     let stream: Box<dyn Stream<Item = reqwest::Result<Bytes>>> = Box::new(event_stream);
-    //     Self {
-    //         event_stream: eventsource_stream::EventStream::new(stream),
-    //         done: false,
-    //         _phantom_data: PhantomData,
-    //     }
-    // }
-
     pub fn new(
         stream: impl Stream<Item = Result<eventsource_stream::Event, EventStreamError<std::io::Error>>>
         + Unpin
@@ -633,15 +629,6 @@ where
             _phantom_data: PhantomData,
         }
     }
-
-    // pub fn new_s(byte_stream: impl Stream<Item = reqwest::Result<Bytes>>) -> Self{
-    //     let stream: Pin<Box<dyn Stream<Item=_>>> = Box::pin(byte_stream);
-    //     let stream = stream.map(|result| result.map_err(std::io::Error::other));
-    //     Self {
-    //         event_stream: eventsource_stream::EventStream::new(stream),
-    //
-    //     }
-    // }
 }
 
 impl<O> Stream for OpenAIFormEventStream<O>

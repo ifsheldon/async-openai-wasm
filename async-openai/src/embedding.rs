@@ -2,16 +2,18 @@ use crate::{
     Client,
     config::Config,
     error::OpenAIError,
-    types::{CreateBase64EmbeddingResponse, CreateEmbeddingRequest, CreateEmbeddingResponse},
+    types::embeddings::{
+        CreateBase64EmbeddingResponse, CreateEmbeddingRequest, CreateEmbeddingResponse,
+    },
 };
 
 #[cfg(not(feature = "byot"))]
-use crate::types::EncodingFormat;
+use crate::types::embeddings::EncodingFormat;
 
 /// Get a vector representation of a given input that can be easily
 /// consumed by machine learning models and algorithms.
 ///
-/// Related guide: [Embeddings](https://platform.openai.com/docs/guides/embeddings/what-are-embeddings)
+/// Related guide: [Embeddings](https://platform.openai.com/docs/guides/embeddings)
 pub struct Embeddings<'c, C: Config> {
     client: &'c Client<C>,
 }
@@ -64,8 +66,8 @@ impl<'c, C: Config> Embeddings<'c, C> {
 
 #[cfg(test)]
 mod tests {
-    use crate::types::{CreateEmbeddingResponse, Embedding, EncodingFormat};
-    use crate::{Client, types::CreateEmbeddingRequestArgs};
+    use crate::types::embeddings::{CreateEmbeddingResponse, Embedding, EncodingFormat};
+    use crate::{Client, types::embeddings::CreateEmbeddingRequestArgs};
 
     #[tokio::test]
     async fn test_embedding_string() {
@@ -164,7 +166,6 @@ mod tests {
     }
 
     #[tokio::test]
-    #[cfg(not(feature = "byot"))]
     async fn test_cannot_use_base64_encoding_with_normal_create_request() {
         use crate::error::OpenAIError;
         let client = Client::new();
@@ -187,7 +188,7 @@ mod tests {
         let client = Client::new();
 
         const MODEL: &str = "text-embedding-ada-002";
-        const INPUT: &str = "CoLoop will eat the other qual research tools...";
+        const INPUT: &str = "a head full of dreams";
 
         let b64_request = CreateEmbeddingRequestArgs::default()
             .model(MODEL)

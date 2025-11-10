@@ -11,22 +11,18 @@ use crate::{
     util::create_file_part,
 };
 
-use bytes::Bytes;
-
 use super::{
-    AddUploadPartRequest, ChatCompletionFunctionCall, ChatCompletionFunctions,
-    ChatCompletionNamedToolChoice, ChatCompletionRequestAssistantMessage,
-    ChatCompletionRequestAssistantMessageContent, ChatCompletionRequestDeveloperMessage,
-    ChatCompletionRequestDeveloperMessageContent, ChatCompletionRequestFunctionMessage,
-    ChatCompletionRequestMessage, ChatCompletionRequestMessageContentPartAudio,
-    ChatCompletionRequestMessageContentPartImage, ChatCompletionRequestMessageContentPartText,
-    ChatCompletionRequestSystemMessage, ChatCompletionRequestSystemMessageContent,
-    ChatCompletionRequestToolMessage, ChatCompletionRequestToolMessageContent,
-    ChatCompletionRequestUserMessage, ChatCompletionRequestUserMessageContent,
-    ChatCompletionRequestUserMessageContentPart, ChatCompletionToolChoiceOption,
-    CreateContainerFileRequest, CreateFileRequest, CreateMessageRequestContent, CreateVideoRequest,
-    EmbeddingInput, FileExpiresAfterAnchor, FileInput, FilePurpose, FunctionName, ImageUrl,
-    ModerationInput, Prompt, Role, Stop,
+    ChatCompletionFunctionCall, ChatCompletionFunctions, ChatCompletionNamedToolChoice,
+    ChatCompletionRequestAssistantMessage, ChatCompletionRequestAssistantMessageContent,
+    ChatCompletionRequestDeveloperMessage, ChatCompletionRequestDeveloperMessageContent,
+    ChatCompletionRequestFunctionMessage, ChatCompletionRequestMessage,
+    ChatCompletionRequestMessageContentPartAudio, ChatCompletionRequestMessageContentPartImage,
+    ChatCompletionRequestMessageContentPartText, ChatCompletionRequestSystemMessage,
+    ChatCompletionRequestSystemMessageContent, ChatCompletionRequestToolMessage,
+    ChatCompletionRequestToolMessageContent, ChatCompletionRequestUserMessage,
+    ChatCompletionRequestUserMessageContent, ChatCompletionRequestUserMessageContentPart,
+    ChatCompletionToolChoiceOption, CreateContainerFileRequest, CreateMessageRequestContent,
+    CreateVideoRequest, FunctionName, ImageUrl, Prompt, Role, Stop,
     audio::{
         AudioInput, AudioResponseFormat, CreateTranscriptionRequest, CreateTranslationRequest,
         TimestampGranularity, TranscriptionInclude,
@@ -37,6 +33,11 @@ use super::{
     },
     responses::EasyInputContent,
 };
+use crate::types::embeddings::EmbeddingInput;
+use crate::types::files::{CreateFileRequest, FileExpirationAfterAnchor, FileInput, FilePurpose};
+use crate::types::moderations::ModerationInput;
+use crate::types::uploads::AddUploadPartRequest;
+use bytes::Bytes;
 
 /// for `impl_from!(T, Enum)`, implements
 /// - `From<T>`
@@ -76,7 +77,7 @@ macro_rules! impl_from {
             }
         }
 
-        // From<&[T; N]> -> StringArray variatn
+        // From<&[T; N]> -> StringArray variant
         impl<const N: usize> From<&[$from_typ; N]> for $to_typ {
             fn from(value: &[$from_typ; N]) -> Self {
                 <$to_typ>::StringArray(value.into_iter().map(|v| v.to_string()).collect())
@@ -398,12 +399,14 @@ impl Display for FilePurpose {
                 Self::Batch => "batch",
                 Self::FineTune => "fine-tune",
                 Self::Vision => "vision",
+                Self::UserData => "user_data",
+                Self::Evals => "evals",
             }
         )
     }
 }
 
-impl Display for FileExpiresAfterAnchor {
+impl Display for FileExpirationAfterAnchor {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,

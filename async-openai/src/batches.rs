@@ -4,7 +4,7 @@ use crate::{
     Client,
     config::Config,
     error::OpenAIError,
-    types::{Batch, BatchRequest, ListBatchesResponse},
+    types::batches::{Batch, BatchRequest, ListBatchesResponse},
 };
 
 /// Create large batches of API requests for asynchronous processing. The Batch API returns completions within 24 hours for a 50% discount.

@@ -1668,7 +1668,7 @@ pub struct ReasoningItem {
     /// Unique identifier of the reasoning content.
     pub id: String,
     /// Reasoning summary content.
-    pub summary: Vec<Summary>,
+    pub summary: Vec<SummaryPart>,
     /// Reasoning text content.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<Vec<ReasoningTextContent>>,
@@ -1687,6 +1687,12 @@ pub struct ReasoningItem {
 pub struct Summary {
     /// A summary of the reasoning output from the model so far.
     pub text: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum SummaryPart {
+    SummaryText(Summary),
 }
 
 /// File search tool call output.
