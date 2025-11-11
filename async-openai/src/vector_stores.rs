@@ -4,7 +4,7 @@ use crate::{
     Client, VectorStoreFiles,
     config::Config,
     error::OpenAIError,
-    types::{
+    types::vectorstores::{
         CreateVectorStoreRequest, DeleteVectorStoreResponse, ListVectorStoresResponse,
         UpdateVectorStoreRequest, VectorStoreObject, VectorStoreSearchRequest,
         VectorStoreSearchResultsPage,

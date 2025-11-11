@@ -2,7 +2,7 @@
 
 use async_openai_wasm::Client;
 use async_openai_wasm::config::OpenAIConfig;
-use async_openai_wasm::types::{
+use async_openai_wasm::types::chat::{
     ChatCompletionRequestMessage, ChatCompletionRequestUserMessageArgs,
     CreateChatCompletionRequestArgs,
 };

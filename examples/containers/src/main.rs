@@ -1,8 +1,9 @@
 use async_openai_wasm::{
-    types::{
+    types::containers::{
         ContainerExpiresAfter, ContainerExpiresAfterAnchor, CreateContainerFileRequest,
-        CreateContainerRequestArgs, InputSource,
+        CreateContainerRequestArgs,
     },
+    types::InputSource,
     Client,
 };
 

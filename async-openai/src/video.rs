@@ -2,7 +2,7 @@ use crate::{
     Client,
     config::Config,
     error::OpenAIError,
-    types::{
+    types::videos::{
         CreateVideoRequest, ListVideosResponse, RemixVideoRequest, VideoJob, VideoJobMetadata,
         VideoVariant,
     },

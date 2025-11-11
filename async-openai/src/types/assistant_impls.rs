@@ -1,7 +1,7 @@
-use super::{
+use crate::types::{
     AssistantToolCodeInterpreterResources, AssistantToolFileSearchResources,
     AssistantToolResources, AssistantTools, AssistantToolsFileSearch, AssistantToolsFunction,
-    CreateAssistantToolFileSearchResources, CreateAssistantToolResources, FunctionObject,
+    CreateAssistantToolFileSearchResources, CreateAssistantToolResources, chat::FunctionObject,
 };
 
 impl From<AssistantToolsFileSearch> for AssistantTools {

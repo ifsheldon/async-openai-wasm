@@ -1,6 +1,5 @@
 use bytes::Bytes;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum InputSource {
@@ -23,10 +22,10 @@ pub enum OrganizationRole {
 /// characters.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 #[serde(transparent)]
-pub struct Metadata(HashMap<String, String>);
+pub struct Metadata(serde_json::Value);
 
-impl From<HashMap<String, String>> for Metadata {
-    fn from(value: HashMap<String, String>) -> Self {
+impl From<serde_json::Value> for Metadata {
+    fn from(value: serde_json::Value) -> Self {
         Self(value)
     }
 }

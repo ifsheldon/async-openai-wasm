@@ -4,39 +4,43 @@ use crate::{
     error::OpenAIError,
     traits::AsyncTryFrom,
     types::{
-        InputSource, VideoSize,
+        CreateMessageRequestContent, InputSource,
+        audio::{
+            AudioInput, AudioResponseFormat, CreateTranscriptionRequest, CreateTranslationRequest,
+            TimestampGranularity, TranscriptionInclude,
+        },
         audio::{TranscriptionChunkingStrategy, TranslationResponseFormat},
+        chat::{
+            ChatCompletionFunctionCall, ChatCompletionFunctions, ChatCompletionNamedToolChoice,
+        },
+        chat::{
+            ChatCompletionRequestAssistantMessage, ChatCompletionRequestAssistantMessageContent,
+            ChatCompletionRequestDeveloperMessage, ChatCompletionRequestDeveloperMessageContent,
+            ChatCompletionRequestFunctionMessage, ChatCompletionRequestMessage,
+            ChatCompletionRequestMessageContentPartAudio,
+            ChatCompletionRequestMessageContentPartImage,
+            ChatCompletionRequestMessageContentPartText, ChatCompletionRequestSystemMessage,
+            ChatCompletionRequestSystemMessageContent, ChatCompletionRequestToolMessage,
+            ChatCompletionRequestToolMessageContent, ChatCompletionRequestUserMessage,
+            ChatCompletionRequestUserMessageContent, ChatCompletionRequestUserMessageContentPart,
+            FunctionName, ImageUrl, Prompt, Role, StopConfiguration,
+        },
+        containers::CreateContainerFileRequest,
+        embeddings::EmbeddingInput,
+        files::{CreateFileRequest, FileExpirationAfterAnchor, FileInput, FilePurpose},
+        images::{
+            CreateImageEditRequest, CreateImageVariationRequest, DallE2ImageSize, ImageInput,
+            ImageModel, ImageResponseFormat, ImageSize,
+        },
         images::{ImageBackground, ImageEditInput, ImageOutputFormat, ImageQuality, InputFidelity},
+        moderations::ModerationInput,
+        responses::EasyInputContent,
+        uploads::AddUploadPartRequest,
+        videos::{CreateVideoRequest, VideoSize},
     },
     util::create_file_part,
 };
 
-use super::{
-    ChatCompletionFunctionCall, ChatCompletionFunctions, ChatCompletionNamedToolChoice,
-    ChatCompletionRequestAssistantMessage, ChatCompletionRequestAssistantMessageContent,
-    ChatCompletionRequestDeveloperMessage, ChatCompletionRequestDeveloperMessageContent,
-    ChatCompletionRequestFunctionMessage, ChatCompletionRequestMessage,
-    ChatCompletionRequestMessageContentPartAudio, ChatCompletionRequestMessageContentPartImage,
-    ChatCompletionRequestMessageContentPartText, ChatCompletionRequestSystemMessage,
-    ChatCompletionRequestSystemMessageContent, ChatCompletionRequestToolMessage,
-    ChatCompletionRequestToolMessageContent, ChatCompletionRequestUserMessage,
-    ChatCompletionRequestUserMessageContent, ChatCompletionRequestUserMessageContentPart,
-    ChatCompletionToolChoiceOption, CreateContainerFileRequest, CreateMessageRequestContent,
-    CreateVideoRequest, FunctionName, ImageUrl, Prompt, Role, Stop,
-    audio::{
-        AudioInput, AudioResponseFormat, CreateTranscriptionRequest, CreateTranslationRequest,
-        TimestampGranularity, TranscriptionInclude,
-    },
-    images::{
-        CreateImageEditRequest, CreateImageVariationRequest, DallE2ImageSize, ImageInput,
-        ImageModel, ImageResponseFormat, ImageSize,
-    },
-    responses::EasyInputContent,
-};
-use crate::types::embeddings::EmbeddingInput;
-use crate::types::files::{CreateFileRequest, FileExpirationAfterAnchor, FileInput, FilePurpose};
-use crate::types::moderations::ModerationInput;
-use crate::types::uploads::AddUploadPartRequest;
 use bytes::Bytes;
 
 /// for `impl_from!(T, Enum)`, implements
@@ -91,10 +95,10 @@ impl_from!(&str, Prompt);
 impl_from!(String, Prompt);
 impl_from!(&String, Prompt);
 
-// From String "family" to Stop
-impl_from!(&str, Stop);
-impl_from!(String, Stop);
-impl_from!(&String, Stop);
+// From String "family" to StopConfiguration
+impl_from!(&str, StopConfiguration);
+impl_from!(String, StopConfiguration);
+impl_from!(&String, StopConfiguration);
 
 // From String "family" to ModerationInput
 impl_from!(&str, ModerationInput);
@@ -571,7 +575,6 @@ impl From<String> for FunctionName {
 impl From<&str> for ChatCompletionNamedToolChoice {
     fn from(value: &str) -> Self {
         Self {
-            r#type: super::ChatCompletionToolType::Function,
             function: value.into(),
         }
     }
@@ -580,28 +583,7 @@ impl From<&str> for ChatCompletionNamedToolChoice {
 impl From<String> for ChatCompletionNamedToolChoice {
     fn from(value: String) -> Self {
         Self {
-            r#type: super::ChatCompletionToolType::Function,
             function: value.into(),
-        }
-    }
-}
-
-impl From<&str> for ChatCompletionToolChoiceOption {
-    fn from(value: &str) -> Self {
-        match value {
-            "auto" => Self::Auto,
-            "none" => Self::None,
-            _ => Self::Named(value.into()),
-        }
-    }
-}
-
-impl From<String> for ChatCompletionToolChoiceOption {
-    fn from(value: String) -> Self {
-        match value.as_str() {
-            "auto" => Self::Auto,
-            "none" => Self::None,
-            _ => Self::Named(value.into()),
         }
     }
 }

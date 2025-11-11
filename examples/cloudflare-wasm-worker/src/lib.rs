@@ -1,7 +1,7 @@
 use async_openai_wasm::config::OpenAIConfig;
 use async_openai_wasm::{
     Client,
-    types::{ChatCompletionRequestUserMessageArgs, CreateChatCompletionRequestArgs},
+    types::chat::{ChatCompletionRequestUserMessageArgs, CreateChatCompletionRequestArgs},
 };
 use serde::{Deserialize, Serialize};
 use worker::*;

@@ -242,7 +242,7 @@ impl Config for AzureConfig {
 mod test {
     use super::*;
     use crate::Client;
-    use crate::types::{
+    use crate::types::chat::{
         ChatCompletionRequestMessage, ChatCompletionRequestUserMessage, CreateChatCompletionRequest,
     };
     use std::sync::Arc;

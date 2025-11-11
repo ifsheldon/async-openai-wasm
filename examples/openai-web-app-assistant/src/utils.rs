@@ -1,9 +1,10 @@
 use crate::{API_BASE, API_KEY};
 use async_openai_wasm::Client;
 use async_openai_wasm::config::OpenAIConfig;
+use async_openai_wasm::types::chat::FunctionObject;
 use async_openai_wasm::types::{
-    AssistantStreamEvent, CreateAssistantRequest, CreateAssistantRequestArgs, FunctionObject,
-    MessageDeltaContent, RunObject, SubmitToolOutputsRunRequest, ToolsOutputs,
+    AssistantStreamEvent, CreateAssistantRequest, CreateAssistantRequestArgs, MessageDeltaContent,
+    RunObject, SubmitToolOutputsRunRequest, ToolsOutputs,
 };
 use dioxus::prelude::Signal;
 use dioxus::prelude::*;
