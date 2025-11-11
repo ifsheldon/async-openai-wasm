@@ -18,6 +18,7 @@ use crate::{
     Assistants, Audio, AuditLogs, Batches, Chat, Completions, Containers, Conversations,
     Embeddings, Evals, FineTuning, Invites, Models, Projects, Responses, Threads, Uploads, Users,
     VectorStores, Videos,
+    chatkit::Chatkit,
     config::{Config, OpenAIConfig},
     error::{OpenAIError, WrappedError, map_deserialization_error},
     file::Files,
@@ -184,6 +185,10 @@ impl<C: Config> Client<C> {
     /// To call [Evals] group related APIs using this client.
     pub fn evals(&self) -> Evals<'_, C> {
         Evals::new(self)
+    }
+
+    pub fn chatkit(&self) -> Chatkit<'_, C> {
+        Chatkit::new(self)
     }
 
     pub fn config(&self) -> &C {

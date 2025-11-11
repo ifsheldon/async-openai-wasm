@@ -21,26 +21,31 @@ a `x.y.z` version.
 
 - It's based on [OpenAI OpenAPI spec](https://github.com/openai/openai-openapi)
 - Current features:
-    - [x] Assistants (v2)
+    - [x] Administration (partially implemented)
+  - [x] Assistants (beta)
     - [x] Audio
     - [x] Batch
     - [x] Chat
-    - [x] Completions (Legacy)
+  - [x] ChatKit (beta)
+    - [x] Completions (legacy)
     - [x] Conversations
-  - [x] Containers | Container Files
+  - [x] Containers
   - [x] Embeddings
-    - [x] Files
-    - [x] Fine-Tuning
-    - [x] Images
-    - [x] Models
-    - [x] Moderations
-    - [x] Organizations | Administration (partially implemented)
-    - [x] Realtime GA (partially implemented)
-    - [x] Uploads
-    - [x] Videos
-    - [x] Responses
-    - [x] **WASM support**
-    - [x] Reasoning Model Support: support models like DeepSeek R1 via broader support for OpenAI-compatible endpoints, see `examples/reasoning`
+  - [x] Evals
+  - [x] Files
+  - [x] Fine-Tuning
+  - [x] Images
+  - [x] Models
+  - [x] Moderations
+  - [x] Realtime (partially implemented)
+  - [x] Responses
+  - [x] Uploads
+  - [x] Vector Stores
+  - [x] Videos
+  - [x] Webhooks
+  - [x] **WASM support**
+  - [x] Reasoning Model Support: support models like DeepSeek R1 via broader support for OpenAI-compatible endpoints, see `examples/reasoning`
+- Bring your own custom types for Request or Response objects.
 - SSE streaming on available APIs
 - Ergonomic builder pattern for all request objects.
 - Microsoft Azure OpenAI Service (only for APIs matching OpenAI spec)
