@@ -17,39 +17,32 @@ project is and will be done manually when `async-openai` releases a new version.
 with `async-openai` releases, which means when `async-openai` releases `x.y.z`, `async-openai-wasm` also releases
 a `x.y.z` version.
 
-`async-openai-wasm` is an unofficial Rust library for OpenAI.
+`async-openai-wasm` is an unofficial Rust library for OpenAI, based on [OpenAI OpenAPI spec](https://github.com/openai/openai-openapi). It implements all APIs from the spec:
 
-- It's based on [OpenAI OpenAPI spec](https://github.com/openai/openai-openapi)
-- Current features:
-    - [x] Administration (partially implemented)
-  - [x] Assistants (beta)
-    - [x] Audio
-    - [x] Batch
-    - [x] Chat
-  - [x] ChatKit (beta)
-    - [x] Completions (legacy)
-    - [x] Conversations
-  - [x] Containers
-  - [x] Embeddings
-  - [x] Evals
-  - [x] Files
-  - [x] Fine-Tuning
-  - [x] Images
-  - [x] Models
-  - [x] Moderations
-  - [x] Realtime (partially implemented)
-  - [x] Responses
-  - [x] Uploads
-  - [x] Vector Stores
-  - [x] Videos
-  - [x] Webhooks
-  - [x] **WASM support**
-  - [x] Reasoning Model Support: support models like DeepSeek R1 via broader support for OpenAI-compatible endpoints, see `examples/reasoning`
+| Features | APIs |
+|---|---|
+| **Responses API** | Responses, Conversations, Streaming events |
+| **Webhooks** | Webhook Events |
+| **Platform APIs** | Audio, Audio Streaming, Videos, Images, Image Streaming, Embeddings, Evals, Fine-tuning, Graders, Batch, Files, Uploads, Models, Moderations |
+| **Vector stores** | Vector stores, Vector store files, Vector store file batches |
+| **ChatKit** <sub>(Beta)</sub> | ChatKit |
+| **Containers** | Containers, Container Files |
+| **Realtime** | Realtime Calls, Client secrets, Client events, Server events |
+| **Chat Completions** | Chat Completions, Streaming |
+| **Assistants** <sub>(Beta)</sub> | Assistants, Threads, Messages, Runs, Run steps, Streaming |
+| **Administration** | Administration, Admin API Keys, Invites, Users, Projects, Project users, Project service accounts, Project API keys, Project rate limits, Audit logs, Usage, Certificates |
+| **Legacy** | Completions |
+
+Features that makes `async-openai` unique:
 - Bring your own custom types for Request or Response objects.
 - SSE streaming on available APIs
 - Ergonomic builder pattern for all request objects.
 - Microsoft Azure OpenAI Service (only for APIs matching OpenAI spec)
 - Bring your own custom types for Request or Response objects.
+
+More on `async-openai-wasm`:
+- **WASM support**
+- Reasoning Model Support: support models like DeepSeek R1 via broader support for OpenAI-compatible endpoints, see `examples/reasoning`
 
 **Note on Azure OpenAI Service (AOS)**:  `async-openai-wasm` primarily implements OpenAI spec, and doesn't try to
 maintain parity with spec of AOS. Just like `async-openai`.
@@ -88,9 +81,9 @@ $Env:OPENAI_API_KEY='sk-...'
   and [WASM examples](https://github.com/ifsheldon/async-openai-wasm/tree/main/examples) in `async-openai-wasm`.
 - Visit [docs.rs/async-openai](https://docs.rs/async-openai) for docs.
 
-## Realtime API
+## Realtime
 
-Only types for Realtime API are implemented, and can be enabled with feature flag `realtime`.
+Realtime types and APIs can be enabled with feature flag `realtime`.
 
 Again, the types do not bundle with a specific WS implementation. Need to convert a client event into a WS message by yourself, which is just simple `your_ws_impl::Message::Text(some_client_event.into_text())`.
 
@@ -142,20 +135,66 @@ async fn main() -> Result<(), Box<dyn Error>> {
   <sub>Scaled up for README, actual size 256x256</sub>
 </div>
 
-## Dynamic Dispatch for Different Providers
+## Bring Your Own Types
 
-For any struct that implements `Config` trait, you can wrap it in a smart pointer and cast the pointer to `dyn Config`
-trait object, then your client can accept any wrapped configuration type.
+Enable methods whose input and outputs are generics with `byot` feature. It creates a new method with same name and `_byot` suffix. 
 
-For example,
+`byot` requires trait bounds: 
+- a request type (`fn` input parameter) needs to implement `serde::Serialize` or `std::fmt::Display` trait
+- a response type (`fn` ouput parameter) needs to implement `serde::de::DeserializeOwned` trait.
+
+For example, to use `serde_json::Value` as request and response type:
+```rust
+let response: Value = client
+        .chat()
+        .create_byot(json!({
+            "messages": [
+                {
+                    "role": "developer",
+                    "content": "You are a helpful assistant"
+                },
+                {
+                    "role": "user",
+                    "content": "What do you think about life?"
+                }
+            ],
+            "model": "gpt-4o",
+            "store": false
+        }))
+        .await?;
+```
+
+This can be useful in many scenarios:
+- To use this library with other OpenAI compatible APIs whose types don't exactly match OpenAI. 
+- Extend existing types in this crate with new fields with `serde` (for example with `#[serde(flatten)]`).
+- To avoid verbose types.
+- To escape deserialization errors.
+
+Visit [examples/bring-your-own-type](https://github.com/64bit/async-openai/tree/main/examples/bring-your-own-type)
+directory to learn more.
+
+## Dynamic Dispatch for OpenAI-compatible Providers
+
+This allows you to use same code (say a `fn`) to call APIs on different OpenAI-compatible providers.
+
+For any struct that implements `Config` trait, wrap it in a smart pointer and cast the pointer to `dyn Config`
+trait object, then create a client with `Box` or `Arc` wrapped configuration.
+
+For example:
 
 ```rust
-use async_openai::{Client, config::Config, config::OpenAIConfig};
+use async_openai::{Client, config::{Config, OpenAIConfig}};
 
-let openai_config = OpenAIConfig::default();
-// You can use `std::sync::Arc` to wrap the config as well
-let config = Box::new(openai_config) as Box<dyn Config>;
-let client: Client<Box<dyn Config> > = Client::with_config(config);
+// Use `Box` or `std::sync::Arc` to wrap the config
+let config = Box::new(OpenAIConfig::default()) as Box<dyn Config>;
+// create client
+let client: Client<Box<dyn Config>> = Client::with_config(config);
+
+// A function can now accept a `&Client<Box<dyn Config>>` parameter
+// which can invoke any openai compatible api
+fn chat_completion(client: &Client<Box<dyn Config>>) { 
+    todo!() 
+}
 ```
 
 ## Contributing
@@ -165,11 +204,14 @@ project [async-openai](https://github.com/64bit/async-openai).
 
 This project adheres to [Rust Code of Conduct](https://www.rust-lang.org/policies/code-of-conduct)
 
+Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in async-openai by you, shall be licensed as MIT, without any additional terms or conditions.
+
 ## Why `async-openai-wasm`
 
 Because I wanted to develop and release a crate that depends on the wasm feature in `experiments` branch
 of [async-openai](https://github.com/64bit/async-openai), but the pace of stabilizing the wasm feature is different
 from what I expected.
+- [openai-func-enums](https://github.com/frankfralick/openai-func-enums) macros for working with function/tool calls.
 
 ## License
 

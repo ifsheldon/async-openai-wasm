@@ -4,7 +4,7 @@ use crate::{
     Client,
     config::Config,
     error::OpenAIError,
-    types::{Invite, InviteDeleteResponse, InviteListResponse, InviteRequest},
+    types::admin::invites::{Invite, InviteDeleteResponse, InviteListResponse, InviteRequest},
 };
 
 /// Invite and manage invitations for an organization. Invited users are automatically added to the Default project.

@@ -2,7 +2,7 @@ use crate::{
     Client, Messages, Runs,
     config::Config,
     error::OpenAIError,
-    types::{
+    types::assistants::{
         AssistantEventStream, CreateThreadAndRunRequest, CreateThreadRequest, DeleteThreadResponse,
         ModifyThreadRequest, RunObject, ThreadObject,
     },

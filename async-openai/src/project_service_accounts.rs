@@ -4,7 +4,7 @@ use crate::{
     Client,
     config::Config,
     error::OpenAIError,
-    types::{
+    types::admin::project_service_accounts::{
         ProjectServiceAccount, ProjectServiceAccountCreateRequest,
         ProjectServiceAccountCreateResponse, ProjectServiceAccountDeleteResponse,
         ProjectServiceAccountListResponse,

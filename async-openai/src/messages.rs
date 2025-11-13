@@ -4,7 +4,7 @@ use crate::{
     Client,
     config::Config,
     error::OpenAIError,
-    types::{
+    types::assistants::{
         CreateMessageRequest, DeleteMessageResponse, ListMessagesResponse, MessageObject,
         ModifyMessageRequest,
     },

@@ -1,14 +1,12 @@
 #![allow(non_snake_case)]
 
+use crate::utils::*;
+use async_openai_wasm::types::assistants::{
+    AssistantStreamEvent, CreateMessageRequest, CreateRunRequest, CreateThreadRequest, MessageRole,
+};
 use dioxus::prelude::*;
 use dioxus_logger::tracing::{Level, error, info};
 use futures::stream::StreamExt;
-
-use async_openai_wasm::types::{
-    AssistantStreamEvent, CreateMessageRequest, CreateRunRequest, CreateThreadRequest, MessageRole,
-};
-
-use crate::utils::*;
 
 mod utils;
 

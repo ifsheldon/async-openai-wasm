@@ -4,7 +4,9 @@ use crate::{
     Client,
     config::Config,
     error::OpenAIError,
-    types::{ProjectApiKey, ProjectApiKeyDeleteResponse, ProjectApiKeyListResponse},
+    types::admin::project_api_keys::{
+        ProjectApiKey, ProjectApiKeyDeleteResponse, ProjectApiKeyListResponse,
+    },
 };
 
 /// Manage API keys for a given project. Supports listing and deleting keys for users.

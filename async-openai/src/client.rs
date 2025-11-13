@@ -9,15 +9,16 @@ use future::Future;
 use futures::stream::Filter;
 use futures::{Stream, stream::StreamExt};
 use pin_project::pin_project;
+use reqwest::header::HeaderMap;
 use reqwest::{Response, multipart::Form};
 use reqwest_eventsource::{Event, EventSource, RequestBuilderExt};
 use serde::{Serialize, de::DeserializeOwned};
 
 use crate::error::{ApiError, StreamError};
 use crate::{
-    Assistants, Audio, AuditLogs, Batches, Chat, Completions, Containers, Conversations,
-    Embeddings, Evals, FineTuning, Invites, Models, Projects, Responses, Threads, Uploads, Users,
-    VectorStores, Videos,
+    Assistants, Audio, Batches, Chat, Completions, Containers, Conversations, Embeddings, Evals,
+    FineTuning, Models, Responses, Threads, Uploads, Usage, VectorStores, Videos,
+    admin::Admin,
     chatkit::Chatkit,
     config::{Config, OpenAIConfig},
     error::{OpenAIError, WrappedError, map_deserialization_error},
@@ -26,6 +27,9 @@ use crate::{
     moderation::Moderations,
     traits::AsyncTryFrom,
 };
+
+#[cfg(feature = "realtime")]
+use crate::Realtime;
 
 #[derive(Debug, Clone)]
 /// Client is a container for config and http_client
@@ -147,24 +151,15 @@ impl<C: Config> Client<C> {
         Batches::new(self)
     }
 
-    /// To call [AuditLogs] group related APIs using this client.
-    pub fn audit_logs(&self) -> AuditLogs<'_, C> {
-        AuditLogs::new(self)
+    /// To call [Admin] group related APIs using this client.
+    /// This groups together admin API keys, invites, users, projects, audit logs, and certificates.
+    pub fn admin(&self) -> Admin<'_, C> {
+        Admin::new(self)
     }
 
-    /// To call [Invites] group related APIs using this client.
-    pub fn invites(&self) -> Invites<'_, C> {
-        Invites::new(self)
-    }
-
-    /// To call [Users] group related APIs using this client.
-    pub fn users(&self) -> Users<'_, C> {
-        Users::new(self)
-    }
-
-    /// To call [Projects] group related APIs using this client.
-    pub fn projects(&self) -> Projects<'_, C> {
-        Projects::new(self)
+    /// To call [Usage] group related APIs using this client.
+    pub fn usage(&self) -> Usage<'_, C> {
+        Usage::new(self)
     }
 
     /// To call [Responses] group related APIs using this client.
@@ -189,6 +184,12 @@ impl<C: Config> Client<C> {
 
     pub fn chatkit(&self) -> Chatkit<'_, C> {
         Chatkit::new(self)
+    }
+
+    #[cfg(feature = "realtime")]
+    /// To call [Realtime] group related APIs using this client.
+    pub fn realtime(&self) -> Realtime<'_, C> {
+        Realtime::new(self)
     }
 
     pub fn config(&self) -> &C {
@@ -246,7 +247,7 @@ impl<C: Config> Client<C> {
     }
 
     /// Make a GET request to {path} and return the response body
-    pub(crate) async fn get_raw(&self, path: &str) -> Result<Bytes, OpenAIError> {
+    pub(crate) async fn get_raw(&self, path: &str) -> Result<(Bytes, HeaderMap), OpenAIError> {
         self.execute_raw(async {
             Ok(self
                 .http_client
@@ -262,7 +263,7 @@ impl<C: Config> Client<C> {
         &self,
         path: &str,
         query: &Q,
-    ) -> Result<Bytes, OpenAIError>
+    ) -> Result<(Bytes, HeaderMap), OpenAIError>
     where
         Q: Serialize + ?Sized,
     {
@@ -279,7 +280,11 @@ impl<C: Config> Client<C> {
     }
 
     /// Make a POST request to {path} and return the response body
-    pub(crate) async fn post_raw<I>(&self, path: &str, request: I) -> Result<Bytes, OpenAIError>
+    pub(crate) async fn post_raw<I>(
+        &self,
+        path: &str,
+        request: I,
+    ) -> Result<(Bytes, HeaderMap), OpenAIError>
     where
         I: Serialize,
     {
@@ -314,7 +319,11 @@ impl<C: Config> Client<C> {
     }
 
     /// POST a form at {path} and return the response body
-    pub(crate) async fn post_form_raw<F>(&self, path: &str, form: F) -> Result<Bytes, OpenAIError>
+    pub(crate) async fn post_form_raw<F>(
+        &self,
+        path: &str,
+        form: F,
+    ) -> Result<(Bytes, HeaderMap), OpenAIError>
     where
         Form: AsyncTryFrom<F, Error = OpenAIError>,
     {
@@ -390,7 +399,7 @@ impl<C: Config> Client<C> {
     async fn execute_raw(
         &self,
         request_future: impl Future<Output = Result<reqwest::Request, OpenAIError>>,
-    ) -> Result<Bytes, OpenAIError> {
+    ) -> Result<(Bytes, HeaderMap), OpenAIError> {
         let client = self.http_client.clone();
         let request = request_future.await?;
         let response = client
@@ -400,7 +409,7 @@ impl<C: Config> Client<C> {
 
         let status = response.status();
         match read_response(response).await {
-            Ok(bytes) => Ok(bytes),
+            Ok((bytes, headers)) => Ok((bytes, headers)),
             Err(e) => match e {
                 OpenAIError::ApiError(api_error) => {
                     if status.as_u16() == 429
@@ -424,7 +433,7 @@ impl<C: Config> Client<C> {
     where
         O: DeserializeOwned,
     {
-        let bytes = self.execute_raw(request_future).await?;
+        let (bytes, _headers) = self.execute_raw(request_future).await?;
 
         let response: O = serde_json::from_slice(bytes.as_ref())
             .map_err(|e| map_deserialization_error(e, bytes.as_ref()))?;
@@ -679,8 +688,9 @@ where
     }
 }
 
-async fn read_response(response: Response) -> Result<Bytes, OpenAIError> {
+async fn read_response(response: Response) -> Result<(Bytes, HeaderMap), OpenAIError> {
     let status = response.status();
+    let headers = response.headers().clone();
     let bytes = response.bytes().await.map_err(OpenAIError::Reqwest)?;
 
     if status.is_server_error() {
@@ -703,5 +713,5 @@ async fn read_response(response: Response) -> Result<Bytes, OpenAIError> {
         return Err(OpenAIError::ApiError(wrapped_error.error));
     }
 
-    Ok(bytes)
+    Ok((bytes, headers))
 }

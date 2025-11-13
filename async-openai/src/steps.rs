@@ -4,7 +4,7 @@ use crate::{
     Client,
     config::Config,
     error::OpenAIError,
-    types::{ListRunStepsResponse, RunStepObject},
+    types::assistants::{ListRunStepsResponse, RunStepObject},
 };
 
 /// Represents a step in execution of a run.
