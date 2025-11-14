@@ -1,12 +1,9 @@
-use std::pin::Pin;
-
-use futures::Stream;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    error::OpenAIError,
+    OpenAIEventStream,
     traits::EventType,
-    types::{audio::TranscriptTextUsageTokens, LogProbProperties},
+    types::{LogProbProperties, audio::TranscriptTextUsageTokens},
 };
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -43,8 +40,7 @@ pub struct SpeechAudioDoneEvent {
 }
 
 /// Stream of response events
-pub type SpeechResponseStream =
-    Pin<Box<dyn Stream<Item = Result<CreateSpeechResponseStreamEvent, OpenAIError>> + Send>>;
+pub type SpeechResponseStream = OpenAIEventStream<CreateSpeechResponseStreamEvent>;
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct TranscriptionTextSegmentEvent {
@@ -102,8 +98,7 @@ pub enum CreateTranscriptionResponseStreamEvent {
     TranscriptTextDone(TranscriptionTextDoneEvent),
 }
 
-pub type TranscriptionResponseStream =
-    Pin<Box<dyn Stream<Item = Result<CreateTranscriptionResponseStreamEvent, OpenAIError>> + Send>>;
+pub type TranscriptionResponseStream = OpenAIEventStream<CreateTranscriptionResponseStreamEvent>;
 
 impl EventType for SpeechAudioDeltaEvent {
     fn event_type(&self) -> &'static str {

@@ -1,9 +1,7 @@
 #![allow(dead_code)]
 //! The purpose of this test to make sure that all _byot methods compiles with custom types.
-use std::pin::Pin;
 
-use async_openai_wasm::{Client, error::OpenAIError};
-use futures::Stream;
+use async_openai_wasm::{Client, OpenAIEventStream, error::OpenAIError};
 use serde_json::{Value, json};
 
 impl async_openai_wasm::traits::AsyncTryFrom<MyJson> for reqwest::multipart::Form {
@@ -16,7 +14,7 @@ impl async_openai_wasm::traits::AsyncTryFrom<MyJson> for reqwest::multipart::For
 #[derive(Clone)]
 pub struct MyJson(Value);
 
-type MyStreamingType = Pin<Box<dyn Stream<Item = Result<Value, OpenAIError>> + Send>>;
+type MyStreamingType = OpenAIEventStream<Value>;
 
 #[tokio::test]
 async fn test_byot_files() {
@@ -143,7 +141,7 @@ impl TryFrom<eventsource_stream::Event> for MyThreadJson {
     }
 }
 
-type MyThreadStreamingType = Pin<Box<dyn Stream<Item = Result<MyThreadJson, OpenAIError>> + Send>>;
+type MyThreadStreamingType = OpenAIEventStream<MyThreadJson>;
 
 #[tokio::test]
 async fn test_byot_threads() {

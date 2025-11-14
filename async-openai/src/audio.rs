@@ -1,4 +1,4 @@
-use crate::{config::Config, Client, Speech, Transcriptions, Translations};
+use crate::{Client, Speech, Transcriptions, Translations, config::Config};
 
 /// Turn audio into text or text into audio.
 /// Related guide: [Speech to text](https://platform.openai.com/docs/guides/speech-to-text)

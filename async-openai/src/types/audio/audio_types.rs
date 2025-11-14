@@ -3,8 +3,8 @@ use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
 use crate::error::OpenAIError;
-use crate::types::common::InputSource;
 use crate::types::LogProbProperties;
+use crate::types::common::InputSource;
 
 // openapi spec type: VoiceIdsShared
 #[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq)]

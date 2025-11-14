@@ -3,13 +3,6 @@ use std::fmt::Display;
 use bytes::Bytes;
 
 use super::{
-    AddUploadPartRequest, AudioInput, AudioResponseFormat, ChatCompletionFunctionCall,
-    ChatCompletionFunctions, ChatCompletionNamedToolChoice, ChatCompletionRequestAssistantMessage,
-    audio::{
-        AudioInput, AudioResponseFormat, CreateSpeechResponse, CreateTranscriptionRequest,
-        CreateTranslationRequest, TimestampGranularity, TranscriptionInclude,
-    },
-    responses::{EasyInputContent, Role as ResponsesRole},
     AddUploadPartRequest, ChatCompletionFunctionCall, ChatCompletionFunctions,
     ChatCompletionNamedToolChoice, ChatCompletionRequestAssistantMessage,
     ChatCompletionRequestAssistantMessageContent, ChatCompletionRequestDeveloperMessage,
@@ -21,13 +14,18 @@ use super::{
     ChatCompletionRequestUserMessage, ChatCompletionRequestUserMessageContent,
     ChatCompletionRequestUserMessageContentPart, ChatCompletionToolChoiceOption,
     CreateContainerFileRequest, CreateFileRequest, CreateImageEditRequest,
-    CreateImageVariationRequest, CreateMessageRequestContent, CreateTranscriptionRequest,
-    CreateTranslationRequest, CreateVideoRequest, DallE2ImageSize, EmbeddingInput,
-    FileExpiresAfterAnchor, FileInput, FilePurpose, FunctionName, ImageInput, ImageModel,
-    ImageResponseFormat, ImageSize, ImageUrl, ModerationInput, Prompt, Role, Stop,
-    TimestampGranularity, VideoSize, responses::EasyInputContent,
+    CreateImageVariationRequest, CreateMessageRequestContent, CreateVideoRequest, DallE2ImageSize,
+    EmbeddingInput, FileExpiresAfterAnchor, FileInput, FilePurpose, FunctionName, ImageInput,
+    ImageModel, ImageResponseFormat, ImageSize, ImageUrl, ModerationInput, Prompt, Role, Stop,
+    VideoSize,
+    audio::{
+        AudioInput, AudioResponseFormat, CreateTranscriptionRequest, CreateTranslationRequest,
+        TimestampGranularity, TranscriptionInclude,
+    },
+    responses::EasyInputContent,
 };
 use crate::traits::AsyncTryFrom;
+use crate::types::audio::{TranscriptionChunkingStrategy, TranslationResponseFormat};
 use crate::{error::OpenAIError, types::InputSource, util::create_file_part};
 
 /// for `impl_from!(T, Enum)`, implements

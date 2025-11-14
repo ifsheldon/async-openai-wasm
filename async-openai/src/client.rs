@@ -618,9 +618,9 @@ where
                         },
                         Err(e) => {
                             *this.done = true;
-                            Poll::Ready(Some(Err(OpenAIError::StreamError(
+                            Poll::Ready(Some(Err(OpenAIError::StreamError(Box::new(
                                 StreamError::ReqwestEventSource(e),
-                            ))))
+                            )))))
                         }
                     },
                 }

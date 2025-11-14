@@ -1,5 +1,5 @@
 use async_openai_wasm::types::audio::CreateTranslationRequestArgs;
-use async_openai_wasm::{types::audio::CreateTranscriptionRequestArgs, Client};
+use async_openai_wasm::{Client, types::audio::CreateTranscriptionRequestArgs};
 use tokio_test::assert_err;
 
 #[tokio::test]

@@ -1,8 +1,8 @@
 use crate::{
+    Client,
     config::Config,
     error::OpenAIError,
     types::audio::{CreateSpeechRequest, CreateSpeechResponse, SpeechResponseStream},
-    Client,
 };
 
 pub struct Speech<'c, C: Config> {
