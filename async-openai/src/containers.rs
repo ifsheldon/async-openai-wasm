@@ -1,13 +1,13 @@
 use serde::Serialize;
 
 use crate::{
+    Client,
     config::Config,
     container_files::ContainerFiles,
     error::OpenAIError,
     types::{
         ContainerListResource, ContainerResource, CreateContainerRequest, DeleteContainerResponse,
     },
-    Client,
 };
 
 pub struct Containers<'c, C: Config> {

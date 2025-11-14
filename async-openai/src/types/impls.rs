@@ -14,10 +14,10 @@ use super::{
     ChatCompletionRequestUserMessage, ChatCompletionRequestUserMessageContent,
     ChatCompletionRequestUserMessageContentPart, ChatCompletionToolChoiceOption,
     CreateContainerFileRequest, CreateFileRequest, CreateImageEditRequest,
-     CreateImageVariationRequest, CreateMessageRequestContent,
-    CreateTranscriptionRequest, CreateTranslationRequest, CreateVideoRequest, DallE2ImageSize,
-    EmbeddingInput, FileExpiresAfterAnchor, FileInput, FilePurpose, FunctionName, ImageInput,
-    ImageModel, ImageResponseFormat, ImageSize, ImageUrl, ModerationInput, Prompt, Role, Stop,
+    CreateImageVariationRequest, CreateMessageRequestContent, CreateTranscriptionRequest,
+    CreateTranslationRequest, CreateVideoRequest, DallE2ImageSize, EmbeddingInput,
+    FileExpiresAfterAnchor, FileInput, FilePurpose, FunctionName, ImageInput, ImageModel,
+    ImageResponseFormat, ImageSize, ImageUrl, ModerationInput, Prompt, Role, Stop,
     TimestampGranularity, VideoSize, responses::EasyInputContent,
 };
 use crate::traits::AsyncTryFrom;

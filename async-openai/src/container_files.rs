@@ -2,13 +2,13 @@ use bytes::Bytes;
 use serde::Serialize;
 
 use crate::{
+    Client,
     config::Config,
     error::OpenAIError,
     types::{
         ContainerFileListResource, ContainerFileResource, CreateContainerFileRequest,
         DeleteContainerFileResponse,
     },
-    Client,
 };
 
 /// Create and manage container files for use with the Code Interpreter tool.

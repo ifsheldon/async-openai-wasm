@@ -1,4 +1,4 @@
-use async_openai::{
+use async_openai_wasm::{
     types::{
         ContainerExpiresAfter, ContainerExpiresAfterAnchor, CreateContainerFileRequest,
         CreateContainerRequestArgs, InputSource,
