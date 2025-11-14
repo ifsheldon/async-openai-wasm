@@ -38,7 +38,7 @@ impl<'c, C: Config> Transcriptions<'c, C> {
     #[crate::byot(
         T0 = Clone,
         R = serde::de::DeserializeOwned,
-        stream = "true",
+        form_stream = "true",
         where_clause = "R: std::marker::Send + 'static, reqwest::multipart::Form: crate::traits::AsyncTryFrom<T0, Error = OpenAIError>"
     )]
     #[allow(unused_mut)]

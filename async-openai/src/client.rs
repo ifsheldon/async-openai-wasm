@@ -4,6 +4,7 @@ use std::pin::Pin;
 use std::task::{Context, Poll};
 
 use bytes::Bytes;
+use eventsource_stream::EventStreamError;
 use future::Future;
 use futures::stream::Filter;
 use futures::{Stream, stream::StreamExt};
@@ -343,11 +344,11 @@ impl<C: Config> Client<C> {
         &self,
         path: &str,
         form: F,
-    ) -> Result<Pin<Box<dyn Stream<Item = Result<O, OpenAIError>> + Send>>, OpenAIError>
+    ) -> Result<OpenAIFormEventStream<O>, OpenAIError>
     where
         F: Clone,
         Form: AsyncTryFrom<F, Error = OpenAIError>,
-        O: DeserializeOwned + std::marker::Send + 'static,
+        O: DeserializeOwned + Send + 'static,
     {
         // Build and execute request manually since multipart::Form is not Clone
         // and .eventsource() requires cloneability
@@ -372,44 +373,7 @@ impl<C: Config> Client<C> {
             .map(|result| result.map_err(std::io::Error::other));
         let event_stream = eventsource_stream::EventStream::new(stream);
 
-        // Convert EventSource stream to our expected format
-        let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
-
-        tokio::spawn(async move {
-            use futures::StreamExt;
-            let mut event_stream = std::pin::pin!(event_stream);
-
-            while let Some(event_result) = event_stream.next().await {
-                match event_result {
-                    Err(e) => {
-                        if let Err(_e) = tx.send(Err(OpenAIError::StreamError(Box::new(
-                            StreamError::EventStream(e.to_string()),
-                        )))) {
-                            break;
-                        }
-                    }
-                    Ok(event) => {
-                        // eventsource_stream::Event is a struct with data field
-                        if event.data == "[DONE]" {
-                            break;
-                        }
-
-                        let response = match serde_json::from_str::<O>(&event.data) {
-                            Err(e) => Err(map_deserialization_error(e, event.data.as_bytes())),
-                            Ok(output) => Ok(output),
-                        };
-
-                        if let Err(_e) = tx.send(response) {
-                            break;
-                        }
-                    }
-                }
-            }
-        });
-
-        Ok(Box::pin(
-            tokio_stream::wrappers::UnboundedReceiverStream::new(rx),
-        ))
+        Ok(OpenAIFormEventStream::new(event_stream))
     }
 
     /// Execute a HTTP request
@@ -626,6 +590,99 @@ where
                 }
             }
             Poll::Pending => Poll::Pending,
+        }
+    }
+}
+
+#[pin_project]
+pub struct OpenAIFormEventStream<O>
+where
+    O: DeserializeOwned + Send + 'static,
+{
+    #[pin]
+    event_stream: Box<
+        dyn Stream<Item = Result<eventsource_stream::Event, EventStreamError<std::io::Error>>>
+            + Unpin
+            + 'static,
+    >,
+    done: bool,
+    _phantom_data: PhantomData<O>,
+}
+
+impl<O> OpenAIFormEventStream<O>
+where
+    O: DeserializeOwned + Send + 'static,
+{
+    // pub fn new(event_stream: impl Stream<Item = reqwest::Result<Bytes>> + 'static) -> Self {
+    //     let stream: Box<dyn Stream<Item = reqwest::Result<Bytes>>> = Box::new(event_stream);
+    //     Self {
+    //         event_stream: eventsource_stream::EventStream::new(stream),
+    //         done: false,
+    //         _phantom_data: PhantomData,
+    //     }
+    // }
+
+    pub fn new(
+        stream: impl Stream<Item = Result<eventsource_stream::Event, EventStreamError<std::io::Error>>>
+        + Unpin
+        + 'static,
+    ) -> Self {
+        Self {
+            event_stream: Box::new(stream),
+            done: false,
+            _phantom_data: PhantomData,
+        }
+    }
+
+    // pub fn new_s(byte_stream: impl Stream<Item = reqwest::Result<Bytes>>) -> Self{
+    //     let stream: Pin<Box<dyn Stream<Item=_>>> = Box::pin(byte_stream);
+    //     let stream = stream.map(|result| result.map_err(std::io::Error::other));
+    //     Self {
+    //         event_stream: eventsource_stream::EventStream::new(stream),
+    //
+    //     }
+    // }
+}
+
+impl<O> Stream for OpenAIFormEventStream<O>
+where
+    O: DeserializeOwned + Send + 'static,
+{
+    type Item = Result<O, OpenAIError>;
+
+    fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
+        let this = self.project();
+        if *this.done {
+            return Poll::Ready(None);
+        }
+        let stream: Pin<&mut _> = this.event_stream;
+        match stream.poll_next(cx) {
+            Poll::Pending => Poll::Pending,
+            Poll::Ready(response) => match response {
+                None => Poll::Ready(None),
+                Some(result) => match result {
+                    Err(e) => {
+                        // *this.done = true; // TODO: check this
+                        Poll::Ready(Some(Err(OpenAIError::StreamError(Box::new(
+                            StreamError::EventStream(e.to_string()),
+                        )))))
+                    }
+                    Ok(event) => {
+                        if event.data == "[DONE]" {
+                            *this.done = true;
+                            Poll::Ready(None)
+                        } else {
+                            match serde_json::from_str::<O>(&event.data) {
+                                Err(e) => Poll::Ready(Some(Err(map_deserialization_error(
+                                    e,
+                                    event.data.as_bytes(),
+                                )))),
+                                Ok(output) => Poll::Ready(Some(Ok(output))),
+                            }
+                        }
+                    }
+                },
+            },
         }
     }
 }

@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 
+use crate::client::OpenAIFormEventStream;
 use crate::{
     OpenAIEventStream,
     traits::EventType,
@@ -98,7 +99,8 @@ pub enum CreateTranscriptionResponseStreamEvent {
     TranscriptTextDone(TranscriptionTextDoneEvent),
 }
 
-pub type TranscriptionResponseStream = OpenAIEventStream<CreateTranscriptionResponseStreamEvent>;
+pub type TranscriptionResponseStream =
+    OpenAIFormEventStream<CreateTranscriptionResponseStreamEvent>;
 
 impl EventType for SpeechAudioDeltaEvent {
     fn event_type(&self) -> &'static str {

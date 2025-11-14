@@ -190,7 +190,7 @@ pub use audio::Audio;
 pub use audit_logs::AuditLogs;
 pub use batches::Batches;
 pub use chat::Chat;
-pub use client::{Client, OpenAIEventStream};
+pub use client::{Client, OpenAIEventStream, OpenAIFormEventStream};
 pub use completion::Completions;
 pub use container_files::ContainerFiles;
 pub use containers::Containers;

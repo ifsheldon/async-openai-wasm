@@ -12,7 +12,8 @@ use syn::{
 struct BoundArgs {
     bounds: Vec<(String, syn::TypeParamBound)>,
     where_clause: Option<String>,
-    stream: bool, // Add stream flag
+    stream: bool,      // Add stream flag
+    form_stream: bool, // Add form stream flag
 }
 
 impl Parse for BoundArgs {
@@ -20,6 +21,7 @@ impl Parse for BoundArgs {
         let mut bounds = Vec::new();
         let mut where_clause = None;
         let mut stream = false; // Default to false
+        let mut form_stream = false; // Default to false
         let vars = Punctuated::<syn::MetaNameValue, Comma>::parse_terminated(input)?;
 
         for var in vars {
@@ -30,6 +32,9 @@ impl Parse for BoundArgs {
                 }
                 "stream" => {
                     stream = var.value.into_token_stream().to_string().contains("true");
+                }
+                "form_stream" => {
+                    form_stream = var.value.into_token_stream().to_string().contains("true");
                 }
                 _ => {
                     let bound: syn::TypeParamBound =
@@ -42,6 +47,7 @@ impl Parse for BoundArgs {
             bounds,
             where_clause,
             stream,
+            form_stream,
         })
     }
 }
@@ -125,6 +131,8 @@ pub fn byot(args: TokenStream, item: TokenStream) -> TokenStream {
     // Generate return type based on stream flag
     let return_type = if bounds_args.stream {
         quote! { Result<crate::client::OpenAIEventStream<R>, OpenAIError> }
+    } else if bounds_args.form_stream {
+        quote! { Result<crate::client::OpenAIFormEventStream<R>, OpenAIError> }
     } else {
         quote! { Result<R, OpenAIError> }
     };
