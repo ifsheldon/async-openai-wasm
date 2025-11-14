@@ -2,7 +2,7 @@ use std::process::exit;
 
 use async_openai_wasm::types::realtime::{
     RealtimeClientEventConversationItemCreate, RealtimeClientEventResponseCreate,
-    RealtimeConversationItem, RealtimeServerEvent,
+    RealtimeConversationItem, RealtimeServerEvent, ToText,
 };
 use futures_util::{StreamExt, future, pin_mut};
 
@@ -128,7 +128,9 @@ async fn read_stdin(tx: futures_channel::mpsc::UnboundedSender<Message>) {
         tx.unbounded_send(message).unwrap();
         // send WebSocket message containing event of type "response.create" to server
         tx.unbounded_send(Message::Text(
-            ResponseCreateEvent::default().to_text().into(),
+            RealtimeClientEventResponseCreate::default()
+                .to_text()
+                .into(),
         ))
         .unwrap();
     }

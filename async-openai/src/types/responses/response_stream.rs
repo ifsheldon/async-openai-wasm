@@ -1,15 +1,12 @@
-use futures::Stream;
 use serde::{Deserialize, Serialize};
-use std::pin::Pin;
 
 use crate::{
-    error::OpenAIError,
+    OpenAIEventStream,
     types::responses::{OutputContent, OutputItem, Response, ResponseLogProb, Summary},
 };
 
 /// Stream of response events
-pub type ResponseStream =
-    Pin<Box<dyn Stream<Item = Result<ResponseStreamEvent, OpenAIError>> + Send>>;
+pub type ResponseStream = OpenAIEventStream<ResponseStreamEvent>;
 
 /// Event types for streaming responses from the Responses API
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]

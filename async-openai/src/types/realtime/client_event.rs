@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use super::{item::Item, session_resource::SessionResource};
 
 use crate::types::realtime::{RealtimeConversationItem, RealtimeResponseCreateParams, Session};
 
@@ -247,22 +246,6 @@ impl From<&RealtimeClientEvent> for String {
     }
 }
 
-impl From<RealtimeClientEvent> for Message {
-    fn from(value: RealtimeClientEvent) -> Self {
-        Message::Text(String::from(&value).into())
-    }
-}
-
-macro_rules! message_from_event {
-    ($from_typ:ty, $evt_typ:ty) => {
-        impl From<$from_typ> for Message {
-            fn from(value: $from_typ) -> Self {
-                Self::from(<$evt_typ>::from(value))
-            }
-        }
-    };
-}
-
 macro_rules! event_from {
     ($from_typ:ty, $evt_typ:ty, $variant:ident) => {
         impl From<$from_typ> for $evt_typ {
@@ -283,32 +266,32 @@ event_from!(
     RealtimeClientEvent,
     InputAudioBufferAppend
 );
-event_struct_to_variant!(
+event_from!(
     RealtimeClientEventInputAudioBufferCommit,
     RealtimeClientEvent,
     InputAudioBufferCommit
 );
-event_struct_to_variant!(
+event_from!(
     RealtimeClientEventInputAudioBufferClear,
     RealtimeClientEvent,
     InputAudioBufferClear
 );
-event_struct_to_variant!(
+event_from!(
     RealtimeClientEventConversationItemCreate,
     RealtimeClientEvent,
     ConversationItemCreate
 );
-event_struct_to_variant!(
+event_from!(
     RealtimeClientEventConversationItemTruncate,
     RealtimeClientEvent,
     ConversationItemTruncate
 );
-event_struct_to_variant!(
+event_from!(
     RealtimeClientEventConversationItemDelete,
     RealtimeClientEvent,
     ConversationItemDelete
 );
-event_struct_to_variant!(
+event_from!(
     RealtimeClientEventConversationItemRetrieve,
     RealtimeClientEvent,
     ConversationItemRetrieve
@@ -318,7 +301,7 @@ event_from!(
     RealtimeClientEvent,
     ResponseCreate
 );
-event_struct_to_variant!(
+event_from!(
     RealtimeClientEventResponseCancel,
     RealtimeClientEvent,
     ResponseCancel
@@ -329,7 +312,7 @@ event_from!(
     OutputAudioBufferClear
 );
 
-impl<T: Into<ClientEvent>> ToText for T {
+impl<T: Into<RealtimeClientEvent>> ToText for T {
     // blanket impl for all client event structs
     fn to_text(self) -> String {
         (&self.into()).into()

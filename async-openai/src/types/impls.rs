@@ -3,7 +3,6 @@ use std::fmt::Display;
 use bytes::Bytes;
 
 use super::{
-    responses::{EasyInputContent, Role as ResponsesRole},
     AddUploadPartRequest, AudioInput, AudioResponseFormat, ChatCompletionFunctionCall,
     ChatCompletionFunctions, ChatCompletionNamedToolChoice, ChatCompletionRequestAssistantMessage,
     ChatCompletionRequestAssistantMessageContent, ChatCompletionRequestDeveloperMessage,
@@ -19,7 +18,7 @@ use super::{
     EmbeddingInput, FileExpiresAfterAnchor, FileInput, FilePurpose, FunctionName, ImageInput,
     ImageModel, ImageResponseFormat, ImageSize, ImageUrl, ModerationInput, Prompt, Role, Stop,
     TimestampGranularity, VideoSize,
-    responses::{CodeInterpreterContainer, Input, InputContent},
+    responses::EasyInputContent,
 };
 use crate::traits::AsyncTryFrom;
 use crate::{error::OpenAIError, types::InputSource, util::create_file_part};
@@ -971,12 +970,6 @@ impl AsyncTryFrom<CreateVideoRequest> for reqwest::multipart::Form {
 impl Default for EasyInputContent {
     fn default() -> Self {
         Self::Text("".to_string())
-    }
-}
-
-impl Default for ResponsesRole {
-    fn default() -> Self {
-        Self::User
     }
 }
 
