@@ -15,20 +15,20 @@ const API_KEY: &str = "...";
 
 pub fn App() -> Element {
     const GREETING: &str = "Hello! How are you?";
-    let request = CreateChatCompletionRequestArgs::default()
-        .max_tokens(512u16)
-        .model("gpt-3.5-turbo")
-        .messages([ChatCompletionRequestMessage::User(
-            ChatCompletionRequestUserMessageArgs::default()
-                .content(GREETING)
-                .build()
-                .unwrap(),
-        )])
-        .build()
-        .unwrap();
     let response_string = use_signal(String::new);
-    let _fetch_completion_chunks: Coroutine<()> = use_coroutine(|_rx| {
+    let _fetch_completion_chunks: Coroutine<()> = use_coroutine(move |_rx| {
         let mut response_string = response_string.to_owned();
+        let request = CreateChatCompletionRequestArgs::default()
+            .max_tokens(512u16)
+            .model("gpt-3.5-turbo")
+            .messages([ChatCompletionRequestMessage::User(
+                ChatCompletionRequestUserMessageArgs::default()
+                    .content(GREETING)
+                    .build()
+                    .unwrap(),
+            )])
+            .build()
+            .unwrap();
         async move {
             let config = OpenAIConfig::new().with_api_key(API_KEY);
             let config = if API_BASE != "..." {

@@ -16,7 +16,7 @@ pub const API_KEY: &str = "...";
 pub fn App() -> Element {
     const QUERY: &str = "What's the weather in San Francisco today and the likelihood it'll rain?";
     let reply = use_signal(String::new);
-    let _run_assistant: Coroutine<()> = use_coroutine(|_rx| {
+    let _run_assistant: Coroutine<()> = use_coroutine(move |_rx| {
         let client = get_client();
         async move {
             //
