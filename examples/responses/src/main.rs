@@ -18,7 +18,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .max_output_tokens(512u32)
         .model("gpt-4.1")
         .text(TextConfig {
-            format: async_openai::types::responses::TextResponseFormat::Text,
+            format: async_openai_wasm::types::responses::TextResponseFormat::Text,
             verbosity: Some(Verbosity::Medium), // only here to test the config, but gpt-4.1 only supports medium
         })
         .input(Input::Items(vec![InputItem::Message(

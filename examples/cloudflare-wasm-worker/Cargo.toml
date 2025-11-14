@@ -14,7 +14,7 @@ crate-type = ["cdylib"]
 [dependencies]
 worker = "0.5.0"
 serde = { version = "1.0", features = ["derive"] }
-async-openai-wasm = {path = "../../async-openai-wasm" }
+async-openai-wasm = {path = "../../async-openai" }
 
 [profile.release]
 lto = true

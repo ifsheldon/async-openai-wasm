@@ -8,7 +8,7 @@ rust-version = "1.85"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-async-openai-wasm = { path = "../../async-openai-wasm", features = ["realtime"] }
+async-openai-wasm = { path = "../../async-openai", features = ["realtime"] }
 serde_json = "1.0.135"
 futures = "0.3"
 tokio = { version = "1.43", features = ["fs", "macros"] }
