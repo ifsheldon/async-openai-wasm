@@ -1,13 +1,13 @@
 use serde::Serialize;
 
 use crate::{
+    Client,
     config::Config,
     error::OpenAIError,
     types::responses::{
         ConversationItem, ConversationItemList, ConversationResource,
         CreateConversationItemsRequest,
     },
-    Client,
 };
 
 /// Conversation items represent items within a conversation.

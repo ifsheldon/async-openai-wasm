@@ -14,17 +14,15 @@ use serde::{Serialize, de::DeserializeOwned};
 
 use crate::error::{ApiError, StreamError};
 use crate::{
-    Assistants, Audio, AuditLogs, Batches, Chat, Completions, Embeddings, FineTuning, Invites,
-    Models, Projects, Responses, Threads, Uploads, Users, VectorStores, Videos,
+    Assistants, Audio, AuditLogs, Batches, Chat, Completions, Conversations, Embeddings,
+    FineTuning, Invites, Models, Projects, Responses, Threads, Uploads, Users, VectorStores,
+    Videos,
     config::{Config, OpenAIConfig},
     error::{OpenAIError, WrappedError, map_deserialization_error},
     file::Files,
     image::Images,
     moderation::Moderations,
     traits::AsyncTryFrom,
-    Assistants, Audio, AuditLogs, Batches, Chat, Completions, Conversations, Embeddings,
-    FineTuning, Invites, Models, Projects, Responses, Threads, Uploads, Users, VectorStores,
-    Videos,
 };
 
 #[derive(Debug, Clone)]

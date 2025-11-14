@@ -1,4 +1,4 @@
-use async_openai::{
+use async_openai_wasm::{
     types::responses::{
         ConversationItem, CreateConversationItemsRequestArgs, CreateConversationRequestArgs,
         EasyInputContent, EasyInputMessage, InputItem, ListConversationItemsQuery, MessageType,

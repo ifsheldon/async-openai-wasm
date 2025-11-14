@@ -17,8 +17,7 @@ use super::{
     CreateTranscriptionRequest, CreateTranslationRequest, CreateVideoRequest, DallE2ImageSize,
     EmbeddingInput, FileExpiresAfterAnchor, FileInput, FilePurpose, FunctionName, ImageInput,
     ImageModel, ImageResponseFormat, ImageSize, ImageUrl, ModerationInput, Prompt, Role, Stop,
-    TimestampGranularity, VideoSize,
-    responses::EasyInputContent,
+    TimestampGranularity, VideoSize, responses::EasyInputContent,
 };
 use crate::traits::AsyncTryFrom;
 use crate::{error::OpenAIError, types::InputSource, util::create_file_part};
