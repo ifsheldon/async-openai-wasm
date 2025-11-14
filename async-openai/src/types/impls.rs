@@ -911,8 +911,7 @@ impl AsyncTryFrom<CreateImageEditRequest> for reqwest::multipart::Form {
     type Error = OpenAIError;
 
     async fn try_from(request: CreateImageEditRequest) -> Result<Self, Self::Error> {
-        let mut form = reqwest::multipart::Form::new()
-            .text("prompt", request.prompt);
+        let mut form = reqwest::multipart::Form::new().text("prompt", request.prompt);
 
         for image in request.image {
             let image_part = create_file_part(image.source).await?;
