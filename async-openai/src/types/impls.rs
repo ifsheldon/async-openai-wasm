@@ -18,7 +18,7 @@ use super::{
     EmbeddingInput, FileExpiresAfterAnchor, FileInput, FilePurpose, FunctionName, ImageInput,
     ImageModel, ImageResponseFormat, ImageSize, ImageUrl, ModerationInput, Prompt, Role, Stop,
     TimestampGranularity, VideoSize,
-    responses::{CodeInterpreterContainer, Input, InputContent, Role as ResponsesRole},
+    responses::{CodeInterpreterContainer, Input, InputContent},
 };
 use crate::traits::AsyncTryFrom;
 use crate::{error::OpenAIError, types::InputSource, util::create_file_part};
@@ -988,12 +988,6 @@ impl From<String> for Input {
 impl From<&str> for Input {
     fn from(value: &str) -> Self {
         Input::Text(value.to_owned())
-    }
-}
-
-impl Default for ResponsesRole {
-    fn default() -> Self {
-        Self::User
     }
 }
 

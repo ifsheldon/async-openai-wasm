@@ -10,9 +10,10 @@ use serde_json::Value;
 use std::collections::HashMap;
 
 /// Role of messages in the API.
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Default)]
 #[serde(rename_all = "lowercase")]
 pub enum Role {
+    #[default]
     User,
     Assistant,
     System,
