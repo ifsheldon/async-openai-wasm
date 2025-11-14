@@ -29,14 +29,14 @@
 //! The example will automatically send a background response request
 //! and you'll see the webhook events being received!
 
-use async_openai::traits::{EventId, EventType};
-use async_openai::types::responses::{
+use async_openai_wasm::traits::{EventId, EventType};
+use async_openai_wasm::types::responses::{
     CreateResponseArgs, EasyInputContent, EasyInputMessage, InputItem, InputParam, MessageType,
     Role,
 };
-use async_openai::types::webhooks::WebhookEvent;
-use async_openai::webhooks::Webhooks;
-use async_openai::Client;
+use async_openai_wasm::types::webhooks::WebhookEvent;
+use async_openai_wasm::webhooks::Webhooks;
+use async_openai_wasm::Client;
 use axum::{
     body::Bytes,
     extract::State,
