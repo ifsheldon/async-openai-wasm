@@ -1,5 +1,5 @@
-use async_openai::traits::EventType;
-use async_openai::{
+use async_openai_wasm::traits::EventType;
+use async_openai_wasm::{
     types::audio::{
         CreateSpeechRequestArgs, CreateSpeechResponseStreamEvent, SpeechModel, StreamFormat, Voice,
     },
