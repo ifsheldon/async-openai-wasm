@@ -26,6 +26,8 @@ use crate::{
     image::Images,
     moderation::Moderations,
     traits::AsyncTryFrom,
+    Assistants, Audio, Batches, Chat, Completions, Containers, Conversations, Embeddings, Evals,
+    FineTuning, Models, RequestOptions, Responses, Threads, Uploads, Usage, VectorStores, Videos,
 };
 
 #[cfg(feature = "realtime")]
@@ -197,84 +199,86 @@ impl<C: Config> Client<C> {
     }
 
     /// Make a GET request to {path} and deserialize the response body
-    pub(crate) async fn get<O>(&self, path: &str) -> Result<O, OpenAIError>
+    pub(crate) async fn get<O>(
+        &self,
+        path: &str,
+        request_options: &RequestOptions,
+    ) -> Result<O, OpenAIError>
     where
         O: DeserializeOwned,
     {
         self.execute(async {
-            Ok(self
+            let mut request_builder = self
                 .http_client
                 .get(self.config.url(path))
                 .query(&self.config.query())
-                .headers(self.config.headers())
-                .build()?)
-        })
-        .await
-    }
+                .headers(self.config.headers());
 
-    /// Make a GET request to {path} with given Query and deserialize the response body
-    pub(crate) async fn get_with_query<Q, O>(&self, path: &str, query: &Q) -> Result<O, OpenAIError>
-    where
-        O: DeserializeOwned,
-        Q: Serialize + ?Sized,
-    {
-        self.execute(async {
-            Ok(self
-                .http_client
-                .get(self.config.url(path))
-                .query(&self.config.query())
-                .query(query)
-                .headers(self.config.headers())
-                .build()?)
-        })
-        .await
+            if let Some(headers) = request_options.headers() {
+                request_builder = request_builder.headers(headers.clone());
+            }
+
+            if !request_options.query().is_empty() {
+                request_builder = request_builder.query(request_options.query());
+            }
+
+            Ok(request_builder.build()?)
+        };
+
+        self.execute(request_maker).await
     }
 
     /// Make a DELETE request to {path} and deserialize the response body
-    pub(crate) async fn delete<O>(&self, path: &str) -> Result<O, OpenAIError>
+    pub(crate) async fn delete<O>(
+        &self,
+        path: &str,
+        request_options: &RequestOptions,
+    ) -> Result<O, OpenAIError>
     where
         O: DeserializeOwned,
     {
         self.execute(async {
-            Ok(self
+            let mut request_builder = self
                 .http_client
                 .delete(self.config.url(path))
                 .query(&self.config.query())
-                .headers(self.config.headers())
-                .build()?)
+                .headers(self.config.headers());
+
+            if let Some(headers) = request_options.headers() {
+                request_builder = request_builder.headers(headers.clone());
+            }
+
+            if !request_options.query().is_empty() {
+                request_builder = request_builder.query(request_options.query());
+            }
+
+            Ok(request_builder.build()?)
         })
         .await
     }
 
     /// Make a GET request to {path} and return the response body
-    pub(crate) async fn get_raw(&self, path: &str) -> Result<(Bytes, HeaderMap), OpenAIError> {
-        self.execute_raw(async {
-            Ok(self
-                .http_client
-                .get(self.config.url(path))
-                .query(&self.config.query())
-                .headers(self.config.headers())
-                .build()?)
-        })
-        .await
-    }
-
-    pub(crate) async fn get_raw_with_query<Q>(
+    pub(crate) async fn get_raw(
         &self,
         path: &str,
-        query: &Q,
-    ) -> Result<(Bytes, HeaderMap), OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+        request_options: &RequestOptions,
+    ) -> Result<(Bytes, HeaderMap), OpenAIError> {
         self.execute_raw(async {
-            Ok(self
+            let mut request_builder = self
                 .http_client
                 .get(self.config.url(path))
                 .query(&self.config.query())
-                .query(query)
-                .headers(self.config.headers())
-                .build()?)
+                .headers(self.config.headers());
+
+            if let Some(headers) = request_options.headers() {
+                request_builder = request_builder.headers(headers.clone());
+            }
+
+            if !request_options.query().is_empty() {
+                request_builder = request_builder.query(request_options.query());
+            }
+
+            Ok(request_builder.build()?)
         })
         .await
     }
@@ -284,36 +288,60 @@ impl<C: Config> Client<C> {
         &self,
         path: &str,
         request: I,
+        request_options: &RequestOptions,
     ) -> Result<(Bytes, HeaderMap), OpenAIError>
     where
         I: Serialize,
     {
         self.execute_raw(async {
-            Ok(self
+            let mut request_builder = self
                 .http_client
                 .post(self.config.url(path))
                 .query(&self.config.query())
                 .headers(self.config.headers())
-                .json(&request)
-                .build()?)
+                .json(&request);
+
+            if let Some(headers) = request_options.headers() {
+                request_builder = request_builder.headers(headers.clone());
+            }
+
+            if !request_options.query().is_empty() {
+                request_builder = request_builder.query(request_options.query());
+            }
+
+            Ok(request_builder.build()?)
         })
         .await
     }
 
     /// Make a POST request to {path} and deserialize the response body
-    pub(crate) async fn post<I, O>(&self, path: &str, request: I) -> Result<O, OpenAIError>
+    pub(crate) async fn post<I, O>(
+        &self,
+        path: &str,
+        request: I,
+        request_options: &RequestOptions,
+    ) -> Result<O, OpenAIError>
     where
         I: Serialize,
         O: DeserializeOwned,
     {
         self.execute(async {
-            Ok(self
+            let mut request_builder = self
                 .http_client
                 .post(self.config.url(path))
                 .query(&self.config.query())
                 .headers(self.config.headers())
-                .json(&request)
-                .build()?)
+                .json(&request);
+
+            if let Some(headers) = request_options.headers() {
+                request_builder = request_builder.headers(headers.clone());
+            }
+
+            if !request_options.query().is_empty() {
+                request_builder = request_builder.query(request_options.query());
+            }
+
+            Ok(request_builder.build()?)
         })
         .await
     }
@@ -323,38 +351,62 @@ impl<C: Config> Client<C> {
         &self,
         path: &str,
         form: F,
+        request_options: &RequestOptions,
     ) -> Result<(Bytes, HeaderMap), OpenAIError>
     where
         Form: AsyncTryFrom<F, Error = OpenAIError>,
     {
         self.execute_raw(async {
             let form = <Form as AsyncTryFrom<F>>::try_from(form).await?;
-            Ok(self
+            let mut request_builder = self
                 .http_client
                 .post(self.config.url(path))
                 .query(&self.config.query())
                 .headers(self.config.headers())
-                .multipart(form)
-                .build()?)
+                .multipart(form);
+
+            if let Some(headers) = request_options.headers() {
+                request_builder = request_builder.headers(headers.clone());
+            }
+
+            if !request_options.query().is_empty() {
+                request_builder = request_builder.query(request_options.query());
+            }
+
+            Ok(request_builder.build()?)
         })
         .await
     }
 
     /// POST a form at {path} and deserialize the response body
-    pub(crate) async fn post_form<O, F>(&self, path: &str, form: F) -> Result<O, OpenAIError>
+    pub(crate) async fn post_form<O, F>(
+        &self,
+        path: &str,
+        form: F,
+        request_options: &RequestOptions,
+    ) -> Result<O, OpenAIError>
     where
         O: DeserializeOwned,
         Form: AsyncTryFrom<F, Error = OpenAIError>,
     {
         self.execute(async {
             let form = <Form as AsyncTryFrom<F>>::try_from(form).await?;
-            Ok(self
+            let mut request_builder = self
                 .http_client
                 .post(self.config.url(path))
                 .query(&self.config.query())
                 .headers(self.config.headers())
-                .multipart(form)
-                .build()?)
+                .multipart(form);
+
+            if let Some(headers) = request_options.headers() {
+                request_builder = request_builder.headers(headers.clone());
+            }
+
+            if !request_options.query().is_empty() {
+                request_builder = request_builder.query(request_options.query());
+            }
+
+            Ok(request_builder.build()?)
         })
         .await
     }
@@ -363,6 +415,7 @@ impl<C: Config> Client<C> {
         &self,
         path: &str,
         form: F,
+        request_options: &RequestOptions,
     ) -> Result<OpenAIFormEventStream<O>, OpenAIError>
     where
         F: Clone,
@@ -371,15 +424,22 @@ impl<C: Config> Client<C> {
     {
         // Build and execute request manually since multipart::Form is not Clone
         // and .eventsource() requires cloneability
-        let response = self
+        let mut request_builder = self
             .http_client
             .post(self.config.url(path))
             .query(&self.config.query())
             .multipart(<Form as AsyncTryFrom<F>>::try_from(form.clone()).await?)
-            .headers(self.config.headers())
-            .send()
-            .await
-            .map_err(OpenAIError::Reqwest)?;
+            .headers(self.config.headers());
+
+        if let Some(headers) = request_options.headers() {
+            request_builder = request_builder.headers(headers.clone());
+        }
+
+        if !request_options.query().is_empty() {
+            request_builder = request_builder.query(request_options.query());
+        }
+
+        let response = request_builder.send().await.map_err(OpenAIError::Reqwest)?;
 
         // Check for error status
         if !response.status().is_success() {
@@ -442,19 +502,32 @@ impl<C: Config> Client<C> {
     }
 
     /// Make HTTP POST request to receive SSE
-    pub(crate) async fn post_stream<I, O>(&self, path: &str, request: I) -> OpenAIEventStream<O>
+    pub(crate) async fn post_stream<I, O>(
+        &self,
+        path: &str,
+        request: I,
+        request_options: &RequestOptions,
+    ) -> OpenAIEventStream<O>
     where
         I: Serialize,
         O: DeserializeOwned + Send + 'static,
     {
-        let event_source = self
+        let mut request_builder = self
             .http_client
             .post(self.config.url(path))
             .query(&self.config.query())
             .headers(self.config.headers())
-            .json(&request)
-            .eventsource()
-            .unwrap();
+            .json(&request);
+
+        if let Some(headers) = request_options.headers() {
+            request_builder = request_builder.headers(headers.clone());
+        }
+
+        if !request_options.query().is_empty() {
+            request_builder = request_builder.query(request_options.query());
+        }
+
+        let event_source = request_builder.eventsource().unwrap();
 
         OpenAIEventStream::new(event_source)
     }
@@ -463,20 +536,29 @@ impl<C: Config> Client<C> {
         &self,
         path: &str,
         request: I,
+        request_options: &RequestOptions,
         event_mapper: impl Fn(eventsource_stream::Event) -> Result<O, OpenAIError> + Send + 'static,
     ) -> OpenAIEventStream<O>
     where
         I: Serialize,
         O: DeserializeOwned + Send + 'static,
     {
-        let event_source = self
+        let mut request_builder = self
             .http_client
             .post(self.config.url(path))
             .query(&self.config.query())
             .headers(self.config.headers())
-            .json(&request)
-            .eventsource()
-            .unwrap();
+            .json(&request);
+
+        if let Some(headers) = request_options.headers() {
+            request_builder = request_builder.headers(headers.clone());
+        }
+
+        if !request_options.query().is_empty() {
+            request_builder = request_builder.query(request_options.query());
+        }
+
+        let event_source = request_builder.eventsource().unwrap();
 
         OpenAIEventStream::with_event_mapping(event_source, event_mapper)
     }

@@ -1,8 +1,9 @@
 #![allow(dead_code)]
 //! The purpose of this test to make sure that all _byot methods compiles with custom types.
 
-use async_openai_wasm::{Client, OpenAIEventStream, error::OpenAIError};
-use serde_json::{Value, json};
+use async_openai::{error::OpenAIError, traits::RequestOptionsBuilder, Client};
+use futures::Stream;
+use serde_json::{json, Value};
 
 impl async_openai_wasm::traits::AsyncTryFrom<MyJson> for reqwest::multipart::Form {
     type Error = OpenAIError;
@@ -21,7 +22,12 @@ async fn test_byot_files() {
     let client = Client::new();
 
     let _r: Result<Value, OpenAIError> = client.files().create_byot(MyJson(json!({}))).await;
-    let _r: Result<Value, OpenAIError> = client.files().list_byot([("limit", "2")]).await;
+    let _r: Result<Value, OpenAIError> = client
+        .files()
+        .query(&[("limit", "2")])
+        .unwrap()
+        .list_byot()
+        .await;
     let _r: Result<Value, OpenAIError> = client.files().retrieve_byot("file_id").await;
     let _r: Result<Value, OpenAIError> = client.files().delete_byot("file_id").await;
 }
@@ -33,7 +39,12 @@ async fn test_byot_assistants() {
     let _r: Result<Value, OpenAIError> = client.assistants().create_byot(json!({})).await;
     let _r: Result<Value, OpenAIError> = client.assistants().retrieve_byot("aid").await;
     let _r: Result<Value, OpenAIError> = client.assistants().update_byot("aid", json!({})).await;
-    let _r: Result<Value, OpenAIError> = client.assistants().list_byot([("limit", 2)]).await;
+    let _r: Result<Value, OpenAIError> = client
+        .assistants()
+        .query(&[("limit", 2)])
+        .unwrap()
+        .list_byot()
+        .await;
 }
 
 #[tokio::test]
@@ -123,7 +134,9 @@ async fn test_byot_fine_tunning() {
     let _r: Result<Value, OpenAIError> = client.fine_tuning().create_byot(json!({})).await;
     let _r: Result<Value, OpenAIError> = client
         .fine_tuning()
-        .list_paginated_byot([("limit", "2")])
+        .query(&[("limit", "2")])
+        .unwrap()
+        .list_paginated_byot()
         .await;
     let _r: Result<Value, OpenAIError> = client
         .fine_tuning()
@@ -133,11 +146,15 @@ async fn test_byot_fine_tunning() {
         client.fine_tuning().cancel_byot("fine_tuning_job_id").await;
     let _r: Result<Value, OpenAIError> = client
         .fine_tuning()
-        .list_events_byot("fine_tuning_job_id", [("limit", "2")])
+        .query(&[("limit", "2")])
+        .unwrap()
+        .list_events_byot("fine_tuning_job_id")
         .await;
     let _r: Result<Value, OpenAIError> = client
         .fine_tuning()
-        .list_checkpoints_byot("fine_tuning_job_id", [("limit", "2")])
+        .query(&[("limit", "2")])
+        .unwrap()
+        .list_checkpoints_byot("fine_tuning_job_id")
         .await;
 }
 
@@ -188,7 +205,9 @@ async fn test_byot_messages() {
     let _r: Result<Value, OpenAIError> = client
         .threads()
         .messages("thread_id")
-        .list_byot([("limit", "2")])
+        .query(&[("limit", "2")])
+        .unwrap()
+        .list_byot()
         .await;
     let _r: Result<Value, OpenAIError> = client
         .threads()
@@ -224,7 +243,9 @@ async fn test_byot_runs() {
     let _r: Result<Value, OpenAIError> = client
         .threads()
         .runs("thread_id")
-        .list_byot([("limit", "2")])
+        .query(&[("limit", "2")])
+        .unwrap()
+        .list_byot()
         .await;
     let _r: Result<Value, OpenAIError> = client
         .threads()
@@ -257,7 +278,9 @@ async fn test_byot_run_steps() {
         .threads()
         .runs("thread_id")
         .steps("run_id")
-        .list_byot([("limit", "2")])
+        .query(&[("limit", "2")])
+        .unwrap()
+        .list_byot()
         .await;
 }
 
@@ -282,7 +305,9 @@ async fn test_byot_vector_store_files() {
     let _r: Result<Value, OpenAIError> = client
         .vector_stores()
         .files("vector_store_id")
-        .list_byot([("limit", "2")])
+        .query(&[("limit", "2")])
+        .unwrap()
+        .list_byot()
         .await;
 }
 
@@ -307,7 +332,9 @@ async fn test_byot_vector_store_file_batches() {
     let _r: Result<Value, OpenAIError> = client
         .vector_stores()
         .file_batches("vector_store_id")
-        .list_files_byot("batch_id", [("limit", "2")])
+        .query(&[("limit", "2")])
+        .unwrap()
+        .list_files_byot("batch_id")
         .await;
 }
 
@@ -315,7 +342,12 @@ async fn test_byot_vector_store_file_batches() {
 async fn test_byot_batches() {
     let client = Client::new();
     let _r: Result<Value, OpenAIError> = client.batches().create_byot(json!({})).await;
-    let _r: Result<Value, OpenAIError> = client.batches().list_byot([("limit", "2")]).await;
+    let _r: Result<Value, OpenAIError> = client
+        .batches()
+        .query(&[("limit", "2")])
+        .unwrap()
+        .list_byot()
+        .await;
     let _r: Result<Value, OpenAIError> = client.batches().retrieve_byot("batch_id").await;
     let _r: Result<Value, OpenAIError> = client.batches().cancel_byot("batch_id").await;
 }
@@ -323,8 +355,13 @@ async fn test_byot_batches() {
 #[tokio::test]
 async fn test_byot_audit_logs() {
     let client = Client::new();
-    let _r: Result<Value, OpenAIError> =
-        client.admin().audit_logs().get_byot([("limit", "2")]).await;
+    let _r: Result<Value, OpenAIError> = client
+        .admin()
+        .audit_logs()
+        .query(&[("limit", "2")])
+        .unwrap()
+        .get_byot()
+        .await;
 }
 
 #[tokio::test]
@@ -333,15 +370,26 @@ async fn test_byot_invites() {
     let _r: Result<Value, OpenAIError> = client.admin().invites().create_byot(json!({})).await;
     let _r: Result<Value, OpenAIError> = client.admin().invites().retrieve_byot("invite_id").await;
     let _r: Result<Value, OpenAIError> = client.admin().invites().delete_byot("invite_id").await;
-    let _r: Result<Value, OpenAIError> = client.admin().invites().list_byot([("limit", "2")]).await;
+    let _r: Result<Value, OpenAIError> = client
+        .admin()
+        .invites()
+        .query(&[("limit", "2")])
+        .unwrap()
+        .list_byot()
+        .await;
 }
 
 #[tokio::test]
 async fn test_byot_projects() {
     let client = Client::new();
 
-    let _r: Result<Value, OpenAIError> =
-        client.admin().projects().list_byot([("limit", "2")]).await;
+    let _r: Result<Value, OpenAIError> = client
+        .admin()
+        .projects()
+        .query(&[("limit", "2")])
+        .unwrap()
+        .list_byot()
+        .await;
     let _r: Result<Value, OpenAIError> = client.admin().projects().create_byot(json!({})).await;
     let _r: Result<Value, OpenAIError> =
         client.admin().projects().retrieve_byot("project_id").await;
@@ -361,7 +409,9 @@ async fn test_byot_project_api_keys() {
         .admin()
         .projects()
         .api_keys("project_id")
-        .list_byot([("query", "2")])
+        .query(&[("query", "2")])
+        .unwrap()
+        .list_byot()
         .await;
 
     let _r: Result<Value, OpenAIError> = client
@@ -408,7 +458,9 @@ async fn test_byot_project_service_accounts() {
         .admin()
         .projects()
         .service_accounts("project_id")
-        .list_byot([("limit", "2")])
+        .query(&[("limit", "2")])
+        .unwrap()
+        .list_byot()
         .await;
 }
 
@@ -433,7 +485,9 @@ async fn test_byot_project_users() {
         .admin()
         .projects()
         .users("project_id")
-        .list_byot([("limit", "2")])
+        .query(&[("limit", "2")])
+        .unwrap()
+        .list_byot()
         .await;
 
     let _r: Result<Value, OpenAIError> = client
@@ -462,7 +516,13 @@ async fn test_byot_uploads() {
 async fn test_byot_users() {
     let client = Client::new();
 
-    let _r: Result<Value, OpenAIError> = client.admin().users().list_byot([("limit", "2")]).await;
+    let _r: Result<Value, OpenAIError> = client
+        .admin()
+        .users()
+        .query(&[("limit", "2")])
+        .unwrap()
+        .list_byot()
+        .await;
     let _r: Result<Value, OpenAIError> = client
         .admin()
         .users()
@@ -481,7 +541,12 @@ async fn test_byot_vector_stores() {
         .vector_stores()
         .retrieve_byot("vector_store_id")
         .await;
-    let _r: Result<Value, OpenAIError> = client.vector_stores().list_byot([("limit", "2")]).await;
+    let _r: Result<Value, OpenAIError> = client
+        .vector_stores()
+        .query(&[("limit", "2")])
+        .unwrap()
+        .list_byot()
+        .await;
     let _r: Result<Value, OpenAIError> =
         client.vector_stores().delete_byot("vector_store_id").await;
     let _r: Result<Value, OpenAIError> = client
@@ -511,13 +576,17 @@ async fn test_byot_responses() {
         client.responses().create_stream_byot(json!({})).await;
     let _r: Result<Value, OpenAIError> = client
         .responses()
-        .retrieve_byot("response_id", [("limit", "2")])
+        .query(&[("limit", "2")])
+        .unwrap()
+        .retrieve_byot("response_id")
         .await;
     let _r: Result<Value, OpenAIError> = client.responses().delete_byot("response_id").await;
     let _r: Result<Value, OpenAIError> = client.responses().cancel_byot("response_id").await;
     let _r: Result<Value, OpenAIError> = client
         .responses()
-        .list_input_items_byot("response_id", [("limit", "2")])
+        .query(&[("limit", "2")])
+        .unwrap()
+        .list_input_items_byot("response_id")
         .await;
     let _r: Result<Value, OpenAIError> = client
         .responses()
@@ -554,7 +623,9 @@ async fn test_byot_conversation_items() {
     let _r: Result<Value, OpenAIError> = client
         .conversations()
         .items("conversation_id")
-        .list_byot([("limit", "2")])
+        .query(&[("limit", "2")])
+        .unwrap()
+        .list_byot()
         .await;
     let _r: Result<Value, OpenAIError> = client
         .conversations()
@@ -572,21 +643,60 @@ async fn test_byot_conversation_items() {
 async fn test_byot_usage() {
     let client = Client::new();
 
-    let _r: Result<Value, OpenAIError> = client.usage().audio_speeches_byot([("limit", "2")]).await;
     let _r: Result<Value, OpenAIError> = client
         .usage()
-        .audio_transcriptions_byot([("limit", "2")])
+        .query(&[("limit", "2")])
+        .unwrap()
+        .audio_speeches_byot()
         .await;
     let _r: Result<Value, OpenAIError> = client
         .usage()
-        .code_interpreter_sessions_byot([("limit", "2")])
+        .query(&[("limit", "2")])
+        .unwrap()
+        .audio_transcriptions_byot()
         .await;
-    let _r: Result<Value, OpenAIError> = client.usage().completions_byot([("limit", "2")]).await;
-    let _r: Result<Value, OpenAIError> = client.usage().embeddings_byot([("limit", "2")]).await;
-    let _r: Result<Value, OpenAIError> = client.usage().images_byot([("limit", "2")]).await;
-    let _r: Result<Value, OpenAIError> = client.usage().moderations_byot([("limit", "2")]).await;
-    let _r: Result<Value, OpenAIError> = client.usage().vector_stores_byot([("limit", "2")]).await;
-    let _r: Result<Value, OpenAIError> = client.usage().costs_byot([("limit", "2")]).await;
+    let _r: Result<Value, OpenAIError> = client
+        .usage()
+        .query(&[("limit", "2")])
+        .unwrap()
+        .code_interpreter_sessions_byot()
+        .await;
+    let _r: Result<Value, OpenAIError> = client
+        .usage()
+        .query(&[("limit", "2")])
+        .unwrap()
+        .completions_byot()
+        .await;
+    let _r: Result<Value, OpenAIError> = client
+        .usage()
+        .query(&[("limit", "2")])
+        .unwrap()
+        .embeddings_byot()
+        .await;
+    let _r: Result<Value, OpenAIError> = client
+        .usage()
+        .query(&[("limit", "2")])
+        .unwrap()
+        .images_byot()
+        .await;
+    let _r: Result<Value, OpenAIError> = client
+        .usage()
+        .query(&[("limit", "2")])
+        .unwrap()
+        .moderations_byot()
+        .await;
+    let _r: Result<Value, OpenAIError> = client
+        .usage()
+        .query(&[("limit", "2")])
+        .unwrap()
+        .vector_stores_byot()
+        .await;
+    let _r: Result<Value, OpenAIError> = client
+        .usage()
+        .query(&[("limit", "2")])
+        .unwrap()
+        .costs_byot()
+        .await;
 }
 
 #[tokio::test]
@@ -596,15 +706,22 @@ async fn test_byot_chatkit() {
     let _r: Result<Value, OpenAIError> = client.chatkit().sessions().create_byot(json!({})).await;
     let _r: Result<Value, OpenAIError> =
         client.chatkit().sessions().cancel_byot("session_id").await;
-    let _r: Result<Value, OpenAIError> =
-        client.chatkit().threads().list_byot([("limit", "2")]).await;
+    let _r: Result<Value, OpenAIError> = client
+        .chatkit()
+        .threads()
+        .query(&[("limit", "2")])
+        .unwrap()
+        .list_byot()
+        .await;
     let _r: Result<Value, OpenAIError> =
         client.chatkit().threads().retrieve_byot("thread_id").await;
     let _r: Result<Value, OpenAIError> = client.chatkit().threads().delete_byot("thread_id").await;
     let _r: Result<Value, OpenAIError> = client
         .chatkit()
         .threads()
-        .list_items_byot("thread_id", [("limit", "2")])
+        .query(&[("limit", "2")])
+        .unwrap()
+        .list_items_byot("thread_id")
         .await;
 }
 
@@ -613,7 +730,12 @@ async fn test_byot_containers() {
     let client = Client::new();
 
     let _r: Result<Value, OpenAIError> = client.containers().create_byot(json!({})).await;
-    let _r: Result<Value, OpenAIError> = client.containers().list_byot([("limit", "2")]).await;
+    let _r: Result<Value, OpenAIError> = client
+        .containers()
+        .query(&[("limit", "2")])
+        .unwrap()
+        .list_byot()
+        .await;
     let _r: Result<Value, OpenAIError> = client.containers().retrieve_byot("container_id").await;
     let _r: Result<Value, OpenAIError> = client.containers().delete_byot("container_id").await;
 }
@@ -630,7 +752,9 @@ async fn test_byot_container_files() {
     let _r: Result<Value, OpenAIError> = client
         .containers()
         .files("container_id")
-        .list_byot([("limit", "2")])
+        .query(&[("limit", "2")])
+        .unwrap()
+        .list_byot()
         .await;
     let _r: Result<Value, OpenAIError> = client
         .containers()
@@ -648,8 +772,13 @@ async fn test_byot_container_files() {
 async fn test_byot_admin_api_keys() {
     let client = Client::new();
 
-    let _r: Result<Value, OpenAIError> =
-        client.admin().api_keys().list_byot([("limit", "2")]).await;
+    let _r: Result<Value, OpenAIError> = client
+        .admin()
+        .api_keys()
+        .query(&[("limit", "2")])
+        .unwrap()
+        .list_byot()
+        .await;
     let _r: Result<Value, OpenAIError> = client.admin().api_keys().retrieve_byot("key_id").await;
     let _r: Result<Value, OpenAIError> = client.admin().api_keys().delete_byot("key_id").await;
 }
@@ -661,7 +790,9 @@ async fn test_byot_certificates() {
     let _r: Result<Value, OpenAIError> = client
         .admin()
         .certificates()
-        .list_organization_byot([("limit", "2")])
+        .query(&[("limit", "2")])
+        .unwrap()
+        .list_organization_byot()
         .await;
     let _r: Result<Value, OpenAIError> = client
         .admin()
@@ -688,7 +819,9 @@ async fn test_byot_project_rate_limits() {
         .admin()
         .projects()
         .rate_limits("project_id")
-        .list_byot([("limit", "2")])
+        .query(&[("limit", "2")])
+        .unwrap()
+        .list_byot()
         .await;
     let _r: Result<Value, OpenAIError> = client
         .admin()
@@ -702,7 +835,12 @@ async fn test_byot_project_rate_limits() {
 async fn test_byot_evals() {
     let client = Client::new();
 
-    let _r: Result<Value, OpenAIError> = client.evals().list_byot([("limit", "2")]).await;
+    let _r: Result<Value, OpenAIError> = client
+        .evals()
+        .query(&[("limit", "2")])
+        .unwrap()
+        .list_byot()
+        .await;
     let _r: Result<Value, OpenAIError> = client.evals().create_byot(json!({})).await;
     let _r: Result<Value, OpenAIError> = client.evals().retrieve_byot("eval_id").await;
     let _r: Result<Value, OpenAIError> = client.evals().update_byot("eval_id", json!({})).await;
@@ -716,7 +854,9 @@ async fn test_byot_eval_runs() {
     let _r: Result<Value, OpenAIError> = client
         .evals()
         .runs("eval_id")
-        .list_byot([("limit", "2")])
+        .query(&[("limit", "2")])
+        .unwrap()
+        .list_byot()
         .await;
     let _r: Result<Value, OpenAIError> =
         client.evals().runs("eval_id").create_byot(json!({})).await;
@@ -734,7 +874,9 @@ async fn test_byot_eval_run_output_items() {
         .evals()
         .runs("eval_id")
         .output_items("run_id")
-        .list_byot([("limit", "2")])
+        .query(&[("limit", "2")])
+        .unwrap()
+        .list_byot()
         .await;
     let _r: Result<Value, OpenAIError> = client
         .evals()
@@ -752,5 +894,10 @@ async fn test_byot_videos() {
     let _r: Result<Value, OpenAIError> = client.videos().remix_byot("video_id", json!({})).await;
     let _r: Result<Value, OpenAIError> = client.videos().retrieve_byot("video_id").await;
     let _r: Result<Value, OpenAIError> = client.videos().delete_byot("video_id").await;
-    let _r: Result<Value, OpenAIError> = client.videos().list_byot([("limit", "2")]).await;
+    let _r: Result<Value, OpenAIError> = client
+        .videos()
+        .query(&[("limit", "2")])
+        .unwrap()
+        .list_byot()
+        .await;
 }

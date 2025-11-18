@@ -9,3 +9,5 @@ data
 *.mp3
 
 .idea
+
+*.py

@@ -1,5 +1,3 @@
-use serde::Serialize;
-
 use crate::{
     Client,
     config::Config,
@@ -7,12 +5,14 @@ use crate::{
     types::admin::project_rate_limits::{
         ProjectRateLimit, ProjectRateLimitListResponse, ProjectRateLimitUpdateRequest,
     },
+    Client, RequestOptions,
 };
 
 /// Manage rate limits for a given project. Supports listing and updating rate limits per model.
 pub struct ProjectRateLimits<'c, C: Config> {
     client: &'c Client<C>,
     pub project_id: String,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> ProjectRateLimits<'c, C> {
@@ -20,19 +20,17 @@ impl<'c, C: Config> ProjectRateLimits<'c, C> {
         Self {
             client,
             project_id: project_id.into(),
+            request_options: RequestOptions::new(),
         }
     }
 
     /// Returns the rate limits per model for a project.
-    #[crate::byot(T0 = serde::Serialize, R = serde::de::DeserializeOwned)]
-    pub async fn list<Q>(&self, query: &Q) -> Result<ProjectRateLimitListResponse, OpenAIError>
-    where
-        Q: Serialize + ?Sized,
-    {
+    #[crate::byot(R = serde::de::DeserializeOwned)]
+    pub async fn list(&self) -> Result<ProjectRateLimitListResponse, OpenAIError> {
         self.client
-            .get_with_query(
+            .get(
                 format!("/organization/projects/{}/rate_limits", self.project_id).as_str(),
-                &query,
+                &self.request_options,
             )
             .await
     }
@@ -52,6 +50,7 @@ impl<'c, C: Config> ProjectRateLimits<'c, C> {
                 )
                 .as_str(),
                 request,
+                &self.request_options,
             )
             .await
     }

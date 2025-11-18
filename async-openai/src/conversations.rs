@@ -7,15 +7,20 @@ use crate::{
         ConversationResource, CreateConversationRequest, DeleteConversationResponse,
         UpdateConversationRequest,
     },
+    Client, RequestOptions,
 };
 
 pub struct Conversations<'c, C: Config> {
     client: &'c Client<C>,
+    pub(crate) request_options: RequestOptions,
 }
 
 impl<'c, C: Config> Conversations<'c, C> {
     pub fn new(client: &'c Client<C>) -> Self {
-        Self { client }
+        Self {
+            client,
+            request_options: RequestOptions::new(),
+        }
     }
 
     /// [ConversationItems] API group
@@ -29,7 +34,9 @@ impl<'c, C: Config> Conversations<'c, C> {
         &self,
         request: CreateConversationRequest,
     ) -> Result<ConversationResource, OpenAIError> {
-        self.client.post("/conversations", request).await
+        self.client
+            .post("/conversations", request, &self.request_options)
+            .await
     }
 
     /// Retrieves a conversation.
@@ -39,7 +46,10 @@ impl<'c, C: Config> Conversations<'c, C> {
         conversation_id: &str,
     ) -> Result<ConversationResource, OpenAIError> {
         self.client
-            .get(&format!("/conversations/{conversation_id}"))
+            .get(
+                &format!("/conversations/{conversation_id}"),
+                &self.request_options,
+            )
             .await
     }
 
@@ -50,7 +60,10 @@ impl<'c, C: Config> Conversations<'c, C> {
         conversation_id: &str,
     ) -> Result<DeleteConversationResponse, OpenAIError> {
         self.client
-            .delete(&format!("/conversations/{conversation_id}"))
+            .delete(
+                &format!("/conversations/{conversation_id}"),
+                &self.request_options,
+            )
             .await
     }
 
@@ -62,7 +75,11 @@ impl<'c, C: Config> Conversations<'c, C> {
         request: UpdateConversationRequest,
     ) -> Result<ConversationResource, OpenAIError> {
         self.client
-            .post(&format!("/conversations/{conversation_id}"), request)
+            .post(
+                &format!("/conversations/{conversation_id}"),
+                request,
+                &self.request_options,
+            )
             .await
     }
 }
