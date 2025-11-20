@@ -78,6 +78,8 @@ export OPENAI_API_KEY='sk-...'
 $Env:OPENAI_API_KEY='sk-...'
 ```
 
+Other official environment variables supported are: `OPENAI_ADMIN_KEY`, `OPENAI_BASE_URL`, `OPENAI_ORG_ID`, `OPENAI_PROJECT_ID`
+
 - Visit [examples](https://github.com/64bit/async-openai/tree/main/examples) directory on how to use `async-openai`,
   and [WASM examples](https://github.com/ifsheldon/async-openai-wasm/tree/main/examples) in `async-openai-wasm`.
 - Visit [docs.rs/async-openai](https://docs.rs/async-openai) for docs.
