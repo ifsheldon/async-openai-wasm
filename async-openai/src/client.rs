@@ -473,19 +473,14 @@ impl<C: Config> Client<C> {
     }
 
     /// Make HTTP GET request to receive SSE
-    pub(crate) async fn _get_stream<Q, O>(&self, path: &str, query: &Q) -> OpenAIEventStream<O>
+    pub(crate) async fn get_stream<Q, O>(&self, path: &str, request_options: &RequestOptions,) -> OpenAIEventStream<O>
     where
-        Q: Serialize + ?Sized,
         O: DeserializeOwned + Send + 'static,
     {
-        let event_source = self
-            .http_client
-            .get(self.config.url(path))
-            .query(query)
-            .query(&self.config.query())
-            .headers(self.config.headers())
-            .eventsource()
-            .unwrap();
+        let request_builder =
+            self.build_request_builder(reqwest::Method::GET, path, request_options);
+
+        let event_source = request_builder.eventsource().unwrap();
 
         OpenAIEventStream::new(event_source)
     }
