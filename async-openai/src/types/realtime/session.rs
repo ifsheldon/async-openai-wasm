@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::types::{
-    MCPTool,
+    mcp::MCPTool,
     responses::{Prompt, ToolChoiceFunction, ToolChoiceMCP, ToolChoiceOptions},
 };
 

@@ -26,6 +26,8 @@ use crate::{
     image::Images,
     moderation::Moderations,
     traits::AsyncTryFrom,
+    Assistants, Audio, Batches, Chat, Completions, Containers, Conversations, Embeddings, Evals,
+    FineTuning, Models, RequestOptions, Responses, Threads, Uploads, VectorStores, Videos,
 };
 
 #[cfg(feature = "realtime")]
@@ -155,11 +157,6 @@ impl<C: Config> Client<C> {
     /// This groups together admin API keys, invites, users, projects, audit logs, and certificates.
     pub fn admin(&self) -> Admin<'_, C> {
         Admin::new(self)
-    }
-
-    /// To call [Usage] group related APIs using this client.
-    pub fn usage(&self) -> Usage<'_, C> {
-        Usage::new(self)
     }
 
     /// To call [Responses] group related APIs using this client.

@@ -4,7 +4,7 @@ use crate::client::OpenAIFormEventStream;
 use crate::{
     OpenAIEventStream,
     traits::EventType,
-    types::{LogProbProperties, audio::TranscriptTextUsageTokens},
+    types::audio::{LogProbProperties, TranscriptTextUsageTokens},
 };
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
