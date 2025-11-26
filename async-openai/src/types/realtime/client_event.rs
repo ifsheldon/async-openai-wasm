@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-use crate::traits::EventType;
 use crate::types::realtime::{RealtimeConversationItem, RealtimeResponseCreateParams, Session};
 
 ///
@@ -313,13 +312,6 @@ event_from!(
     OutputAudioBufferClear
 );
 
-impl<T: Into<RealtimeClientEvent>> ToText for T {
-    // blanket impl for all client event structs
-    fn to_text(self) -> String {
-        (&self.into()).into()
-    }
-}
-
 impl From<RealtimeConversationItem> for RealtimeClientEventConversationItemCreate {
     fn from(value: RealtimeConversationItem) -> Self {
         Self {
@@ -330,12 +322,19 @@ impl From<RealtimeConversationItem> for RealtimeClientEventConversationItemCreat
     }
 }
 
-// Implement EventType trait for all event types in this file
+impl<T: Into<RealtimeClientEvent>> ToText for T {
+    // blanket impl for all client event structs
+    fn to_text(self) -> String {
+        (&self.into()).into()
+    }
+}
 
+// Implement EventType trait for all event types in this file
+#[cfg(feature = "_api")]
 macro_rules! impl_event_type {
     ($($ty:ty => $event_type:expr),* $(,)?) => {
         $(
-            impl EventType for $ty {
+            impl crate::traits::EventType for $ty {
                 fn event_type(&self) -> &'static str {
                     $event_type
                 }
@@ -344,6 +343,7 @@ macro_rules! impl_event_type {
     };
 }
 
+#[cfg(feature = "_api")]
 impl_event_type! {
     RealtimeClientEventSessionUpdate => "session.update",
     RealtimeClientEventInputAudioBufferAppend => "input_audio_buffer.append",
@@ -358,7 +358,8 @@ impl_event_type! {
     RealtimeClientEventOutputAudioBufferClear => "output_audio_buffer.clear",
 }
 
-impl EventType for RealtimeClientEvent {
+#[cfg(feature = "_api")]
+impl crate::traits::EventType for RealtimeClientEvent {
     fn event_type(&self) -> &'static str {
         match self {
             RealtimeClientEvent::SessionUpdate(e) => e.event_type(),

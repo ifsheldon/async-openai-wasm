@@ -139,4 +139,5 @@ pub struct CreateCompletionResponse {
 }
 
 /// Parsed server side events stream until an \[DONE\] is received from server.
+#[cfg(feature = "_api")]
 pub type CompletionResponseStream = OpenAIEventStream<CreateCompletionResponse>;

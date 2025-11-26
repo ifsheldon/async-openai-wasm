@@ -1,9 +1,7 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    OpenAIEventStream, OpenAIFormEventStream,
-    traits::EventType,
-    types::images::{ImageBackground, ImageGenUsage, ImageOutputFormat, ImageQuality, ImageSize},
+use crate::types::images::{
+    ImageBackground, ImageGenUsage, ImageOutputFormat, ImageQuality, ImageSize,
 };
 
 /// Emitted when a partial image is available during image generation streaming.
@@ -55,8 +53,6 @@ pub enum ImageGenStreamEvent {
     Completed(ImageGenCompletedEvent),
 }
 
-pub type ImageGenStream = OpenAIEventStream<ImageGenStreamEvent>;
-
 /// Emitted when a partial image is available during image editing streaming.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ImageEditPartialImageEvent {
@@ -95,8 +91,6 @@ pub struct ImageEditCompletedEvent {
     pub usage: ImageGenUsage,
 }
 
-pub type ImageEditStream = OpenAIFormEventStream<ImageEditStreamEvent>;
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
 pub enum ImageEditStreamEvent {
@@ -108,19 +102,36 @@ pub enum ImageEditStreamEvent {
     Completed(ImageEditCompletedEvent),
 }
 
-impl EventType for ImageGenPartialImageEvent {
-    fn event_type(&self) -> &'static str {
-        "image_generation.partial_image"
-    }
+#[cfg(feature = "_api")]
+pub type ImageEditStream = OpenAIFormEventStream<ImageEditStreamEvent>;
+
+#[cfg(feature = "_api")]
+pub type ImageGenStream = OpenAIEventStream<ImageGenStreamEvent>;
+
+
+#[cfg(feature = "_api")]
+macro_rules! impl_event_type {
+    ($($ty:ty => $event_type:expr),* $(,)?) => {
+        $(
+            impl crate::traits::EventType for $ty {
+                fn event_type(&self) -> &'static str {
+                    $event_type
+                }
+            }
+        )*
+    };
 }
 
-impl EventType for ImageGenCompletedEvent {
-    fn event_type(&self) -> &'static str {
-        "image_generation.completed"
-    }
+#[cfg(feature = "_api")]
+impl_event_type! {
+    ImageGenPartialImageEvent => "image_generation.partial_image",
+    ImageGenCompletedEvent => "image_generation.completed",
+    ImageEditPartialImageEvent => "image_edit.partial_image",
+    ImageEditCompletedEvent => "image_edit.completed",
 }
 
-impl EventType for ImageGenStreamEvent {
+#[cfg(feature = "_api")]
+impl crate::traits::EventType for ImageGenStreamEvent {
     fn event_type(&self) -> &'static str {
         match self {
             ImageGenStreamEvent::PartialImage(event) => event.event_type(),
@@ -129,19 +140,8 @@ impl EventType for ImageGenStreamEvent {
     }
 }
 
-impl EventType for ImageEditPartialImageEvent {
-    fn event_type(&self) -> &'static str {
-        "image_edit.partial_image"
-    }
-}
-
-impl EventType for ImageEditCompletedEvent {
-    fn event_type(&self) -> &'static str {
-        "image_edit.completed"
-    }
-}
-
-impl EventType for ImageEditStreamEvent {
+#[cfg(feature = "_api")]
+impl crate::traits::EventType for ImageEditStreamEvent {
     fn event_type(&self) -> &'static str {
         match self {
             ImageEditStreamEvent::PartialImage(event) => event.event_type(),

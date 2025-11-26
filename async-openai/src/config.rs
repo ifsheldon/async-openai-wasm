@@ -265,7 +265,7 @@ impl Config for AzureConfig {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "chat-completion"))]
 mod test {
     use super::*;
     use crate::Client;

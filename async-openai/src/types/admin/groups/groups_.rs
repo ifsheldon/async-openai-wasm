@@ -1,4 +1,4 @@
-use crate::types::OpenAIError;
+use crate::error::OpenAIError;
 use crate::types::admin::roles::Role;
 use crate::types::admin::users::User;
 use derive_builder::Builder;

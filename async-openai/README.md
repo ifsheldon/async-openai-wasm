@@ -19,19 +19,19 @@ a `x.y.z` version.
 
 `async-openai-wasm` is an unofficial Rust library for OpenAI, based on [OpenAI OpenAPI spec](https://github.com/openai/openai-openapi). It implements all APIs from the spec:
 
-| Features | APIs |
-|---|---|
-| **Responses API** | Responses, Conversations, Streaming events |
-| **Webhooks** | Webhook Events |
-| **Platform APIs** | Audio, Audio Streaming, Videos, Images, Image Streaming, Embeddings, Evals, Fine-tuning, Graders, Batch, Files, Uploads, Models, Moderations |
-| **Vector stores** | Vector stores, Vector store files, Vector store file batches |
-| **ChatKit** <sub>(Beta)</sub> | ChatKit |
-| **Containers** | Containers, Container Files |
-| **Realtime** | Realtime Calls, Client secrets, Client events, Server events |
-| **Chat Completions** | Chat Completions, Streaming |
-| **Assistants** <sub>(Beta)</sub> | Assistants, Threads, Messages, Runs, Run steps, Streaming |
-| **Administration** | Admin API Keys, Invites, Users, Groups, Roles, Role assignments, Projects, Project users, Project groups, Project service accounts, Project API keys, Project rate limits, Audit logs, Usage, Certificates |
-| **Legacy** | Completions |
+| What | APIs | Crate Feature Flags |
+|---|---|---|
+| **Responses API** | Responses, Conversations, Streaming events | `responses` |
+| **Webhooks** | Webhook Events | `webhook` |
+| **Platform APIs** | Audio, Audio Streaming, Videos, Images, Image Streaming, Embeddings, Evals, Fine-tuning, Graders, Batch, Files, Uploads, Models, Moderations | `audio`, `video`, `image`, `embedding`, `evals`, `finetuning`, `grader`, `batch`, `file`, `upload`, `model`, `moderation` |
+| **Vector stores** | Vector stores, Vector store files, Vector store file batches | `vectorstore` |
+| **ChatKit** <sub>(Beta)</sub> | ChatKit | `chatkit` |
+| **Containers** | Containers, Container Files | `container` |
+| **Realtime** | Realtime Calls, Client secrets, Client events, Server events | `realtime` |
+| **Chat Completions** | Chat Completions, Streaming | `chat-completion` |
+| **Assistants** <sub>(Beta)</sub> | Assistants, Threads, Messages, Runs, Run steps, Streaming | `assistant` |
+| **Administration** | Admin API Keys, Invites, Users, Groups, Roles, Role assignments, Projects, Project users, Project groups, Project service accounts, Project API keys, Project rate limits, Audit logs, Usage, Certificates | `administration` |
+| **Legacy** | Completions | `completions` |
 
 Features that makes `async-openai` unique:
 - Bring your own custom types for Request or Response objects.
@@ -39,6 +39,7 @@ Features that makes `async-openai` unique:
 - Customize path, query and headers per request; customize path and headers globally (for all requests).
 - Requests (except SSE streaming) including form submissions are retried with exponential backoff when [rate limited](https://platform.openai.com/docs/guides/rate-limits).
 - Ergonomic builder pattern for all request objects.
+- Granular feature flags to enable any types or apis: good for faster compilation and crate reuse.
 - Microsoft Azure OpenAI Service (only for APIs matching OpenAI spec).
 
 More on `async-openai-wasm`:
@@ -84,15 +85,6 @@ Other official environment variables supported are: `OPENAI_ADMIN_KEY`, `OPENAI_
   and [WASM examples](https://github.com/ifsheldon/async-openai-wasm/tree/main/examples) in `async-openai-wasm`.
 - Visit [docs.rs/async-openai](https://docs.rs/async-openai) for docs.
 
-## Realtime
-
-Realtime types and APIs can be enabled with feature flag `realtime`.
-
-Again, the types do not bundle with a specific WS implementation. Need to convert a client event into a WS message by yourself, which is just simple `your_ws_impl::Message::Text(some_client_event.into_text())`.
-
-## Webhooks
-
-Support for webhook event types, signature verification, and building webhook events from payloads can be enabled by using the `webhook` feature flag.
 
 ## Image Generation Example
 
@@ -138,6 +130,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
   <sub>Scaled up for README, actual size 256x256</sub>
 </div>
 
+## Webhooks
+
+Support for webhook event types, signature verification, and building webhook events from payloads can be enabled by using the `webhook` feature flag.
+
 ## Bring Your Own Types
 
 Enable methods whose input and outputs are generics with `byot` feature. It creates a new method with same name and `_byot` suffix. 
@@ -176,7 +172,31 @@ This can be useful in many scenarios:
 Visit [examples/bring-your-own-type](https://github.com/64bit/async-openai/tree/main/examples/bring-your-own-type)
 directory to learn more.
 
-## Dynamic Dispatch for OpenAI-compatible Providers
+## Rust Types
+
+To only use Rust types from the crate - use feature flag `types`. 
+
+There are granular feature flags like `response-types`, `chat-completion-types`, etc.
+
+## OpenAI-compatible Providers
+
+### Configurable Request
+
+To change path, query or headers of individual request use the `.path()`, `.query()`, `.header()`, `.headers()` method on the API group.
+
+For example:
+
+```
+client
+  .chat()
+  .path("/v1/messages")?
+  .query(&[("role", "user")])?
+  .header("key", "value")?
+  .create(request)
+  .await?
+```
+
+### Dynamic Dispatch
 
 This allows you to use same code (say a `fn`) to call APIs on different OpenAI-compatible providers.
 

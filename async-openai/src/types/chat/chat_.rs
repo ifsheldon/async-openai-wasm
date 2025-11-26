@@ -1114,6 +1114,7 @@ pub struct CreateChatCompletionResponse {
 }
 
 /// Parsed server side events stream until an \[DONE\] is received from server.
+#[cfg(feature = "_api")]
 pub type ChatCompletionResponseStream = OpenAIEventStream<CreateChatCompletionStreamResponse>;
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
