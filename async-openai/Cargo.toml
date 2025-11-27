@@ -16,15 +16,15 @@ homepage = "https://github.com/ifsheldon/async-openai-wasm"
 repository = "https://github.com/ifsheldon/async-openai-wasm"
 
 [features]
-default = []
+default = ["rustls"]
 # Enable rustls for TLS support
-rustls = ["_api", "dep:reqwest", "reqwest/rustls-tls-native-roots"]
+rustls = ["dep:reqwest", "reqwest/rustls-tls-native-roots"]
 # Enable rustls and webpki-roots
-rustls-webpki-roots = ["_api", "dep:reqwest", "reqwest/rustls-tls-webpki-roots"]
+rustls-webpki-roots = ["dep:reqwest", "reqwest/rustls-tls-webpki-roots"]
 # Enable native-tls for TLS support
-native-tls = ["_api","dep:reqwest", "reqwest/native-tls"]
+native-tls = ["dep:reqwest", "reqwest/native-tls"]
 # Remove dependency on OpenSSL
-native-tls-vendored = ["_api",  "dep:reqwest", "reqwest/native-tls-vendored"]
+native-tls-vendored = ["dep:reqwest", "reqwest/native-tls-vendored"]
 # Bring your own types
 byot = ["dep:async-openai-macros"]
 
@@ -104,6 +104,33 @@ types = [
     "completion-types",
 ]
 
+# Enable all features
+full = [
+    "responses",
+    "webhook",
+    "audio",
+    "video",
+    "image",
+    "embedding",
+    "evals",
+    "finetuning",
+    "batch",
+    "file",
+    "upload",
+    "model",
+    "moderation",
+    "vectorstore",
+    "chatkit",
+    "container",
+    "realtime",
+    "chat-completion",
+    "assistant",
+    "administration",
+    "completions",
+    "types",
+    "byot",
+]
+
 # Internal feature to enable API dependencies
 _api = [
     "dep:async-openai-macros",
@@ -125,27 +152,27 @@ _api = [
 
 [dependencies]
 # Core dependencies - always needed for types
-serde = { version = "1.0", features = ["derive", "rc"] }
-serde_json = "1.0"
-derive_builder = { version = "0.20.2", optional = true }
-bytes = { version = "1.9.0", optional = true }
+serde = { version = "1", features = ["derive", "rc"] }
+serde_json = "1"
+derive_builder = { version = "0.20", optional = true }
+bytes = { version = "1.11", optional = true }
 
 # API dependencies - only needed when API features are enabled
 # We use a feature gate to enable these when any API feature is enabled
 async-openai-macros = { path = "../async-openai-macros", version = "0.1.0", optional = true }
-base64 = { version = "0.22.1", optional = true }
-futures = { version = "0.3.31", optional = true }
-reqwest = { version = "0.12.12", features = [
+base64 = { version = "0.22", optional = true }
+futures = { version = "0.3", optional = true }
+reqwest = { version = "0.12", features = [
     "json",
     "stream",
     "multipart",
 ], default-features = false, optional = true }
 reqwest-eventsource = { version = "0.6.0", optional = true }
-thiserror = { version = "2.0.11", optional = true }
-tracing = { version = "0.1.41", optional = true }
-secrecy = { version = "0.10.3", features = ["serde"], optional = true }
-eventsource-stream = { version = "0.2.3", optional = true }
-serde_urlencoded = { version = "0.7.1", optional = true }
+thiserror = { version = "2.0", optional = true }
+tracing = { version = "0.1", optional = true }
+secrecy = { version = "0.10", features = ["serde"], optional = true }
+eventsource-stream = { version = "0.2", optional = true }
+serde_urlencoded = { version = "0.7", optional = true }
 url = { version = "2.5", optional = true }
 pin-project = { version= "1.1", optional = true }
 # For Webhook signature verification
@@ -155,7 +182,7 @@ hex = { version = "0.4", optional = true, default-features = false }
 
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-rand = { version = "0.9.0", optional = true }
+rand = { version = "0.9", optional = true }
 getrandom = { version = "0.3", features = ["wasm_js"]}
 
 
@@ -166,7 +193,7 @@ serde_json = "1.0"
 
 [[test]]
 name = "bring_your_own_type"
-required-features = ["byot", "file", "assistant", "model", "moderation", "image", "chat-completion", "completions", "audio", "embedding", "finetuning", "batch", "administration", "upload", "vectorstore", "responses", "chatkit", "container", "evals", "video"]
+required-features = ["full"]
 
 [[test]]
 name = "chat_completion"
@@ -174,7 +201,7 @@ required-features = ["chat-completion-types"]
 
 [[test]]
 name = "embeddings"
-required-features = ["embedding-types", "chat-completion-types"]
+required-features = ["embedding-types"]
 
 [[test]]
 name = "ser_de"
@@ -182,7 +209,7 @@ required-features = ["chat-completion-types"]
 
 [[test]]
 name = "whisper"
-required-features = ["audio", "file-types"]
+required-features = ["audio"]
 
 [package.metadata.docs.rs]
 all-features = true

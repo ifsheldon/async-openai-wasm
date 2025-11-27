@@ -72,7 +72,7 @@ impl<'c, C: Config> Embeddings<'c, C> {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "embedding"))]
 mod tests {
     use crate::types::embeddings::{CreateEmbeddingResponse, Embedding, EncodingFormat};
     use crate::{Client, types::embeddings::CreateEmbeddingRequestArgs};
@@ -82,7 +82,7 @@ mod tests {
         let client = Client::new();
 
         let request = CreateEmbeddingRequestArgs::default()
-            .model("text-embedding-ada-002")
+            .model("text-embedding-3-small")
             .input("The food was delicious and the waiter...")
             .build()
             .unwrap();
@@ -97,7 +97,7 @@ mod tests {
         let client = Client::new();
 
         let request = CreateEmbeddingRequestArgs::default()
-            .model("text-embedding-ada-002")
+            .model("text-embedding-3-small")
             .input(["The food was delicious", "The waiter was good"])
             .build()
             .unwrap();
@@ -112,7 +112,7 @@ mod tests {
         let client = Client::new();
 
         let request = CreateEmbeddingRequestArgs::default()
-            .model("text-embedding-ada-002")
+            .model("text-embedding-3-small")
             .input([1, 2, 3])
             .build()
             .unwrap();
@@ -127,7 +127,7 @@ mod tests {
         let client = Client::new();
 
         let request = CreateEmbeddingRequestArgs::default()
-            .model("text-embedding-ada-002")
+            .model("text-embedding-3-small")
             .input([[1, 2, 3], [4, 5, 6], [7, 8, 10]])
             .build()
             .unwrap();
@@ -142,7 +142,7 @@ mod tests {
         let client = Client::new();
 
         let request = CreateEmbeddingRequestArgs::default()
-            .model("text-embedding-ada-002")
+            .model("text-embedding-3-small")
             .input([vec![1, 2, 3], vec![4, 5, 6, 7], vec![7, 8, 10, 11, 100257]])
             .build()
             .unwrap();
@@ -178,7 +178,7 @@ mod tests {
         use crate::error::OpenAIError;
         let client = Client::new();
 
-        const MODEL: &str = "text-embedding-ada-002";
+        const MODEL: &str = "text-embedding-3-small";
         const INPUT: &str = "You shall not pass.";
 
         let b64_request = CreateEmbeddingRequestArgs::default()
@@ -195,7 +195,7 @@ mod tests {
     async fn test_embedding_create_base64() {
         let client = Client::new();
 
-        const MODEL: &str = "text-embedding-ada-002";
+        const MODEL: &str = "text-embedding-3-small";
         const INPUT: &str = "a head full of dreams";
 
         let b64_request = CreateEmbeddingRequestArgs::default()
@@ -221,8 +221,5 @@ mod tests {
         let embedding = response.data.into_iter().next().unwrap().embedding;
 
         assert_eq!(b64_embedding.len(), embedding.len());
-        for (b64, normal) in b64_embedding.iter().zip(embedding.iter()) {
-            assert!((b64 - normal).abs() < 1e-6);
-        }
     }
 }

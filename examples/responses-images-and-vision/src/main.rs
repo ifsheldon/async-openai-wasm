@@ -2,12 +2,9 @@ use std::error::Error;
 
 use async_openai_wasm::{
     config::OpenAIConfig,
-    types::{
-        chat::ImageDetail,
-        responses::{
-            CreateResponseArgs, ImageGenTool, InputContent, InputImageContent, InputMessage,
-            InputRole, OutputItem, OutputMessageContent,
-        },
+    types::responses::{
+        CreateResponseArgs, ImageDetail, ImageGenTool, InputContent, InputImageContent,
+        InputMessage, InputRole, OutputItem, OutputMessageContent,
     },
     Client,
 };
