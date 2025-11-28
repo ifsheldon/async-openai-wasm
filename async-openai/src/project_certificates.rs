@@ -1,9 +1,8 @@
 use crate::{
-    Client,
+    Client, RequestOptions,
     config::Config,
     error::OpenAIError,
     types::admin::certificates::{ListCertificatesResponse, ToggleCertificatesRequest},
-    Client, RequestOptions,
 };
 
 /// Manage certificates for a given project. Supports listing, activating, and deactivating certificates.

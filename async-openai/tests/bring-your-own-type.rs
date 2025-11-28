@@ -1,9 +1,9 @@
 #![allow(dead_code)]
 //! The purpose of this test to make sure that all _byot methods compiles with custom types.
 
-use async_openai::{error::OpenAIError, traits::RequestOptionsBuilder, Client};
+use async_openai::{Client, error::OpenAIError, traits::RequestOptionsBuilder};
 use futures::Stream;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 impl async_openai_wasm::traits::AsyncTryFrom<MyJson> for reqwest::multipart::Form {
     type Error = OpenAIError;

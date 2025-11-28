@@ -1,5 +1,5 @@
 use crate::{
-    Client,
+    Client, RequestOptions,
     config::Config,
     error::OpenAIError,
     types::finetuning::{
@@ -8,7 +8,6 @@ use crate::{
         ListFineTuningCheckpointPermissionResponse, ListFineTuningJobCheckpointsResponse,
         ListFineTuningJobEventsResponse, ListPaginatedFineTuningJobsResponse,
     },
-    Client, RequestOptions,
 };
 
 /// Manage fine-tuning jobs to tailor a model to your specific training data.

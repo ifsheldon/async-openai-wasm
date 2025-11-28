@@ -1,12 +1,11 @@
 use crate::{
-    Client,
+    Client, RequestOptions,
     config::Config,
     error::OpenAIError,
     types::responses::{
         CreateResponse, DeleteResponse, Response, ResponseItemList, ResponseStream,
         TokenCountsBody, TokenCountsResource,
     },
-    Client, RequestOptions,
 };
 
 pub struct Responses<'c, C: Config> {

@@ -1,14 +1,13 @@
 use bytes::Bytes;
 
 use crate::{
-    Client,
+    Client, RequestOptions,
     config::Config,
     error::OpenAIError,
     types::containers::{
         ContainerFileListResource, ContainerFileResource, CreateContainerFileRequest,
         DeleteContainerFileResponse,
     },
-    Client, RequestOptions,
 };
 
 /// Create and manage container files for use with the Code Interpreter tool.

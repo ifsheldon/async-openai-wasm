@@ -1,11 +1,10 @@
 use crate::{
-    Client,
+    Client, RequestOptions,
     config::Config,
     error::OpenAIError,
     types::admin::project_rate_limits::{
         ProjectRateLimit, ProjectRateLimitListResponse, ProjectRateLimitUpdateRequest,
     },
-    Client, RequestOptions,
 };
 
 /// Manage rate limits for a given project. Supports listing and updating rate limits per model.

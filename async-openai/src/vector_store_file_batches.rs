@@ -1,11 +1,10 @@
 use crate::{
-    Client,
+    Client, RequestOptions,
     config::Config,
     error::OpenAIError,
     types::vectorstores::{
         CreateVectorStoreFileBatchRequest, ListVectorStoreFilesResponse, VectorStoreFileBatchObject,
     },
-    Client, RequestOptions,
 };
 
 /// Vector store file batches represent operations to add multiple files to a vector store.

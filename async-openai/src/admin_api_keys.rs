@@ -1,11 +1,10 @@
 use crate::{
-    Client,
+    Client, RequestOptions,
     config::Config,
     error::OpenAIError,
     types::admin::api_keys::{
         AdminApiKey, AdminApiKeyDeleteResponse, ApiKeyList, CreateAdminApiKeyRequest,
     },
-    Client, RequestOptions,
 };
 
 /// Admin API keys enable Organization Owners to programmatically manage various aspects of their

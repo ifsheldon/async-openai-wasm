@@ -1,5 +1,5 @@
 use crate::{
-    Client,
+    Client, RequestOptions,
     config::Config,
     error::OpenAIError,
     types::vectorstores::{
@@ -7,7 +7,6 @@ use crate::{
         UpdateVectorStoreFileAttributesRequest, VectorStoreFileContentResponse,
         VectorStoreFileObject,
     },
-    Client, RequestOptions,
 };
 
 /// Vector store files represent files inside a vector store.

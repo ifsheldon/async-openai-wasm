@@ -1,12 +1,11 @@
 use crate::{
-    Client,
+    Client, RequestOptions,
     config::Config,
     error::OpenAIError,
     types::assistants::{
         CreateMessageRequest, DeleteMessageResponse, ListMessagesResponse, MessageObject,
         ModifyMessageRequest,
     },
-    Client, RequestOptions,
 };
 
 /// Represents a message within a [thread](https://platform.openai.com/docs/api-reference/threads).

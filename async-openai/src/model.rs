@@ -1,9 +1,8 @@
 use crate::{
-    Client,
+    Client, RequestOptions,
     config::Config,
     error::OpenAIError,
     types::models::{DeleteModelResponse, ListModelResponse, Model},
-    Client, RequestOptions,
 };
 
 /// List and describe the various models available in the API.

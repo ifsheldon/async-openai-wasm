@@ -1,5 +1,5 @@
 use crate::{
-    Client, ProjectServiceAccounts, ProjectUsers,
+    Client, ProjectServiceAccounts, ProjectUsers, RequestOptions,
     config::Config,
     error::OpenAIError,
     project_api_keys::ProjectAPIKeys,
@@ -8,7 +8,6 @@ use crate::{
     types::admin::projects::{
         Project, ProjectCreateRequest, ProjectListResponse, ProjectUpdateRequest,
     },
-    Client, ProjectServiceAccounts, ProjectUsers, RequestOptions,
 };
 
 /// Manage the projects within an organization includes creation, updating, and archiving or projects.

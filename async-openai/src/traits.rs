@@ -1,6 +1,6 @@
 use reqwest::header::HeaderMap;
 
-use crate::{error::OpenAIError, RequestOptions};
+use crate::{RequestOptions, error::OpenAIError};
 use serde::Serialize;
 
 pub trait AsyncTryFrom<T>: Sized {

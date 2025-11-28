@@ -1,9 +1,8 @@
 use crate::{
-    Client,
+    Client, RequestOptions,
     config::Config,
     error::OpenAIError,
     types::evals::{EvalRunOutputItem, EvalRunOutputItemList},
-    Client, RequestOptions,
 };
 
 pub struct EvalRunOutputItems<'c, C: Config> {

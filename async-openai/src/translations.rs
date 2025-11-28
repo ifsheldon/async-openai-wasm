@@ -1,14 +1,13 @@
 use bytes::Bytes;
 
 use crate::{
-    Client,
+    Client, RequestOptions,
     config::Config,
     error::OpenAIError,
     types::audio::{
         CreateTranslationRequest, CreateTranslationResponseJson,
         CreateTranslationResponseVerboseJson,
     },
-    Client, RequestOptions,
 };
 
 pub struct Translations<'c, C: Config> {

@@ -1,5 +1,5 @@
 use crate::{
-    Client,
+    Client, RequestOptions,
     config::Config,
     conversation_items::ConversationItems,
     error::OpenAIError,
@@ -7,7 +7,6 @@ use crate::{
         ConversationResource, CreateConversationRequest, DeleteConversationResponse,
         UpdateConversationRequest,
     },
-    Client, RequestOptions,
 };
 
 pub struct Conversations<'c, C: Config> {

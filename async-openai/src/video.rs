@@ -1,11 +1,10 @@
 use crate::{
-    Client,
+    Client, RequestOptions,
     config::Config,
     error::OpenAIError,
     types::videos::{
         CreateVideoRequest, ListVideosResponse, RemixVideoRequest, VideoJob, VideoJobMetadata,
     },
-    Client, RequestOptions,
 };
 use bytes::Bytes;
 

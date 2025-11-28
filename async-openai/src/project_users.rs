@@ -1,12 +1,11 @@
 use crate::{
-    Client,
+    Client, RequestOptions,
     config::Config,
     error::OpenAIError,
     types::admin::project_users::{
         ProjectUser, ProjectUserCreateRequest, ProjectUserDeleteResponse, ProjectUserListResponse,
         ProjectUserUpdateRequest,
     },
-    Client, RequestOptions,
 };
 
 /// Manage users within a project, including adding, updating roles, and removing users.

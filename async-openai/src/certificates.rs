@@ -1,12 +1,11 @@
 use crate::{
-    Client,
+    Client, RequestOptions,
     config::Config,
     error::OpenAIError,
     types::admin::certificates::{
         Certificate, DeleteCertificateResponse, ListCertificatesResponse, ModifyCertificateRequest,
         ToggleCertificatesRequest, UploadCertificateRequest,
     },
-    Client, RequestOptions,
 };
 
 /// Certificates enable Mutual TLS (mTLS) authentication for your organization.

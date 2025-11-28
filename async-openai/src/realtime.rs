@@ -1,5 +1,5 @@
 use crate::{
-    Client,
+    Client, RequestOptions,
     config::Config,
     error::OpenAIError,
     types::realtime::{
@@ -7,7 +7,6 @@ use crate::{
         RealtimeCallReferRequest, RealtimeCallRejectRequest, RealtimeCreateClientSecretRequest,
         RealtimeCreateClientSecretResponse,
     },
-    Client, RequestOptions,
 };
 
 /// Realtime API for creating sessions, managing calls, and handling WebRTC connections.

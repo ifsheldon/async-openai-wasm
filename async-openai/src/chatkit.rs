@@ -1,12 +1,11 @@
 use crate::{
-    Client,
+    Client, RequestOptions,
     config::Config,
     error::OpenAIError,
     types::chatkit::{
         ChatSessionResource, CreateChatSessionBody, DeletedThreadResource, ThreadItemListResource,
         ThreadListResource, ThreadResource,
     },
-    Client, RequestOptions,
 };
 
 /// ChatKit API for managing sessions and threads.

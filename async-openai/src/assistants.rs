@@ -1,12 +1,11 @@
 use crate::{
-    Client,
+    Client, RequestOptions,
     config::Config,
     error::OpenAIError,
     types::assistants::{
         AssistantObject, CreateAssistantRequest, DeleteAssistantResponse, ListAssistantsResponse,
         ModifyAssistantRequest,
     },
-    Client, RequestOptions,
 };
 
 /// Build assistants that can call models and use tools to perform tasks.

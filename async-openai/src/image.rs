@@ -1,12 +1,11 @@
 use crate::{
-    Client,
+    Client, RequestOptions,
     config::Config,
     error::OpenAIError,
     types::images::{
         CreateImageEditRequest, CreateImageRequest, CreateImageVariationRequest, ImageEditStream,
         ImageGenStream, ImagesResponse,
     },
-    Client, RequestOptions,
 };
 
 /// Given a prompt and/or an input image, the model will generate a new image.

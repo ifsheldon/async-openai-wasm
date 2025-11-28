@@ -1,12 +1,11 @@
 use crate::{
-    Client,
+    Client, RequestOptions,
     config::Config,
     error::OpenAIError,
     types::responses::{
         ConversationItem, ConversationItemList, ConversationResource,
         CreateConversationItemsRequest,
     },
-    Client, RequestOptions,
 };
 
 /// Conversation items represent items within a conversation.

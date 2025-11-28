@@ -1,9 +1,8 @@
 use crate::{
-    Client,
+    Client, RequestOptions,
     config::Config,
     error::OpenAIError,
     types::moderations::{CreateModerationRequest, CreateModerationResponse},
-    Client, RequestOptions,
 };
 
 /// Given text and/or image inputs, classifies if those inputs are potentially harmful across several categories.

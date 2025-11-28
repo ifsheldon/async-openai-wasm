@@ -71,7 +71,7 @@ impl Default for OpenAIConfig {
             api_base: OPENAI_API_BASE.to_string(),
             api_key: std::env::var("OPENAI_API_KEY")
                 .or_else(|_| {
-                    std::env::var("OPENAI_ADMIN_KEY").inspect(|admin_key| {
+                    std::env::var("OPENAI_ADMIN_KEY").inspect(|_admin_key| {
                         tracing::warn!("Using OPENAI_ADMIN_KEY, OPENAI_API_KEY not set");
                     })
                 })

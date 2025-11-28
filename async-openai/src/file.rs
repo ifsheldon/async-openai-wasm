@@ -1,11 +1,10 @@
 use bytes::Bytes;
 
 use crate::{
-    Client,
+    Client, RequestOptions,
     config::Config,
     error::OpenAIError,
     types::files::{CreateFileRequest, DeleteFileResponse, ListFilesResponse, OpenAIFile},
-    Client, RequestOptions,
 };
 
 /// Files are used to upload documents that can be used with features like Assistants and Fine-tuning.

@@ -1,11 +1,10 @@
 use crate::{
-    Client,
+    Client, RequestOptions,
     config::Config,
     error::OpenAIError,
     types::embeddings::{
         CreateBase64EmbeddingResponse, CreateEmbeddingRequest, CreateEmbeddingResponse,
     },
-    Client, RequestOptions,
 };
 
 #[cfg(not(feature = "byot"))]

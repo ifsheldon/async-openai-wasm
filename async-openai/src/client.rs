@@ -17,7 +17,7 @@ use serde::{Serialize, de::DeserializeOwned};
 use crate::error::{ApiError, StreamError};
 use crate::{
     Assistants, Audio, Batches, Chat, Completions, Containers, Conversations, Embeddings, Evals,
-    FineTuning, Models, Responses, Threads, Uploads, Usage, VectorStores, Videos,
+    FineTuning, Models, RequestOptions, Responses, Threads, Uploads, Usage, VectorStores, Videos,
     admin::Admin,
     chatkit::Chatkit,
     config::{Config, OpenAIConfig},
@@ -26,8 +26,6 @@ use crate::{
     image::Images,
     moderation::Moderations,
     traits::AsyncTryFrom,
-    Assistants, Audio, Batches, Chat, Completions, Containers, Conversations, Embeddings, Evals,
-    FineTuning, Models, RequestOptions, Responses, Threads, Uploads, Usage, VectorStores, Videos,
 };
 
 #[cfg(feature = "realtime")]
@@ -223,9 +221,8 @@ impl<C: Config> Client<C> {
             }
 
             Ok(request_builder.build()?)
-        };
-
-        self.execute(request_maker).await
+        })
+        .await
     }
 
     /// Make a DELETE request to {path} and deserialize the response body

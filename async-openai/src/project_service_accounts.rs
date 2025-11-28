@@ -1,5 +1,5 @@
 use crate::{
-    Client,
+    Client, RequestOptions,
     config::Config,
     error::OpenAIError,
     types::admin::project_service_accounts::{
@@ -7,7 +7,6 @@ use crate::{
         ProjectServiceAccountCreateResponse, ProjectServiceAccountDeleteResponse,
         ProjectServiceAccountListResponse,
     },
-    Client, RequestOptions,
 };
 
 /// Manage service accounts within a project. A service account is a bot user that is not

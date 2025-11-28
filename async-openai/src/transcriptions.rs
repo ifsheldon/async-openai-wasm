@@ -1,7 +1,7 @@
 use bytes::Bytes;
 
 use crate::{
-    Client,
+    Client, RequestOptions,
     config::Config,
     error::OpenAIError,
     types::audio::{
@@ -9,7 +9,6 @@ use crate::{
         CreateTranscriptionResponseJson, CreateTranscriptionResponseVerboseJson,
         TranscriptionResponseStream,
     },
-    Client, RequestOptions,
 };
 
 pub struct Transcriptions<'c, C: Config> {

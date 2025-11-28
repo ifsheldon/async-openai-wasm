@@ -1,5 +1,5 @@
 use crate::{
-    Client,
+    Client, RequestOptions,
     config::Config,
     error::OpenAIError,
     steps::Steps,
@@ -7,7 +7,6 @@ use crate::{
         AssistantEventStream, CreateRunRequest, ListRunsResponse, ModifyRunRequest, RunObject,
         SubmitToolOutputsRunRequest,
     },
-    Client, RequestOptions,
 };
 
 /// Represents an execution run on a thread.

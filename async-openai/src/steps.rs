@@ -1,9 +1,8 @@
 use crate::{
-    Client,
+    Client, RequestOptions,
     config::Config,
     error::OpenAIError,
     types::assistants::{ListRunStepsResponse, RunStepObject},
-    Client, RequestOptions,
 };
 
 /// Represents a step in execution of a run.
