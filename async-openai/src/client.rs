@@ -473,7 +473,7 @@ impl<C: Config> Client<C> {
     }
 
     /// Make HTTP GET request to receive SSE
-    pub(crate) async fn get_stream<Q, O>(&self, path: &str, request_options: &RequestOptions,) -> OpenAIEventStream<O>
+    pub(crate) async fn get_stream<O>(&self, path: &str, request_options: &RequestOptions,) -> OpenAIEventStream<O>
     where
         O: DeserializeOwned + Send + 'static,
     {
