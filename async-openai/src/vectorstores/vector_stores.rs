@@ -1,5 +1,5 @@
 use crate::{
-    Client, RequestOptions, VectorStoreFiles,
+    Client, RequestOptions, VectorStoreFileBatches, VectorStoreFiles,
     config::Config,
     error::OpenAIError,
     types::vectorstores::{
@@ -7,7 +7,6 @@ use crate::{
         UpdateVectorStoreRequest, VectorStoreObject, VectorStoreSearchRequest,
         VectorStoreSearchResultsPage,
     },
-    Client, RequestOptions, VectorStoreFileBatches, VectorStoreFiles,
 };
 
 pub struct VectorStores<'c, C: Config> {

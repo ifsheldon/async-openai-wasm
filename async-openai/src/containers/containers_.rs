@@ -1,11 +1,10 @@
 use crate::{
-    Client, RequestOptions,
+    Client, ContainerFiles, RequestOptions,
     config::Config,
     error::OpenAIError,
     types::containers::{
         ContainerListResource, ContainerResource, CreateContainerRequest, DeleteContainerResponse,
     },
-    Client, ContainerFiles, RequestOptions,
 };
 
 pub struct Containers<'c, C: Config> {

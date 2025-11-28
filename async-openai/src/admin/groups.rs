@@ -1,11 +1,11 @@
 use crate::{
+    Client, GroupRoles, GroupUsers, RequestOptions,
     config::Config,
     error::OpenAIError,
     types::admin::groups::{
         CreateGroupBody, GroupDeletedResource, GroupListResource, GroupResourceWithSuccess,
         GroupResponse,
     },
-    Client, GroupRoles, GroupUsers, RequestOptions,
 };
 
 /// Manage reusable collections of users for organization-wide access control and maintain their membership.

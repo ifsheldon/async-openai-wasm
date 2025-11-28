@@ -1,11 +1,11 @@
 use crate::types::{
+    InputSource,
     audio::AudioInput,
     chat::{Prompt, StopConfiguration},
     embeddings::EmbeddingInput,
     files::FileInput,
     moderations::ModerationInput,
     shared::ImageInput,
-    InputSource,
 };
 
 use bytes::Bytes;

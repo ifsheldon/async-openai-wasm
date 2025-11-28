@@ -1,10 +1,10 @@
 use crate::{
+    Client, RequestOptions,
     config::Config,
     error::OpenAIError,
     types::admin::projects::{
         InviteProjectGroupBody, ProjectGroup, ProjectGroupDeletedResource, ProjectGroupListResource,
     },
-    Client, RequestOptions,
 };
 
 /// Manage which groups have access to a project and the role they receive.

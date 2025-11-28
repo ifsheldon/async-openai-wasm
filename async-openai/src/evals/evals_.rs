@@ -1,9 +1,8 @@
 use crate::{
-    Client, RequestOptions,
+    Client, EvalRuns, RequestOptions,
     config::Config,
     error::OpenAIError,
     types::evals::{CreateEvalRequest, DeleteEvalResponse, Eval, EvalList, UpdateEvalRequest},
-    Client, EvalRuns, RequestOptions,
 };
 
 /// Create, manage, and run evals in the OpenAI platform. Related guide:

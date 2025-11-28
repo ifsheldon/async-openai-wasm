@@ -1,9 +1,9 @@
 use crate::{
+    Client, RequestOptions,
     config::Config,
     error::OpenAIError,
     types::admin::groups::{GroupRoleAssignment, PublicAssignOrganizationGroupRoleBody},
     types::admin::roles::{DeletedRoleAssignmentResource, RoleListResource},
-    Client, RequestOptions,
 };
 
 /// Manage role assignments for groups in a project.

@@ -1,6 +1,6 @@
 use crate::{
-    config::Config, AdminAPIKeys, AuditLogs, Certificates, Client, Groups, Invites, Projects,
-    Roles, Usage, Users,
+    AdminAPIKeys, AuditLogs, Certificates, Client, Groups, Invites, Projects, Roles, Usage, Users,
+    config::Config,
 };
 
 /// Admin group for all administration APIs.

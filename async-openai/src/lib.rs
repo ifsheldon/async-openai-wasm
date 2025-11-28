@@ -151,8 +151,6 @@ mod client;
 mod completion;
 pub mod config;
 mod containers;
-mod conversation_items;
-mod conversations;
 mod embedding;
 pub mod error;
 mod evals;

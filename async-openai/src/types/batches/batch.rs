@@ -4,8 +4,8 @@ use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
 use crate::error::OpenAIError;
-use crate::types::batches::ResponseUsage;
 use crate::types::Metadata;
+use crate::types::batches::ResponseUsage;
 
 #[derive(Debug, Serialize, Default, Clone, Builder, PartialEq, Deserialize)]
 #[builder(name = "BatchRequestArgs")]

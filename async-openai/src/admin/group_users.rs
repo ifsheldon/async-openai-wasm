@@ -1,10 +1,10 @@
 use crate::{
+    Client, RequestOptions,
     config::Config,
     error::OpenAIError,
     types::admin::groups::{
         CreateGroupUserBody, GroupUserAssignment, GroupUserDeletedResource, UserListResource,
     },
-    Client, RequestOptions,
 };
 
 /// Manage users within a group, including adding and removing users.

@@ -1,9 +1,9 @@
 use crate::{
+    Client, RequestOptions,
     config::Config,
     error::OpenAIError,
     types::admin::roles::{DeletedRoleAssignmentResource, RoleListResource},
     types::admin::users::{PublicAssignOrganizationUserRoleBody, UserRoleAssignment},
-    Client, RequestOptions,
 };
 
 /// Manage role assignments for users in the organization.

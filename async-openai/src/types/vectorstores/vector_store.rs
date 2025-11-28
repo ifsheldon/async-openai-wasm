@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     error::OpenAIError,
-    types::{vectorstores::Filter, Metadata},
+    types::{Metadata, vectorstores::Filter},
 };
 
 use crate::types::vectorstores::StaticChunkingStrategy;

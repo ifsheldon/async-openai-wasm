@@ -7,11 +7,11 @@ use crate::client::OpenAIEventStream;
 use crate::{
     error::OpenAIError,
     types::{
+        Metadata,
         chat::{
             CompletionTokensDetails, CustomGrammarFormatParam, FunctionCall, FunctionName,
             FunctionObject, ImageUrl, PromptTokensDetails, ReasoningEffort, ResponseFormat,
         },
-        Metadata,
     },
 };
 

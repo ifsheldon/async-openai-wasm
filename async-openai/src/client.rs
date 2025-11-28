@@ -17,7 +17,7 @@ use serde::{Serialize, de::DeserializeOwned};
 use crate::error::{ApiError, StreamError};
 use crate::{
     Assistants, Audio, Batches, Chat, Completions, Containers, Conversations, Embeddings, Evals,
-    FineTuning, Models, RequestOptions, Responses, Threads, Uploads, Usage, VectorStores, Videos,
+    FineTuning, Models, RequestOptions, Responses, Threads, Uploads, VectorStores, Videos,
     admin::Admin,
     chatkit::Chatkit,
     config::{Config, OpenAIConfig},
@@ -26,8 +26,6 @@ use crate::{
     image::Images,
     moderation::Moderations,
     traits::AsyncTryFrom,
-    Assistants, Audio, Batches, Chat, Completions, Containers, Conversations, Embeddings, Evals,
-    FineTuning, Models, RequestOptions, Responses, Threads, Uploads, VectorStores, Videos,
 };
 
 #[cfg(feature = "realtime")]
@@ -470,7 +468,11 @@ impl<C: Config> Client<C> {
     }
 
     /// Make HTTP GET request to receive SSE
-    pub(crate) async fn get_stream<O>(&self, path: &str, request_options: &RequestOptions,) -> OpenAIEventStream<O>
+    pub(crate) async fn get_stream<O>(
+        &self,
+        path: &str,
+        request_options: &RequestOptions,
+    ) -> OpenAIEventStream<O>
     where
         O: DeserializeOwned + Send + 'static,
     {

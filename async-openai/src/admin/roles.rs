@@ -1,11 +1,11 @@
 use crate::{
+    Client, RequestOptions,
     config::Config,
     error::OpenAIError,
     types::admin::roles::{
         PublicCreateOrganizationRoleBody, PublicRoleListResource, PublicUpdateOrganizationRoleBody,
         Role, RoleDeletedResource,
     },
-    Client, RequestOptions,
 };
 
 /// Manage custom roles that can be assigned to groups and users at the organization or project level.

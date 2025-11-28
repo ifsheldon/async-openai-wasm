@@ -1,6 +1,6 @@
 use crate::{
-    assistants::Steps,
     Client, RequestOptions,
+    assistants::Steps,
     config::Config,
     error::OpenAIError,
     types::assistants::{
