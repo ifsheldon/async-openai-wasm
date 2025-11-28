@@ -234,7 +234,7 @@ impl<C: Config> Client<C> {
     where
         O: DeserializeOwned,
     {
-        let request_maker = || async {
+        self.execute(async {
             Ok(self
                 .build_request_builder(reqwest::Method::GET, path, request_options)
                 .build()?)
