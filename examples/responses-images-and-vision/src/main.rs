@@ -1,6 +1,6 @@
 use std::error::Error;
 
-use async_openai::{
+use async_openai_wasm::{
     config::OpenAIConfig,
     types::{
         chat::ImageDetail,

@@ -6,12 +6,12 @@ use async_openai_wasm::types::realtime::{
 };
 use futures_util::{StreamExt, future, pin_mut};
 
-use async_openai::traits::EventType;
 use tokio::io::AsyncReadExt;
 use tokio_tungstenite::{
     connect_async,
     tungstenite::{client::IntoClientRequest, protocol::Message},
 };
+use async_openai_wasm::traits::EventType;
 
 #[tokio::main]
 async fn main() {

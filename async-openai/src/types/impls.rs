@@ -1,5 +1,3 @@
-use std::fmt::Display;
-
 use crate::types::{
     audio::AudioInput,
     chat::{Prompt, StopConfiguration},

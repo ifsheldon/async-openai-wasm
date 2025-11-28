@@ -491,6 +491,8 @@ impl<C: Config> Client<C> {
     }
 }
 
+// TODO: check the implementation of OpenAIEventStream to reflect new changes from #485
+
 /// Request which responds with SSE.
 /// [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#event_stream_format)
 

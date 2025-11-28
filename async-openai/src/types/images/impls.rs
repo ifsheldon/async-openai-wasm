@@ -1,7 +1,4 @@
-use std::{
-    fmt::Display,
-    path::{Path, PathBuf},
-};
+use std::fmt::Display;
 
 use crate::types::images::{
     DallE2ImageSize, ImageBackground, ImageEditInput, ImageInput, ImageModel, ImageOutputFormat,
@@ -143,80 +140,5 @@ impl From<ImageInput> for ImageEditInput {
 impl From<Vec<ImageInput>> for ImageEditInput {
     fn from(value: Vec<ImageInput>) -> Self {
         Self::Images(value)
-    }
-}
-
-// Single path-like values
-impl From<&str> for ImageEditInput {
-    fn from(value: &str) -> Self {
-        Self::Image(value.into())
-    }
-}
-
-impl From<String> for ImageEditInput {
-    fn from(value: String) -> Self {
-        Self::Image(value.into())
-    }
-}
-
-impl From<&Path> for ImageEditInput {
-    fn from(value: &Path) -> Self {
-        Self::Image(value.into())
-    }
-}
-
-impl From<PathBuf> for ImageEditInput {
-    fn from(value: PathBuf) -> Self {
-        Self::Image(value.into())
-    }
-}
-
-// Arrays of path-like values
-impl<const N: usize> From<[&str; N]> for ImageEditInput {
-    fn from(value: [&str; N]) -> Self {
-        Self::Images(value.into_iter().map(ImageInput::from).collect())
-    }
-}
-
-impl<const N: usize> From<[String; N]> for ImageEditInput {
-    fn from(value: [String; N]) -> Self {
-        Self::Images(value.into_iter().map(ImageInput::from).collect())
-    }
-}
-
-impl<const N: usize> From<[&Path; N]> for ImageEditInput {
-    fn from(value: [&Path; N]) -> Self {
-        Self::Images(value.into_iter().map(ImageInput::from).collect())
-    }
-}
-
-impl<const N: usize> From<[PathBuf; N]> for ImageEditInput {
-    fn from(value: [PathBuf; N]) -> Self {
-        Self::Images(value.into_iter().map(ImageInput::from).collect())
-    }
-}
-
-// Vectors of path-like values
-impl<'a> From<Vec<&'a str>> for ImageEditInput {
-    fn from(value: Vec<&'a str>) -> Self {
-        Self::Images(value.into_iter().map(ImageInput::from).collect())
-    }
-}
-
-impl From<Vec<String>> for ImageEditInput {
-    fn from(value: Vec<String>) -> Self {
-        Self::Images(value.into_iter().map(ImageInput::from).collect())
-    }
-}
-
-impl From<Vec<&Path>> for ImageEditInput {
-    fn from(value: Vec<&Path>) -> Self {
-        Self::Images(value.into_iter().map(ImageInput::from).collect())
-    }
-}
-
-impl From<Vec<PathBuf>> for ImageEditInput {
-    fn from(value: Vec<PathBuf>) -> Self {
-        Self::Images(value.into_iter().map(ImageInput::from).collect())
     }
 }
