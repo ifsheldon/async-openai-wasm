@@ -1,6 +1,6 @@
 [package]
 name = "async-openai-wasm"
-version = "0.31.1"
+version = "0.31.2"
 authors = [
     "Contributors of the async-openai crate",
     "ifsheldon <async_openai_wasm@reify.ing>"
@@ -26,7 +26,7 @@ native-tls = ["dep:reqwest", "reqwest/native-tls"]
 # Remove dependency on OpenSSL
 native-tls-vendored = ["dep:reqwest", "reqwest/native-tls-vendored"]
 # Bring your own types
-byot = ["dep:async-openai-macros"]
+byot = ["dep:async-openai-wasm-macros"]
 
 # API feature flags - these enable both the API wrapper and types
 responses = ["response-types", "_api"]
@@ -133,7 +133,7 @@ full = [
 
 # Internal feature to enable API dependencies
 _api = [
-    "dep:async-openai-macros",
+    "dep:async-openai-wasm-macros",
     "dep:base64",
     "dep:bytes",
     "dep:futures",
@@ -159,7 +159,7 @@ bytes = { version = "1.11", optional = true }
 
 # API dependencies - only needed when API features are enabled
 # We use a feature gate to enable these when any API feature is enabled
-async-openai-macros = { path = "../async-openai-macros", version = "0.1.0", optional = true }
+async-openai-wasm-macros = { path = "../async-openai-macros", version = "0.1.0", optional = true }
 base64 = { version = "0.22", optional = true }
 futures = { version = "0.3", optional = true }
 reqwest = { version = "0.12", features = [

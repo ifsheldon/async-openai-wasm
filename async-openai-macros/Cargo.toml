@@ -1,13 +1,16 @@
 [package]
-name = "async-openai-macros"
+name = "async-openai-wasm-macros"
 version = "0.1.0"
-authors = ["Himanshu Neema"]
+authors = [
+    "Contributors of the async-openai crate",
+    "ifsheldon <async_openai_wasm@reify.ing>"
+]
 keywords = ["openai", "macros", "ai"]
-description = "Macros for async-openai"
+description = "Macros for async-openai-wasm"
 edition = "2024"
 license = "MIT"
-homepage = "https://github.com/64bit/async-openai"
-repository = "https://github.com/64bit/async-openai"
+homepage = "https://github.com/ifsheldon/async-openai-wasm"
+repository = "https://github.com/ifsheldon/async-openai-wasm"
 rust-version = { workspace = true }
 
 [lib]
