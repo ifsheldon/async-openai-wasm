@@ -36,7 +36,6 @@ pub struct SpeechAudioDoneEvent {
     pub usage: SpeechUsage,
 }
 
-
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct TranscriptionTextSegmentEvent {
     /// Unique identifier for the segment.
@@ -100,7 +99,7 @@ pub type TranscriptionResponseStream =
 /// Stream of response events
 #[cfg(feature = "_api")]
 /// Stream of response events
-pub type SpeechResponseStream = OpenAIEventStream<CreateSpeechResponseStreamEvent>;
+pub type SpeechResponseStream = crate::client::OpenAIEventStream<CreateSpeechResponseStreamEvent>;
 
 #[cfg(feature = "_api")]
 macro_rules! impl_event_type {

@@ -1,8 +1,5 @@
 #[derive(Debug, Clone, PartialEq)]
 pub enum InputSource {
-    Path {
-        path: std::path::PathBuf,
-    },
     Bytes {
         filename: String,
         bytes: bytes::Bytes,
@@ -15,8 +12,9 @@ pub enum InputSource {
 
 impl Default for InputSource {
     fn default() -> Self {
-        InputSource::Path {
-            path: std::path::PathBuf::new(),
+        InputSource::VecU8 {
+            filename: String::default(),
+            vec: Vec::new(),
         }
     }
 }

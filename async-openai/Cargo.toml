@@ -119,6 +119,7 @@ _api = [
     "dep:eventsource-stream",
     "dep:serde_urlencoded",
     "dep:url",
+    "dep:pin-project"
 ]
 
 
@@ -131,7 +132,7 @@ bytes = { version = "1.9.0", optional = true }
 
 # API dependencies - only needed when API features are enabled
 # We use a feature gate to enable these when any API feature is enabled
-async-openai-macros = { path = "../async-openai-macros", version = "0.1.0" }
+async-openai-macros = { path = "../async-openai-macros", version = "0.1.0", optional = true }
 base64 = { version = "0.22.1", optional = true }
 futures = { version = "0.3.31", optional = true }
 reqwest = { version = "0.12.12", features = [
@@ -166,10 +167,6 @@ serde_json = "1.0"
 [[test]]
 name = "bring_your_own_type"
 required-features = ["byot", "file", "assistant", "model", "moderation", "image", "chat-completion", "completions", "audio", "embedding", "finetuning", "batch", "administration", "upload", "vectorstore", "responses", "chatkit", "container", "evals", "video"]
-
-[[test]]
-name = "boxed_future"
-required-features = ["completions", "chat-completion-types"]
 
 [[test]]
 name = "chat_completion"

@@ -537,8 +537,7 @@ pub struct ResponseErrorEvent {
 
 /// Stream of response events
 #[cfg(feature = "_api")]
-pub type ResponseStream = OpenAIEventStream<ResponseStreamEvent>;
-
+pub type ResponseStream = crate::client::OpenAIEventStream<ResponseStreamEvent>;
 
 // Implement EventType trait for all event types in this file
 #[cfg(feature = "_api")]

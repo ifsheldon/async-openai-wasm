@@ -3,7 +3,6 @@ use std::collections::HashMap;
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
-use crate::client::OpenAIEventStream;
 use crate::{
     error::OpenAIError,
     types::{
@@ -1115,7 +1114,8 @@ pub struct CreateChatCompletionResponse {
 
 /// Parsed server side events stream until an \[DONE\] is received from server.
 #[cfg(feature = "_api")]
-pub type ChatCompletionResponseStream = OpenAIEventStream<CreateChatCompletionStreamResponse>;
+pub type ChatCompletionResponseStream =
+    crate::client::OpenAIEventStream<CreateChatCompletionStreamResponse>;
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct FunctionCallStream {

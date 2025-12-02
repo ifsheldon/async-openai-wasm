@@ -1,3 +1,9 @@
+#[cfg(any(
+    feature = "audio-types",
+    feature = "file-types",
+    feature = "image-types"
+))]
+use crate::types::InputSource;
 #[cfg(feature = "audio-types")]
 use crate::types::audio::AudioInput;
 #[cfg(any(feature = "chat-completion-types", feature = "completion-types"))]
@@ -10,12 +16,6 @@ use crate::types::files::FileInput;
 use crate::types::moderations::ModerationInput;
 #[cfg(feature = "image-types")]
 use crate::types::shared::ImageInput;
-#[cfg(any(
-    feature = "audio-types",
-    feature = "file-types",
-    feature = "image-types"
-))]
-use crate::types::InputSource;
 
 /// for `impl_from!(T, Enum)`, implements
 /// - `From<T>`

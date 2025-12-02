@@ -16,22 +16,12 @@ use serde::{Serialize, de::DeserializeOwned};
 
 use crate::error::{ApiError, StreamError};
 use crate::{
+    RequestOptions,
     config::{Config, OpenAIConfig},
     error::{OpenAIError, WrappedError, map_deserialization_error},
     traits::AsyncTryFrom,
-    RequestOptions,
 };
 
-#[cfg(feature = "administration")]
-use crate::admin::Admin;
-#[cfg(feature = "chatkit")]
-use crate::chatkit::Chatkit;
-#[cfg(feature = "file")]
-use crate::file::Files;
-#[cfg(feature = "image")]
-use crate::image::Images;
-#[cfg(feature = "moderation")]
-use crate::moderation::Moderations;
 #[cfg(feature = "assistant")]
 use crate::Assistants;
 #[cfg(feature = "audio")]
@@ -66,6 +56,16 @@ use crate::Uploads;
 use crate::VectorStores;
 #[cfg(feature = "video")]
 use crate::Videos;
+#[cfg(feature = "administration")]
+use crate::admin::Admin;
+#[cfg(feature = "chatkit")]
+use crate::chatkit::Chatkit;
+#[cfg(feature = "file")]
+use crate::file::Files;
+#[cfg(feature = "image")]
+use crate::image::Images;
+#[cfg(feature = "moderation")]
+use crate::moderation::Moderations;
 
 #[derive(Debug, Clone)]
 /// Client is a container for config and http_client

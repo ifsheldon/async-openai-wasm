@@ -105,7 +105,7 @@ pub enum AssistantStreamEvent {
 }
 
 #[cfg(feature = "_api")]
-pub type AssistantEventStream = OpenAIEventStream<AssistantStreamEvent>;
+pub type AssistantEventStream = crate::client::OpenAIEventStream<AssistantStreamEvent>;
 
 #[cfg(feature = "_api")]
 impl TryFrom<eventsource_stream::Event> for AssistantStreamEvent {

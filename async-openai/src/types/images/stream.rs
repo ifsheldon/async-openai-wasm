@@ -103,11 +103,10 @@ pub enum ImageEditStreamEvent {
 }
 
 #[cfg(feature = "_api")]
-pub type ImageEditStream = OpenAIFormEventStream<ImageEditStreamEvent>;
+pub type ImageEditStream = crate::client::OpenAIFormEventStream<ImageEditStreamEvent>;
 
 #[cfg(feature = "_api")]
-pub type ImageGenStream = OpenAIEventStream<ImageGenStreamEvent>;
-
+pub type ImageGenStream = crate::client::OpenAIEventStream<ImageGenStreamEvent>;
 
 #[cfg(feature = "_api")]
 macro_rules! impl_event_type {
