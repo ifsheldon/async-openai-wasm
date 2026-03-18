@@ -40,10 +40,12 @@ pub struct UserMessageContentInputAudio {
     /// Base64-encoded audio bytes (for `input_audio`), these will be parsed as the
     /// format specified in the session input audio type configuration.
     /// This defaults to PCM 16-bit 24kHz mono if not specified.
-    pub audio: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub audio: Option<String>,
     /// Transcript of the audio (for `input_audio`). This is not sent to the model,
     /// but will be attached to the message item for reference.
-    pub transcript: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub transcript: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
